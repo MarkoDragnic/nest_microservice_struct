@@ -1,0 +1,9 @@
+{
+  "name": "price_calculator",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "node-object-hash": "^3.1.1",
+    "trading-signals": "^7.4.2"
+  }
+}

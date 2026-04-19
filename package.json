@@ -1,0 +1,127 @@
+{
+  "name": "microservices",
+  "version": "0.0.1",
+  "description": "Algorithmic-trading platform built with NestJS microservices, TypeORM, Mongoose, Kafka, and Redis",
+  "author": "Marko Dragnic",
+  "private": true,
+  "license": "MIT",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "nest build",
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug:price_calculator": "nest start price_calculator --debug 0.0.0.0:9230 --watch",
+    "start:debug:indicators": "nest start indicators --debug 0.0.0.0:9231 --watch",
+    "start:debug:history_provider": "nest start history_provider --debug 0.0.0.0:9232 --watch",
+    "start:debug:auth": "nest start auth --debug 0.0.0.0:9233 --watch",
+    "start:debug:gateway": "nest start gateway --debug 0.0.0.0:9234 --watch",
+    "start:debug:robots": "nest start robots --debug 0.0.0.0:9235 --watch",
+    "start:debug:trader": "nest start trader --debug 0.0.0.0:9236 --watch",
+    "start:debug:positions": "nest start positions --debug 0.0.0.0:9237 --watch",
+    "start:debug:accounts": "nest start accounts --debug 0.0.0.0:9238 --watch",
+    "start:debug:notifications": "nest start notifications --debug 0.0.0.0:9239 --watch",
+    "start:debug:pg_write": "nest start pg_write --debug 0.0.0.0:9240 --watch",
+    "start:debug:pg_read": "nest start pg_read --debug 0.0.0.0:9241 --watch",
+    "start:prod": "node dist/apps/gateway/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./apps/gateway/test/jest-e2e.json",
+    "typeorm": "node -r ts-node/register/transpile-only -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "migration:show": "npm run -s typeorm -- -d libs/common/src/database/postgresql/typeorm-cli.datasource.ts migration:show",
+    "migration:run": "npm run -s typeorm -- -d libs/common/src/database/postgresql/typeorm-cli.datasource.ts migration:run",
+    "migration:revert": "npm run -s typeorm -- -d libs/common/src/database/postgresql/typeorm-cli.datasource.ts migration:revert",
+    "migration:generate": "npm run -s typeorm -- -d libs/common/src/database/postgresql/typeorm-cli.datasource.ts migration:generate"
+  },
+  "config": {
+    "typeormEnvFile": "libs/common/.env"
+  },
+  "dependencies": {
+    "@nest-lab/throttler-storage-redis": "^1.2.0",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/microservices": "^11.1.10",
+    "@nestjs/mongoose": "^11.0.4",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/swagger": "^11.2.7",
+    "@nestjs/terminus": "^11.1.1",
+    "@nestjs/throttler": "^6.5.0",
+    "@nestjs/typeorm": "^11.0.0",
+    "@types/ws": "^8.18.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
+    "express-rate-limit": "^8.3.2",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.8.2",
+    "joi": "^18.0.2",
+    "kafkajs": "^2.2.4",
+    "mongoose": "^9.0.2",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "pg": "^8.17.2",
+    "prom-client": "^15.1.3",
+    "rate-limit-redis": "^4.3.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.28",
+    "ws": "^8.20.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.18.0",
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/testing": "^11.0.1",
+    "@types/bull": "^3.15.9",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.10.7",
+    "@types/supertest": "^6.0.2",
+    "dotenv": "^16.4.7",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
+    "globals": "^16.0.0",
+    "jest": "^30.0.0",
+    "prettier": "^3.4.2",
+    "source-map-support": "^0.5.21",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-loader": "^9.5.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": ".",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "tsconfig.spec.json" }]
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/libs/",
+      "<rootDir>/apps/"
+    ],
+    "moduleNameMapper": {
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
+    }
+  }
+}

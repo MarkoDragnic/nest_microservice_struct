@@ -1,0 +1,15 @@
+{
+  "name": "auth",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@nestjs/platform-express": "^11.0.1",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/passport-local": "^1.0.38",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "passport-local": "^1.0.0"
+  }
+}

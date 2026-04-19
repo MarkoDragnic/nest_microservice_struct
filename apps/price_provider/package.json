@@ -1,0 +1,10 @@
+{
+  "name": "price_provider",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "uuid": "^11.1.0",
+    "ws": "^8.18.2",
+    "@types/ws": "^8.5.14"
+  }
+}

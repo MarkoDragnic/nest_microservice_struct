@@ -1,0 +1,11 @@
+{
+  "name": "gateway",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@nestjs/platform-express": "^11.0.1",
+    "@types/cookie-parser": "^1.4.10",
+    "cookie-parser": "^1.4.7",
+    "http-proxy-middleware": "^3.0.5"
+  }
+}

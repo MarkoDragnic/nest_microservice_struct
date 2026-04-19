@@ -1,0 +1,210 @@
+services:
+
+  gateway:
+    build:
+      context: .
+      dockerfile: apps/gateway/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/gateway/.env
+    environment:
+      AUTH_HTTP_HOST: auth
+      AUTH_TCP_HOST: auth
+      AUTH_CLIENT_HOST: auth
+      ROBOTS_CLIENT_HOST: robots
+      ACCOUNTS_CLIENT_HOST: accounts
+      PG_READ_CLIENT_HOST: pg_read
+    ports:
+      - "4040:4040"
+    depends_on:
+      - auth
+      - robots
+      - accounts
+      - pg_read
+    networks:
+      - microservices
+
+  auth:
+    build:
+      context: .
+      dockerfile: apps/auth/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/auth/.env
+    environment:
+      AUTH_TCP_HOST: 0.0.0.0
+      PG_WRITE_TCP_HOST: pg_write
+      PG_READ_TCP_HOST: pg_read
+    depends_on:
+      - pg_write
+      - pg_read
+    networks:
+      - microservices
+
+  accounts:
+    build:
+      context: .
+      dockerfile: apps/accounts/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/accounts/.env
+    environment:
+      ACCOUNT_TCP_HOST: 0.0.0.0
+      PG_WRITE_TCP_HOST: pg_write
+    depends_on:
+      - pg_write
+    networks:
+      - microservices
+
+  robots:
+    build:
+      context: .
+      dockerfile: apps/robots/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/robots/.env
+    environment:
+      ROBOTS_TCP_HOST: 0.0.0.0
+      PG_WRITE_TCP_HOST: pg_write
+      PG_READ_TCP_HOST: pg_read
+    depends_on:
+      - pg_write
+      - pg_read
+    networks:
+      - microservices
+
+  positions:
+    build:
+      context: .
+      dockerfile: apps/positions/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/positions/.env
+    environment:
+      POSITION_TCP_HOST: 0.0.0.0
+      PG_WRITE_TCP_HOST: pg_write
+      PG_READ_TCP_HOST: pg_read
+    depends_on:
+      - pg_write
+      - pg_read
+    networks:
+      - microservices
+
+  trader:
+    build:
+      context: .
+      dockerfile: apps/trader/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/trader/.env
+    environment:
+      POSITION_CLIENT_HOST: positions
+      ACCOUNT_CLIENT_HOST: accounts
+      PG_READ_TCP_HOST: pg_read
+    depends_on:
+      - positions
+      - accounts
+      - pg_read
+    networks:
+      - microservices
+
+  pg_write:
+    build:
+      context: .
+      dockerfile: apps/pg_write/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/pg_write/.env
+    environment:
+      PG_WRITE_TCP_HOST: 0.0.0.0
+    networks:
+      - microservices
+
+  pg_read:
+    build:
+      context: .
+      dockerfile: apps/pg_read/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/pg_read/.env
+    environment:
+      PG_READ_TCP_HOST: 0.0.0.0
+    networks:
+      - microservices
+
+  history_provider:
+    build:
+      context: .
+      dockerfile: apps/history_provider/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/history_provider/.env
+    environment:
+      HISTORY_TCP_HOST: 0.0.0.0
+    networks:
+      - microservices
+
+  indicators:
+    build:
+      context: .
+      dockerfile: apps/indicators/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/indicators/.env
+    environment:
+      INDICATORS_TCP_HOST: 0.0.0.0
+      HISTORY_CLIENT_HOST: history_provider
+    depends_on:
+      - history_provider
+    networks:
+      - microservices
+
+  price_calculator:
+    build:
+      context: .
+      dockerfile: apps/price_calculator/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/price_calculator/.env
+    networks:
+      - microservices
+
+  notifications:
+    build:
+      context: .
+      dockerfile: apps/notifications/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/notifications/.env
+    networks:
+      - microservices
+
+  price_provider:
+    build:
+      context: .
+      dockerfile: apps/price_provider/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/price_provider/.env
+    environment:
+      PRICE_PROVIDER_TCP_HOST: 0.0.0.0
+      PRICE_PROVIDER_TCP_PORT: 30015
+    networks:
+      - microservices
+
+networks:
+  microservices:
+    driver: bridge

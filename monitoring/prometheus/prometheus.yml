@@ -1,0 +1,69 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: gateway
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["gateway:4040"]
+
+  - job_name: auth
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["auth:4030"]
+
+  - job_name: pg_write
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["pg_write:9001"]
+
+  - job_name: pg_read
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["pg_read:9002"]
+
+  - job_name: accounts
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["accounts:9003"]
+
+  - job_name: robots
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["robots:9004"]
+
+  - job_name: positions
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["positions:9005"]
+
+  - job_name: trader
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["trader:9006"]
+
+  - job_name: indicators
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["indicators:9007"]
+
+  - job_name: notifications
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["notifications:9008"]
+
+  - job_name: price_calculator
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["price_calculator:9009"]
+
+  - job_name: price_provider
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["price_provider:9010"]
+
+  - job_name: history_provider
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["history_provider:9011"]

@@ -1,0 +1,34 @@
+import { Global, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import path from 'path';
+import Joi from 'joi';
+import { CommonLibsModule, DatabasePostgresqlModule, HealthModule, LoggerModule, internalRpcSchema } from '@app/common';
+import { WriteAccountsModule } from './write-accounts/write-accounts.module';
+import { WriteRobotsModule } from './write-robots/write-robots.module';
+import { WritePositionsModule } from './write-positions/write-positions.module';
+import { WriteFundsModule } from './write-funds/write-funds.module';
+import { WriteUserModule } from './write-user/write-user.module';
+
+@Module({
+  imports: [
+    HealthModule.register(),
+    LoggerModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [path.resolve(process.cwd(), 'apps/pg_write/.env')],
+      validationSchema: Joi.object({
+        ...internalRpcSchema,
+        PG_WRITE_TCP_HOST: Joi.string().required(),
+        PG_WRITE_TCP_PORT: Joi.string().required(),
+      }),
+    }),
+    CommonLibsModule,
+    DatabasePostgresqlModule,
+    WriteAccountsModule,
+    WriteRobotsModule,
+    WritePositionsModule,
+    WriteFundsModule,
+    WriteUserModule,
+  ],
+})
+export class PgWriteModule {}

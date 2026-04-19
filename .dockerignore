@@ -1,0 +1,40 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Git
+.git
+.gitignore
+
+# Environment files — never bake secrets into images
+.env
+**/.env
+.env.*
+
+# Docker files — don't copy into the image
+Dockerfile
+**/Dockerfile
+docker-compose*.yml
+
+# Test files
+**/*.spec.ts
+**/*.e2e-spec.ts
+**/test/
+jest*.json
+**/jest*.json
+
+# Documentation
+*.md
+**/*.md
+
+# Editor / OS
+.vscode
+.idea
+*.DS_Store
+*.swp
+
+# CI/CD
+.github
+.gitlab-ci.yml

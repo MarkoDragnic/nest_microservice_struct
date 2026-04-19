@@ -1,0 +1,12 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "apps/gateway/tsconfig.e2e.json" }]
+  },
+  "moduleNameMapper": {
+    "^@app/common(|/.*)$": "<rootDir>/../../libs/common/src/$1"
+  }
+}

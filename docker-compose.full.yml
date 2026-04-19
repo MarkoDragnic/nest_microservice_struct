@@ -1,0 +1,602 @@
+x-common-env: &common-env
+  MONGODB_LOGGER_URI: mongodb://mongo:27017/logs
+
+x-postgres-env: &postgres-env
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: 5432
+  POSTGRES_DB: app_db
+  POSTGRES_USER: app_user
+  POSTGRES_PASSWORD: app_password
+  POSTGRES_SSL: "false"
+  POSTGRES_SYNCHRONIZE: "false"
+  POSTGRES_MIGRATIONS_RUN: "false"
+
+x-redis-env: &redis-env
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  REDIS_USER: ""
+  REDIS_PASSWORD: app_redis_password
+
+x-kafka-env: &kafka-env
+  KAFKA_BROKERS: kafka:29092
+
+x-internal-rpc-env: &internal-rpc-env
+  INTERNAL_RPC_TOKEN: local-cluster-rpc-token
+
+x-metrics-env: &metrics-env
+  METRICS_PORT: 9100
+
+services:
+
+  # ─── Infrastructure ───────────────────────────────────────────────
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: app_password
+      POSTGRES_DB: app_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app_user -d app_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - microservices
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "app_redis_password"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "app_redis_password", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - microservices
+
+  mongo:
+    image: mongo:8
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+    networks:
+      - microservices
+
+  # Kafka 4.x in KRaft mode — Zookeeper fully removed since 4.0.
+  # Official Apache image, single-node broker+controller combined.
+  kafka:
+    image: apache/kafka:4.0.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://:29092,EXTERNAL://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:29092 --list"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 20s
+    networks:
+      - microservices
+
+  # One-shot job: creates all required topics after Kafka is healthy.
+  # candle.price      – price_calculator → indicators
+  # indicator.trigger – indicators       → trader
+  # notification.send – positions        → notifications
+  kafka-init:
+    image: apache/kafka:4.0.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists \
+          --topic candle.price --partitions 3 --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists \
+          --topic indicator.trigger --partitions 3 --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists \
+          --topic notification.send --partitions 1 --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists \
+          --topic candle.price.dlq --partitions 1 --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists \
+          --topic indicator.trigger.dlq --partitions 1 --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists \
+          --topic notification.send.dlq --partitions 1 --replication-factor 1
+        echo "Kafka topics created."
+    networks:
+      - microservices
+    restart: "no"
+
+  # ─── Application services ─────────────────────────────────────────
+
+  pg_write:
+    build:
+      context: .
+      dockerfile: apps/pg_write/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/pg_write/.env
+    environment:
+      <<: [*common-env, *postgres-env, *internal-rpc-env]
+      PG_WRITE_TCP_HOST: 0.0.0.0
+      POSTGRES_MIGRATIONS_RUN: "true"
+      METRICS_PORT: 9001
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck-tcp.js", "0.0.0.0", "30006"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    networks:
+      - microservices
+
+  pg_read:
+    build:
+      context: .
+      dockerfile: apps/pg_read/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/pg_read/.env
+    environment:
+      <<: [*common-env, *postgres-env, *internal-rpc-env]
+      PG_READ_TCP_HOST: 0.0.0.0
+      METRICS_PORT: 9002
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck-tcp.js", "0.0.0.0", "30007"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      pg_write:
+        condition: service_healthy
+    networks:
+      - microservices
+
+  auth:
+    build:
+      context: .
+      dockerfile: apps/auth/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/auth/.env
+    environment:
+      <<: [*common-env, *postgres-env, *redis-env, *internal-rpc-env]
+      AUTH_TCP_HOST: 0.0.0.0
+      PG_WRITE_TCP_HOST: pg_write
+      PG_READ_TCP_HOST: pg_read
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const h=require('http');h.get('http://0.0.0.0:4030/health',r=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      pg_write:
+        condition: service_healthy
+      pg_read:
+        condition: service_healthy
+    networks:
+      - microservices
+
+  accounts:
+    build:
+      context: .
+      dockerfile: apps/accounts/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/accounts/.env
+    environment:
+      <<: [*common-env, *postgres-env, *internal-rpc-env]
+      ACCOUNT_TCP_HOST: 0.0.0.0
+      PG_WRITE_TCP_HOST: pg_write
+      METRICS_PORT: 9003
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck-tcp.js", "0.0.0.0", "30005"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      pg_write:
+        condition: service_healthy
+    networks:
+      - microservices
+
+  robots:
+    build:
+      context: .
+      dockerfile: apps/robots/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/robots/.env
+    environment:
+      <<: [*common-env, *postgres-env, *redis-env, *kafka-env, *internal-rpc-env]
+      ROBOTS_TCP_HOST: 0.0.0.0
+      PG_WRITE_TCP_HOST: pg_write
+      PG_READ_TCP_HOST: pg_read
+      METRICS_PORT: 9004
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck-tcp.js", "0.0.0.0", "30001"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      pg_write:
+        condition: service_healthy
+      pg_read:
+        condition: service_healthy
+    networks:
+      - microservices
+
+  positions:
+    build:
+      context: .
+      dockerfile: apps/positions/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/positions/.env
+    environment:
+      <<: [*common-env, *postgres-env, *kafka-env, *internal-rpc-env]
+      INSTANCE_ID: positions-service-1
+      KAFKA_CONSUMER_GROUP: positions-consumer
+      POSITION_TCP_HOST: 0.0.0.0
+      PG_WRITE_TCP_HOST: pg_write
+      PG_READ_TCP_HOST: pg_read
+      METRICS_PORT: 9005
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck-tcp.js", "0.0.0.0", "30004"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      pg_write:
+        condition: service_healthy
+      pg_read:
+        condition: service_healthy
+    networks:
+      - microservices
+
+  trader:
+    build:
+      context: .
+      dockerfile: apps/trader/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/trader/.env
+    environment:
+      <<: [*common-env, *postgres-env, *redis-env, *kafka-env, *internal-rpc-env]
+      INSTANCE_ID: trader-service-1
+      KAFKA_CONSUMER_GROUP: trader-consumer
+      POSITION_CLIENT_HOST: positions
+      ACCOUNT_CLIENT_HOST: accounts
+      PG_READ_TCP_HOST: pg_read
+      TRADER_TCP_HOST: 0.0.0.0
+      TRADER_TCP_PORT: 30010
+      METRICS_PORT: 9006
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck-tcp.js", "0.0.0.0", "30010"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      positions:
+        condition: service_healthy
+      accounts:
+        condition: service_healthy
+      pg_read:
+        condition: service_healthy
+    networks:
+      - microservices
+
+  history_provider:
+    build:
+      context: .
+      dockerfile: apps/history_provider/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/history_provider/.env
+    environment:
+      <<: [*common-env, *postgres-env, *internal-rpc-env]
+      MONGODB_URI: mongodb://mongo:27017/
+      HISTORY_TCP_HOST: 0.0.0.0
+      METRICS_PORT: 9011
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck-tcp.js", "0.0.0.0", "30003"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      mongo:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+    networks:
+      - microservices
+
+  indicators:
+    build:
+      context: .
+      dockerfile: apps/indicators/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/indicators/.env
+    environment:
+      <<: [*common-env, *postgres-env, *redis-env, *kafka-env, *internal-rpc-env]
+      INSTANCE_ID: indicators-service-1
+      KAFKA_CONSUMER_GROUP: indicators-consumer
+      MONGODB_URI: mongodb://mongo:27017/
+      INDICATORS_TCP_HOST: 0.0.0.0
+      HISTORY_CLIENT_HOST: history_provider
+      METRICS_PORT: 9007
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck-tcp.js", "0.0.0.0", "30002"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      history_provider:
+        condition: service_healthy
+    networks:
+      - microservices
+
+  price_calculator:
+    build:
+      context: .
+      dockerfile: apps/price_calculator/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/price_calculator/.env
+    environment:
+      <<: [*common-env, *postgres-env, *redis-env, *kafka-env, *internal-rpc-env]
+      INSTANCE_ID: calculator-service-1
+      KAFKA_CONSUMER_GROUP: calculator-consumer
+      MONGODB_URI: mongodb://mongo:27017/
+      CALCULATOR_TCP_PORT: 30012
+      CALCULATOR_TCP_HOST: 0.0.0.0
+      METRICS_PORT: 9009
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck-tcp.js", "0.0.0.0", "30012"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - microservices
+
+  notifications:
+    build:
+      context: .
+      dockerfile: apps/notifications/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/notifications/.env
+    environment:
+      <<: [*common-env, *postgres-env, *redis-env, *kafka-env, *internal-rpc-env]
+      INSTANCE_ID: notifications-service-1
+      KAFKA_CONSUMER_GROUP: notifications-consumer
+      MONGODB_URI: mongodb://mongo:27017/notifications
+      NOTIFICATION_TCP_HOST: 0.0.0.0
+      NOTIFICATION_TCP_PORT: 30011
+      METRICS_PORT: 9008
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck-tcp.js", "0.0.0.0", "30011"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - microservices
+
+  gateway:
+    build:
+      context: .
+      dockerfile: apps/gateway/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/gateway/.env
+    environment:
+      <<: [*common-env, *postgres-env, *redis-env, *internal-rpc-env]
+      AUTH_HTTP_HOST: auth
+      AUTH_TCP_HOST: auth
+      AUTH_CLIENT_HOST: auth
+      ROBOTS_CLIENT_HOST: robots
+      ACCOUNTS_CLIENT_HOST: accounts
+      PG_READ_CLIENT_HOST: pg_read
+    ports:
+      - "4040:4040"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const h=require('http');h.get('http://0.0.0.0:4040/health',r=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
+      robots:
+        condition: service_healthy
+      accounts:
+        condition: service_healthy
+      pg_read:
+        condition: service_healthy
+    networks:
+      - microservices
+
+  price_provider:
+    build:
+      context: .
+      dockerfile: apps/price_provider/Dockerfile
+      target: development
+    env_file:
+      - ./libs/common/.env
+      - ./apps/price_provider/.env
+    environment:
+      <<: [*common-env, *redis-env, *internal-rpc-env]
+      PRICE_PROVIDER_TCP_HOST: 0.0.0.0
+      PRICE_PROVIDER_TCP_PORT: 30015
+      METRICS_PORT: 9010
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck-tcp.js", "0.0.0.0", "30015"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    networks:
+      - microservices
+
+  # ─── Monitoring ────────────────────────────────────────────────────
+
+  prometheus:
+    image: prom/prometheus:v3.4.0
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/healthy || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - microservices
+
+  grafana:
+    image: grafana/grafana:11.6.0
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "3001:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    networks:
+      - microservices
+
+networks:
+  microservices:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: local_postgres_data
+  redis_data:
+    name: local_redis_data
+  mongo_data:
+    name: local_mongo_data
+  prometheus_data:
+    name: local_prometheus_data
+  grafana_data:
+    name: local_grafana_data
