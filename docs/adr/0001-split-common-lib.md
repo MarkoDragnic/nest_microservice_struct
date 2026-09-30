@@ -29,6 +29,8 @@ Split common into smaller libs:
 
 Services import only what they use. No more single barrel.
 
+The JWT and robot ownership guards only serve gateway, so they move into gateway instead of a shared lib. Code with one user doesn't need to be shared.
+
 Entities stay inside `pg_read` and `pg_write`. Everyone else gets contract types, and the data services map entities to them before responding. I'll add a lint rule so nobody (me included) imports `postgres` from somewhere else by accident.
 
 Dockerfiles copy only the libs each service needs, and CI builds only what changed.
