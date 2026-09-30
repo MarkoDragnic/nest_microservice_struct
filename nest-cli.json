@@ -35,6 +35,60 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
+    "contracts": {
+      "type": "library",
+      "root": "libs/contracts",
+      "entryFile": "index",
+      "sourceRoot": "libs/contracts/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/contracts/tsconfig.lib.json"
+      }
+    },
+    "core": {
+      "type": "library",
+      "root": "libs/core",
+      "entryFile": "index",
+      "sourceRoot": "libs/core/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/core/tsconfig.lib.json"
+      }
+    },
+    "messaging": {
+      "type": "library",
+      "root": "libs/messaging",
+      "entryFile": "index",
+      "sourceRoot": "libs/messaging/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/messaging/tsconfig.lib.json"
+      }
+    },
+    "redis": {
+      "type": "library",
+      "root": "libs/redis",
+      "entryFile": "index",
+      "sourceRoot": "libs/redis/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/redis/tsconfig.lib.json"
+      }
+    },
+    "postgres": {
+      "type": "library",
+      "root": "libs/postgres",
+      "entryFile": "index",
+      "sourceRoot": "libs/postgres/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/postgres/tsconfig.lib.json"
+      }
+    },
+    "mongo": {
+      "type": "library",
+      "root": "libs/mongo",
+      "entryFile": "index",
+      "sourceRoot": "libs/mongo/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/mongo/tsconfig.lib.json"
+      }
+    },
     "gateway": {
       "type": "application",
       "root": "apps/gateway",
