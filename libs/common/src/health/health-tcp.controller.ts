@@ -1,6 +1,6 @@
 import { Controller, UseFilters, UseGuards } from '@nestjs/common';
 import { MessagePattern, Transport } from '@nestjs/microservices';
-import { TCP_EVENTS } from '../tcp/tcp-events';
+import { TCP_EVENTS } from '@app/contracts/tcp';
 import { InternalRpcGuard } from '../tcp/internal-rpc.guard';
 import { GlobalRpcExceptionFilter } from '../filters/rpc-exception.filter';
 

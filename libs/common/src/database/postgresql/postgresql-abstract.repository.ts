@@ -3,7 +3,7 @@ import { AbstractEntity } from './abstract.entity';
 import { FindOptionsRelations, FindOptionsWhere, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { LoggerService } from '../../logger';
-import { PaginatedResponseDto } from '../../dto/pagination/paginated-response.dto';
+import { PaginatedResponseDto } from '@app/contracts/dto';
 
 export abstract class PostgresqlAbstractRepository<T extends AbstractEntity<T>> {
   protected abstract readonly logger: LoggerService;

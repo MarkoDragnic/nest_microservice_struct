@@ -3,8 +3,8 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { PostgresqlAbstractRepository } from '@app/common/database';
 import { Funds, Position, Robot } from '@app/common/models';
-import { ClosePositionDto, OpenPositionDto } from '@app/common/dto';
-import { PositionStatus, ResponseMessage } from '@app/common/types';
+import { ClosePositionDto, OpenPositionDto } from '@app/contracts/dto';
+import { PositionStatus, ResponseMessage } from '@app/contracts/types';
 import { LoggerService } from '@app/common/logger';
 
 @Injectable()

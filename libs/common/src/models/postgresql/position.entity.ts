@@ -1,8 +1,8 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { AbstractEntity } from '@app/common/database/postgresql';
 import { numericTransformer } from '@app/common/database/postgresql/numeric.transformer';
-import { PositionCloseReason, PositionStatus, RobotTypes } from '@app/common/types';
-import type { IIndicatorsConfig } from '@app/common/interfaces';
+import { PositionCloseReason, PositionStatus, RobotTypes } from '@app/contracts/types';
+import type { IIndicatorsConfig } from '@app/contracts/interfaces';
 import { Robot } from './robot.entity';
 
 @Entity({ name: 'position' })

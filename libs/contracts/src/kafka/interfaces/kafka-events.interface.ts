@@ -1,5 +1,5 @@
 import { KAFKA_TOPICS } from '../kafka-topics';
-import { ICandleWithIndicators, INotificationPositionMailDto } from '@app/common/interfaces';
+import { ICandleWithIndicators, INotificationPositionMailDto } from '@app/contracts/interfaces';
 
 export interface IKafkaEvent {
   key: string;

@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsDefined, IsNotEmptyObject, ValidateNested } from 'class-validator';
-import { CloseDto, OpenDto } from '@app/common/dto';
+import { CloseDto, OpenDto } from '@app/contracts/dto';
 
 export class IndicatorsConfigDto {
   @IsDefined()

@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Injectable, Optional } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Observable, of } from 'rxjs';
-import { ResponseMessage } from '@app/common/types';
+import { ResponseMessage } from '@app/contracts/types';
 import { LoggerService } from '../logger';
 
 @Injectable()

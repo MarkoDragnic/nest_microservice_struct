@@ -10,8 +10,8 @@ import {
   IsUUID,
   ValidateNested,
 } from 'class-validator';
-import { PositionStatus } from '@app/common/types';
-import { PositionRulesDto } from '@app/common/dto';
+import { PositionStatus } from '@app/contracts/types';
+import { PositionRulesDto } from '@app/contracts/dto';
 
 export class OpenPositionDto {
   @IsUUID()

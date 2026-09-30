@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Connection } from 'mongoose';
-import { Interval } from '../../../types';
+import { Interval } from '@app/contracts/types';
 import {
   ICandle,
   ICandleDoc,
   ICandleWithIndicators,
-} from '../../../interfaces';
+} from '@app/contracts/interfaces';
 import { MongoDbFactory } from '../mongo-db.factory';
 
 @Injectable()

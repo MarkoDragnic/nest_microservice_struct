@@ -9,7 +9,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { PositionCloseReason, PositionStatus } from '@app/common/types';
+import { PositionCloseReason, PositionStatus } from '@app/contracts/types';
 
 export class ClosePositionDto {
   @IsUUID()

@@ -1,5 +1,5 @@
-import { Environment, Exchange } from '@app/common/types';
-import type { IEncryptedPayload } from '@app/common/interfaces';
+import { Environment, Exchange } from '@app/contracts/types';
+import type { IEncryptedPayload } from '@app/contracts/interfaces';
 
 export class AccountEncryptedDto {
   userId: string;

@@ -9,10 +9,9 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { RsiRule, HlRule, ProfitFactor } from '@app/common/types';
-import { IIndicator } from '@app/common';
-import { CloseDto, OpenDto } from '@app/common/dto';
-import type { IHlIndicator, IProfitIndicator, IRsiIndicator } from '@app/common/interfaces';
+import { RsiRule, HlRule, ProfitFactor } from '@app/contracts/types';
+import { CloseDto, OpenDto } from '@app/contracts/dto';
+import type { IHlIndicator, IIndicator, IProfitIndicator, IRsiIndicator } from '@app/contracts/interfaces';
 
 export class RsiIndicatorDto implements IIndicator, IRsiIndicator {
   @IsBoolean()

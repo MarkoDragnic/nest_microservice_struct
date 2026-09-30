@@ -2,8 +2,8 @@ import { Expose, Type } from 'class-transformer';
 import { UserResponseDto } from '../user/user-response.dto';
 import { AccountResponseDto } from '../account/account-response.dto';
 import { InstrumentResponseDto } from './instrument.dto';
-import { type IEncryptedPayload, type IIndicatorsConfig } from '@app/common/interfaces';
-import { FundsResponseDto } from '@app/common/dto';
+import { type IEncryptedPayload, type IIndicatorsConfig } from '@app/contracts/interfaces';
+import { FundsResponseDto } from '@app/contracts/dto';
 
 export class AccountCredentialsResponseDto extends AccountResponseDto {
   @Expose()

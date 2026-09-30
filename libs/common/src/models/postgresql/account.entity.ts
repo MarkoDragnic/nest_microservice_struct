@@ -1,6 +1,6 @@
 import { Column, Entity, Unique } from 'typeorm';
 import { AbstractEntity } from '@app/common/database/postgresql';
-import type { IEncryptedPayload } from '@app/common/interfaces';
+import type { IEncryptedPayload } from '@app/contracts/interfaces';
 
 @Entity({ name: 'account' })
 @Unique('UQ_account_user_exchange_environment', ['userId', 'exchange', 'environment'])

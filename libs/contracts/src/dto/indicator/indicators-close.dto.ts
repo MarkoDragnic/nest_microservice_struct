@@ -4,8 +4,8 @@ import {
   HlIndicatorDto,
   ProfitIndicatorDto,
   RsiIndicatorDto,
-} from '@app/common/dto';
-import type { ICloseIndicators } from '@app/common/interfaces';
+} from '@app/contracts/dto';
+import type { ICloseIndicators } from '@app/contracts/interfaces';
 
 export class CloseDto implements ICloseIndicators {
   @IsDefined()

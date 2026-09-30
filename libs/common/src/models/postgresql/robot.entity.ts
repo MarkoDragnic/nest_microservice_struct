@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, Unique, UpdateDateColumn } from 'typeorm';
 import { AbstractEntity } from '@app/common/database/postgresql';
-import { RobotTypes } from '@app/common/types';
-import type { IIndicatorsConfig } from '@app/common/interfaces';
+import { RobotTypes } from '@app/contracts/types';
+import type { IIndicatorsConfig } from '@app/contracts/interfaces';
 import { User,Account,Funds,Instrument } from '@app/common/models';
 
 @Entity('robot')

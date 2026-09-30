@@ -1,15 +1,15 @@
+// TEMPORARY compatibility layer (ADR 001). Re-exports the new libraries so apps keep importing
+// from @app/common while code moves. Removed in task 001 step 8.
+export * from '@app/contracts';
 export * from './config';
 export * from './database';
 export * from './auth';
-export * from './dto';
 export * from './redis';
-export * from './types';
 export * from './clients';
 export * from './models';
 export * from './decorators';
 export * from './libs';
 export * from './kafka';
-export * from './interfaces';
 export * from './interceptors';
 export * from './tcp';
 export * from './logger';

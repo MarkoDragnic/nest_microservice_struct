@@ -1,6 +1,6 @@
 import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Environment, Exchange } from '@app/common/types';
+import { Environment, Exchange } from '@app/contracts/types';
 
 
 export class AccountCreateDto {

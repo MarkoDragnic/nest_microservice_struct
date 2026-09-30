@@ -1,7 +1,7 @@
 import { IsDefined, IsNotEmptyObject, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { HlIndicatorDto, RsiIndicatorDto } from '@app/common/dto';
-import type { IOpenIndicators } from '@app/common/interfaces';
+import { HlIndicatorDto, RsiIndicatorDto } from '@app/contracts/dto';
+import type { IOpenIndicators } from '@app/contracts/interfaces';
 
 export class OpenDto implements IOpenIndicators {
   @IsDefined()

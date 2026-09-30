@@ -12,7 +12,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { FundsDto } from '../funds/funds.dto';
 import { InstrumentDto } from './instrument.dto';
-import { RobotTypes } from '@app/common/types';
+import { RobotTypes } from '@app/contracts/types';
 
 export class RobotCreateDto {
   @ApiProperty({ example: 'BTC Scalper' })
