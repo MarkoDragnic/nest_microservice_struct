@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
-import { ROBOTS_SERVICE } from '../clients/services';
+import { ROBOTS_SERVICE } from '@app/common/clients/services';
 import { TCP_EVENTS } from '@app/contracts/tcp';
 import { ClientTcpService } from '@app/common/clients/client-tcp.service';
 

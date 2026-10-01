@@ -35,14 +35,14 @@ const PG_READ_CLIENT = mockClientProxy();
 import { UserGateModule } from '../src/user_gate/user_gate.module';
 import { RobotGateModule } from '../src/robot_gate/robot_gate.module';
 import { AccountGateModule } from '../src/account_gate/account_gate.module';
+import { JwtAuthGuard } from '../src/guards/jwt-auth.guard';
+import { OwnRobotGuard } from '../src/guards/own-robot.guard';
 import {
   AUTH_SERVICE,
   ROBOTS_SERVICE,
   ACCOUNTS_SERVICE,
   PG_READ_SERVICE,
   REDIS_CLIENT,
-  JwtAuthGuard,
-  OwnRobotGuard,
   LoggerService,
 } from '@app/common';
 

@@ -1,7 +1,8 @@
-import { AccountCreateDto, CurrentUser, JwtAuthGuard, User } from '@app/common';
+import { AccountCreateDto, CurrentUser, User } from '@app/common';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiCookieAuth, ApiBody } from '@nestjs/swagger';
 import { AccountGateService } from './account_gate.service';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @ApiTags('account')
 @Controller('account')

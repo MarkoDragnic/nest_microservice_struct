@@ -4,7 +4,7 @@ import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError, lastValueFrom, throwError, timeout, TimeoutError } from 'rxjs';
 import { LoggerService } from '../logger';
 import { ResponseMessage } from '@app/contracts/types';
-import { correlationStorage } from '../middleware/correlation.storage';
+import { correlationStorage } from '@app/core/middleware';
 
 @Injectable()
 export class ClientTcpService {
