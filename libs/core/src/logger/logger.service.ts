@@ -4,7 +4,8 @@ import { LOG_SINK, type LogSink } from './interfaces/log-sink.interface';
 import { LogSeverity } from './types/logger.types';
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class LoggerService extends ConsoleLogger {
+export class LoggerService extends ConsoleLogger {  
+  private static readonly MAX_SANITIZE_DEPTH = 10;
   private serviceName: string = 'Unknown';
 
   constructor(@Optional() @Inject(LOG_SINK) private readonly sink: LogSink | null) {
@@ -44,23 +45,50 @@ export class LoggerService extends ConsoleLogger {
     void this.logToAll(LogSeverity.CRITICAL, message, metadata, context);
   }
 
-  private static readonly SENSITIVE_KEYS = new Set([
-    'password', 'apiKey', 'apiSecret', 'token', 'secret',
-    'authorization', 'cookie', 'jwt', 'refreshToken',
-  ]);
+  private static readonly SENSITIVE_KEYS = new Set(
+    [
+      'password', 'apiKey', 'apiSecret', 'token', 'secret',
+      'authorization', 'cookie', 'jwt', 'refreshToken',
+    ].map((key) => key.toLowerCase()),
+  );
 
-  private sanitizeMetadata(metadata: Record<string, any>): Record<string, any> {
+  
+
+  private sanitizeMetadata(
+    metadata: Record<string, any>,
+    visited = new WeakSet<object>(),
+    depth = 0,
+  ): Record<string, any> {
+    visited.add(metadata);
     const result: Record<string, any> = {};
     for (const [key, value] of Object.entries(metadata)) {
       if (LoggerService.SENSITIVE_KEYS.has(key.toLowerCase())) {
         result[key] = '[REDACTED]';
-      } else if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-        result[key] = this.sanitizeMetadata(value as Record<string, any>);
       } else {
-        result[key] = value;
+        result[key] = this.sanitizeValue(value, visited, depth + 1);
       }
     }
+    visited.delete(metadata);
     return result;
+  }
+
+  private sanitizeValue(value: unknown, visited: WeakSet<object>, depth: number): unknown {
+    if (value === null || typeof value !== 'object') {
+      return value;
+    }
+    if (depth > LoggerService.MAX_SANITIZE_DEPTH) {
+      return '[MaxDepth]';
+    }
+    if (visited.has(value)) {
+      return '[Circular]';
+    }
+    if (Array.isArray(value)) {
+      visited.add(value);
+      const result = value.map((item) => this.sanitizeValue(item, visited, depth + 1));
+      visited.delete(value);
+      return result;
+    }
+    return this.sanitizeMetadata(value as Record<string, any>, visited, depth);
   }
 
   private async logToAll(severity: LogSeverity, message: string, metadata?: Record<string, any>, context?: string) {
