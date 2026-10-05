@@ -5,6 +5,7 @@ import { LogSeverity } from './types/logger.types';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class LoggerService extends ConsoleLogger {  
+  // Depth counts keys and array indexes below the metadata object: its own values are at depth 1.
   private static readonly MAX_SANITIZE_DEPTH = 10;
   private serviceName: string = 'Unknown';
 
@@ -49,11 +50,16 @@ export class LoggerService extends ConsoleLogger {
     [
       'password', 'apiKey', 'apiSecret', 'token', 'secret',
       'authorization', 'cookie', 'jwt', 'refreshToken',
-    ].map((key) => key.toLowerCase()),
+      'accessToken', 'xApiKey',
+      'setCookie', 'passphrase', 'privateKey', 'clientSecret',
+    ].map((key) => LoggerService.normalizeKey(key)),
   );
 
-  
+  private static normalizeKey(key: string): string {
+    return key.toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
 
+  // visited holds only the objects on the current path, so a shared reference is not taken for a cycle.
   private sanitizeMetadata(
     metadata: Record<string, any>,
     visited = new WeakSet<object>(),
@@ -62,7 +68,7 @@ export class LoggerService extends ConsoleLogger {
     visited.add(metadata);
     const result: Record<string, any> = {};
     for (const [key, value] of Object.entries(metadata)) {
-      if (LoggerService.SENSITIVE_KEYS.has(key.toLowerCase())) {
+      if (LoggerService.SENSITIVE_KEYS.has(LoggerService.normalizeKey(key))) {
         result[key] = '[REDACTED]';
       } else {
         result[key] = this.sanitizeValue(value, visited, depth + 1);

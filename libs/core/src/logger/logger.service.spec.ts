@@ -154,6 +154,44 @@ describe('LoggerService', () => {
       });
     });
 
+    it.each([
+      'api_key',
+      'api-key',
+      'apiKey',
+      'API_KEY',
+      'api_secret',
+      'refresh-token',
+      'accessToken',
+      'access_token',
+      'access-token',
+      'accesstoken',
+      'authorization',
+      'Authorization',
+      'cookie',
+      'Cookie',
+      'xApiKey',
+      'x-api-key',
+      'X-API-Key',
+      'x_api_key',
+      'xapikey',
+      'set-cookie',
+      'Set-Cookie',
+      'passphrase',
+      'private_key',
+      'client_secret',
+    ])('redacts the %s key', async (key) => {
+      expect(await metadataSentToSink({ [key]: 'secret-value', orderId: '42' })).toEqual({
+        [key]: '[REDACTED]',
+        orderId: '42',
+      });
+    });
+
+    it('keeps keys with separators that are not on the sensitive list', async () => {
+      const metadata = { order_id: '42', 'user-agent': 'jest', key_count: 3 };
+
+      expect(await metadataSentToSink(metadata)).toEqual({ order_id: '42', 'user-agent': 'jest', key_count: 3 });
+    });
+
     describe('circular references and depth', () => {
       // Builds { level1: { level2: ... { level<levels>: leaf } } } in a loop, so the test itself cannot overflow.
       const nest = (levels: number, leaf: unknown) => {
