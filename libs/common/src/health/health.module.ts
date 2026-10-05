@@ -1,5 +1,6 @@
 import { Module, DynamicModule } from '@nestjs/common';
 import { TerminusModule } from '@nestjs/terminus';
+import { InternalRpcGuardModule } from '@app/core/tcp';
 import { HealthTcpController } from './health-tcp.controller';
 import { HealthHttpController } from './health-http.controller';
 
@@ -16,6 +17,7 @@ export class HealthModule {
 
     if (options.tcp !== false) {
       controllers.push(HealthTcpController);
+      imports.push(InternalRpcGuardModule);
     }
 
     if (options.http) {

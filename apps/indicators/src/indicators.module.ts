@@ -13,6 +13,7 @@ import {
   ClientTcpProviderService,
   DatabaseMongooseModule,
   LoggerModule,
+  MongoLogSinkModule,
   IndicatorsRedisRepository,
   RedisModule,
   KafkaClientModule,
@@ -28,6 +29,7 @@ import { HLService } from './indicators/hl.service';
 @Module({
   imports: [
     HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
     LoggerModule.forRoot(),
     DatabaseMongooseModule,
     RedisModule,

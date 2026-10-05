@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { AbstractDocument } from '@app/common/database';
-import { LogSeverity } from '../types/logger.types';
+import { AbstractDocument } from '../abstract.schema';
+import { LogSeverity } from '@app/core/logger';
 
 @Schema({ collection: 'logs', timestamps: true })
 export class LogDocument extends AbstractDocument {

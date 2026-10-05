@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import path from 'path';
 import Joi from 'joi';
-import { CommonLibsModule, DatabasePostgresqlModule, HealthModule, LoggerModule, internalRpcSchema } from '@app/common';
+import { CommonLibsModule, DatabasePostgresqlModule, HealthModule, LoggerModule, MongoLogSinkModule, internalRpcSchema } from '@app/common';
 import { WriteAccountsModule } from './write-accounts/write-accounts.module';
 import { WriteRobotsModule } from './write-robots/write-robots.module';
 import { WritePositionsModule } from './write-positions/write-positions.module';
@@ -12,6 +12,7 @@ import { WriteUserModule } from './write-user/write-user.module';
 @Module({
   imports: [
     HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
     LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,

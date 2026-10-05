@@ -11,6 +11,7 @@ import {
   POSITION_SERVICE,
   RedisModule,
   LoggerModule,
+  MongoLogSinkModule,
   ACCOUNTS_SERVICE,
   PG_READ_SERVICE,
   KafkaDlqModule,
@@ -32,6 +33,7 @@ import { TraderBinanceService } from './binance/trader-binance.service';
 @Module({
   imports: [
     HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
     LoggerModule.forRoot(),
     KafkaDlqModule.register(),
     ConfigModule.forRoot({

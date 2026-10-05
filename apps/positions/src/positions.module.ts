@@ -8,11 +8,13 @@ import {
   ClientKafkaProviderModule,
   ClientTcpProviderService,
   GlobalRpcExceptionFilter,
+  InternalRpcGuardModule,
   HealthModule,
   NOTIFICATION_SERVICE,
   PG_WRITE_SERVICE,
   PG_READ_SERVICE,
   LoggerModule,
+  MongoLogSinkModule,
   kafkaSchema,
   internalRpcSchema,
 } from '@app/common';
@@ -21,7 +23,9 @@ import { PositionNotificationService } from './position-notification.service';
 @Module({
   imports: [
     HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
     LoggerModule.forRoot(),
+    InternalRpcGuardModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [path.resolve(process.cwd(), 'apps/positions/.env')],

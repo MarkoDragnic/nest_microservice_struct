@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import path from 'path';
 import { PriceCalculatorController } from './price_calculator.controller';
 import { PriceCalculatorService } from './price_calculator.service';
-import { DatabaseMongooseModule, HealthModule, RedisModule, LoggerModule, redisSchema, kafkaSchema, mongoDbSchema, internalRpcSchema } from '@app/common';
+import { DatabaseMongooseModule, HealthModule, RedisModule, LoggerModule, MongoLogSinkModule, redisSchema, kafkaSchema, mongoDbSchema, internalRpcSchema } from '@app/common';
 import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
 import { PriceCalculatorRepository } from './price_calculator.repository';
@@ -20,6 +20,7 @@ import { CALCULATOR_SERVICE, CandleStorageService, KafkaClientModule } from '@ap
 @Module({
   imports: [
     HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
     LoggerModule.forRoot(),
     DatabaseMongooseModule,
     RedisModule,

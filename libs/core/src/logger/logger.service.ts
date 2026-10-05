@@ -1,17 +1,13 @@
-import { ConsoleLogger, Injectable, Optional, Scope } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { LogDocument } from './schemas/log.schema';
-import { Model } from 'mongoose';
+import { ConsoleLogger, Inject, Injectable, Optional, Scope } from '@nestjs/common';
 import { ILogEntry } from './interfaces/logger.interface';
+import { LOG_SINK, type LogSink } from './interfaces/log-sink.interface';
 import { LogSeverity } from './types/logger.types';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class LoggerService extends ConsoleLogger {
   private serviceName: string = 'Unknown';
 
-  constructor(
-    @Optional() @InjectModel(LogDocument.name, 'logger-db') private readonly logModel: Model<LogDocument> | null,
-  ) {
+  constructor(@Optional() @Inject(LOG_SINK) private readonly sink: LogSink | null) {
     super();
   }
 
@@ -92,9 +88,9 @@ export class LoggerService extends ConsoleLogger {
   }
 
   private async saveToDatabase(logEntry: ILogEntry): Promise<void> {
-    if (!this.logModel) return;
+    if (!this.sink) return;
     try {
-      await this.logModel.create(logEntry);
+      await this.sink.write(logEntry);
     } catch (error) {
       super.error('[Logger] Database write error', error?.message ?? '');
     }

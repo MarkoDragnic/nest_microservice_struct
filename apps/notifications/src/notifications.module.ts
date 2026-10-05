@@ -6,7 +6,7 @@ import { BullModule } from '@nestjs/bull';
 import Joi from 'joi';
 import path from 'path';
 import { NotificationsTemplateService } from './notifications-template.service';
-import { DatabaseMongooseModule, GlobalRpcExceptionFilter, HealthModule, LoggerModule, KafkaDlqModule, redisSchema, kafkaSchema, mongoDbSchema, internalRpcSchema } from '@app/common';
+import { DatabaseMongooseModule, GlobalRpcExceptionFilter, HealthModule, LoggerModule, MongoLogSinkModule, KafkaDlqModule, redisSchema, kafkaSchema, mongoDbSchema, internalRpcSchema } from '@app/common';
 import { FailedNotificationDocument, FailedNotificationSchema } from './schemas/failed-notification.schema';
 import { FailedNotificationRepository } from './notification-faild.repository';
 import { NotificationsProcessor } from './notifications.processor';
@@ -15,6 +15,7 @@ import { NOTIFICATION_QUEUE } from './types/queue.types';
 @Module({
   imports: [
     HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
     LoggerModule.forRoot(),
     KafkaDlqModule.register(),
     ConfigModule.forRoot({

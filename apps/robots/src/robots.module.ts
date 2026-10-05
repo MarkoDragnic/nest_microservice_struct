@@ -5,12 +5,14 @@ import {
   ClientTcpProviderService,
   GeneralService,
   GlobalRpcExceptionFilter,
+  InternalRpcGuardModule,
   HealthModule,
   IndicatorsRedisRepository,
   PG_WRITE_SERVICE,
   PG_READ_SERVICE,
   RedisModule,
   LoggerModule,
+  MongoLogSinkModule,
   redisSchema,
   internalRpcSchema,
 } from '@app/common';
@@ -22,7 +24,9 @@ import { RobotIndicatorsService } from './robot-indicators.service';
 @Module({
   imports: [
     HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
     LoggerModule.forRoot(),
+    InternalRpcGuardModule,
     RedisModule,
     ConfigModule.forRoot({
       envFilePath: [path.resolve(process.cwd(), 'apps/robots/.env')],

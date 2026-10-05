@@ -1,7 +1,7 @@
 import { Logger, NotFoundException } from '@nestjs/common';
 import { Model, QueryFilter, Schema, Types, UpdateQuery } from 'mongoose';
 
-import { AbstractDocument } from './abstract.schema';
+import { AbstractDocument } from '@app/mongo';
 import { MongoDbFactory } from './mongo-db.factory';
 
 export abstract class AbstractMultiDbRepository<

@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { Model, QueryFilter, Types, UpdateQuery } from 'mongoose';
-import { AbstractDocument } from './abstract.schema';
+import { AbstractDocument } from '@app/mongo';
 import { LoggerService } from '../../logger';
 
 export abstract class MongoAbstractRepository<

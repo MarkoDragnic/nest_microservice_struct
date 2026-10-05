@@ -4,13 +4,15 @@ import { AccountsService } from './accounts.service';
 import { ConfigModule } from '@nestjs/config';
 import path from 'path';
 import Joi from 'joi';
-import { ClientTcpProviderService, GlobalRpcExceptionFilter, HealthModule, PG_WRITE_SERVICE, LoggerModule, internalRpcSchema } from '@app/common';
+import { ClientTcpProviderService, GlobalRpcExceptionFilter, InternalRpcGuardModule, HealthModule, PG_WRITE_SERVICE, LoggerModule, MongoLogSinkModule, internalRpcSchema } from '@app/common';
 import { CryptoService } from './crypto.service';
 
 @Module({
   imports: [
     HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
     LoggerModule.forRoot(),
+    InternalRpcGuardModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [path.resolve(process.cwd(), 'apps/accounts/.env')],

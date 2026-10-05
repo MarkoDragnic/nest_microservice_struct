@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { ClientTcpProviderService, GlobalRpcExceptionFilter, PG_WRITE_SERVICE, PG_READ_SERVICE } from '@app/common';
+import { ClientTcpProviderService, GlobalRpcExceptionFilter, InternalRpcGuardModule, PG_WRITE_SERVICE, PG_READ_SERVICE } from '@app/common';
 
 @Module({
   imports: [
+    InternalRpcGuardModule,
     ClientTcpProviderService.register({
       name: PG_WRITE_SERVICE,
       port: 'PG_WRITE_TCP_PORT',

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import path from 'path';
 import Joi from 'joi';
-import { HealthModule, LoggerModule, RedisModule, redisSchema, internalRpcSchema } from '@app/common';
+import { HealthModule, LoggerModule, MongoLogSinkModule, RedisModule, redisSchema, internalRpcSchema } from '@app/common';
 import { NormalizeService } from './services/normalize.service';
 import { ProviderManagerService } from './services/provider-manager.service';
 import { PriceProviderController } from './price-provider.controller';
@@ -25,6 +25,7 @@ import { PriceProviderController } from './price-provider.controller';
         JITTER: Joi.number().min(0).max(1).default(0.2),
       }),
     }),
+    MongoLogSinkModule.forRoot(),
     LoggerModule.forRoot(),
     RedisModule,
     HealthModule.register({ http: false, tcp: true }),

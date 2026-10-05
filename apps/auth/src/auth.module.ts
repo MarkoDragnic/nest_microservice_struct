@@ -10,7 +10,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { AuthTcpController } from './auth.tcp.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RefreshStrategy } from './strategies/refresh.strategy';
-import { GlobalRpcExceptionFilter, HealthModule, LoggerModule, MetricsModule, RedisClientModule, REDIS_CLIENT, internalRpcSchema, redisSchema } from '@app/common';
+import { GlobalRpcExceptionFilter, InternalRpcGuardModule, HealthModule, LoggerModule, MongoLogSinkModule, MetricsModule, RedisClientModule, REDIS_CLIENT, internalRpcSchema, redisSchema } from '@app/common';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import Redis from 'ioredis';
@@ -67,7 +67,9 @@ import { RefreshTokenRepository } from './refresh-token.repository';
       inject: [ConfigService],
     }),
     UsersModule,
+    MongoLogSinkModule.forRoot(),
     LoggerModule.forRoot(),
+    InternalRpcGuardModule,
   ],
   controllers: [AuthHttpController, AuthTcpController],
   providers: [
