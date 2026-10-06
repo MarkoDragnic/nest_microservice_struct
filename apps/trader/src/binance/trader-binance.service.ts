@@ -3,7 +3,7 @@ import { IBinanceCredentials, IBinanceTradeSignal } from '../interfaces/binance.
 import { type BinanceOrderSide, type BinanceOrderType } from '../types/binance.types';
 import { type IEncryptedPayload, Environment, TCP_EVENTS } from '@app/contracts';
 import { ACCOUNTS_SERVICE, ClientTcpService } from '@app/messaging';
-import { Account } from '@app/postgres';
+import type { AccountCredentials } from '@app/contracts/internal';
 import { ConfigService } from '@nestjs/config';
 import { createHmac } from 'node:crypto';
 import axios, { AxiosError } from 'axios';
@@ -52,7 +52,7 @@ export class TraderBinanceService {
     }
   }
 
-  async getCredentials(account: Account): Promise<IBinanceCredentials> {
+  async getCredentials(account: AccountCredentials): Promise<IBinanceCredentials> {
     if (!account || !account.apiKeyEncrypted || !account.apiSecretEncrypted) {
       throw new Error('Invalid account credentials');
     }

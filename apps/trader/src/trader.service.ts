@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { IIndicatorTriggerEventV1, TCP_DB_EVENTS } from '@app/contracts';
 import { LoggerService } from '@app/core';
 import { PG_READ_SERVICE, ClientTcpService } from '@app/messaging';
-import { Position, Robot } from '@app/postgres';
+import type { TradingPosition, TradingRobot } from '@app/contracts/internal';
 import { TraderCloseRulesService } from './rules/trader-close-rules.service';
 import { TraderOpenRulesService } from './rules/trader-open-rules.service';
 import { TraderBatchService } from './libs/trader-batch.service';
@@ -28,7 +28,7 @@ export class TraderService {
 
   async handleIndicatorTrigger(ticker: IIndicatorTriggerEventV1): Promise<void> {
     const symbol = ticker.candle.symbol;
-    const robots = await this.tcpClientService.send<Robot[]>(
+    const robots = await this.tcpClientService.send<TradingRobot[]>(
       this.pgReadClient,
       TCP_DB_EVENTS.ROBOT_FIND_ALL_BY_SYMBOL,
       symbol,
@@ -36,7 +36,7 @@ export class TraderService {
 
     if (robots.length > 0) {
       const robotIds = robots.map((r) => r.id as string);
-      const openPositions = await this.tcpClientService.send<Position[]>(
+      const openPositions = await this.tcpClientService.send<TradingPosition[]>(
         this.pgReadClient,
         TCP_DB_EVENTS.POSITION_OPEN_FOR_ROBOTS,
         { robotIds, symbol },

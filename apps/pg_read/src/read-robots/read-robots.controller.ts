@@ -1,7 +1,8 @@
 import { Controller, NotFoundException, UseFilters, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { ResponseMessage, RobotResponseDto, RobotTradingResponseDto, TCP_DB_EVENTS, tcpOk } from '@app/contracts';
+import { ResponseMessage, RobotResponseDto, TCP_DB_EVENTS, tcpOk } from '@app/contracts';
 import { GlobalRpcExceptionFilter, InternalRpcGuard, SerializerService } from '@app/core';
+import { toTradingRobot } from '@app/postgres';
 import { ReadRobotsService } from './read-robots.service';
 
 @UseFilters(GlobalRpcExceptionFilter)
@@ -23,7 +24,7 @@ export class ReadRobotsController {
   @MessagePattern(TCP_DB_EVENTS.ROBOT_FIND_ALL_BY_SYMBOL, Transport.TCP)
   async findAllBySymbol(@Payload('payload') params: string) {
     const robots = await this.readRobotsService.findAllActiveBySymbol(params);
-    return tcpOk(this.serializerService.serialize(RobotTradingResponseDto, robots), ResponseMessage.ROBOT_FOUND);
+    return tcpOk(robots.map(toTradingRobot), ResponseMessage.ROBOT_FOUND);
   }
 
   @MessagePattern(TCP_DB_EVENTS.ROBOT_FIND_PAGINATED, Transport.TCP)

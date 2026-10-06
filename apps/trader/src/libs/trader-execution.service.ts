@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ICandleWithIndicators, Environment } from '@app/contracts';
 import { LoggerService } from '@app/core';
-import { Account, Position, Robot } from '@app/postgres';
+import type { AccountCredentials, TradingPosition, TradingRobot } from '@app/contracts/internal';
 import { TraderPositionService } from './trader-position.service';
 import { TraderQuantityService } from './trader-quantity.service';
 import { TraderBinanceService } from '../binance/trader-binance.service';
@@ -17,7 +17,7 @@ export class TraderExecutionService {
     this.logger.setContext(TraderExecutionService.name);
   }
 
-  async close(robot: Robot, position: Position, candle: ICandleWithIndicators) {
+  async close(robot: TradingRobot, position: TradingPosition, candle: ICandleWithIndicators) {
     try {
       const account = robot.account;
       this.isRevoked(account);
@@ -36,7 +36,7 @@ export class TraderExecutionService {
     }
   }
 
-  async open(robot: Robot, candle: ICandleWithIndicators) {
+  async open(robot: TradingRobot, candle: ICandleWithIndicators) {
     try {
       const account = robot.account;
       this.isRevoked(account);
@@ -56,7 +56,7 @@ export class TraderExecutionService {
     }
   }
 
-  private isRevoked(account: Account) {
+  private isRevoked(account: AccountCredentials | null): asserts account is AccountCredentials {
     if (!account) throw new Error('Robot account not loaded');
     if (account.revokedAt) {
       throw new Error('Account revoked');

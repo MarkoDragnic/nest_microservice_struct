@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ICandleWithIndicators, PositionCloseReason, PositionStatus, TCP_EVENTS } from '@app/contracts';
 import { POSITION_SERVICE, ClientTcpService } from '@app/messaging';
-import { Position, Robot } from '@app/postgres';
+import type { TradingPosition, TradingRobot } from '@app/contracts/internal';
 import { catchError, firstValueFrom, of } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 
@@ -12,8 +12,8 @@ export class TraderPositionService {
     private readonly tcpClientService: ClientTcpService,
   ) {}
 
-  async closePosition(position: Position, candle: ICandleWithIndicators) {
-    await this.tcpClientService.send<Position>(this.positionClient, TCP_EVENTS.POSITION_CLOSE, {
+  async closePosition(position: TradingPosition, candle: ICandleWithIndicators) {
+    await this.tcpClientService.send(this.positionClient, TCP_EVENTS.POSITION_CLOSE, {
       positionId: position.id,
       closePrice: candle.close,
       closedAt: new Date().toISOString(),
@@ -23,8 +23,8 @@ export class TraderPositionService {
     });
   }
 
-  async openPosition(robot: Robot, candle: ICandleWithIndicators, quantity: number) {
-    await this.tcpClientService.send<Position>(this.positionClient, TCP_EVENTS.POSITION_OPEN, {
+  async openPosition(robot: TradingRobot, candle: ICandleWithIndicators, quantity: number) {
+    await this.tcpClientService.send(this.positionClient, TCP_EVENTS.POSITION_OPEN, {
       entryPrice: candle.close,
       openedAt: new Date().toISOString(),
       quantity,

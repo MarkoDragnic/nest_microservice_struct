@@ -2,16 +2,8 @@ import { Expose, Type } from 'class-transformer';
 import { UserResponseDto } from '../user/user-response.dto';
 import { AccountResponseDto } from '../account/account-response.dto';
 import { InstrumentResponseDto } from './instrument.dto';
-import { type IEncryptedPayload, type IIndicatorsConfig } from '@app/contracts/interfaces';
+import { type IIndicatorsConfig } from '@app/contracts/interfaces';
 import { FundsResponseDto } from '@app/contracts/dto';
-
-export class AccountCredentialsResponseDto extends AccountResponseDto {
-  @Expose()
-  apiKeyEncrypted: IEncryptedPayload;
-
-  @Expose()
-  apiSecretEncrypted: IEncryptedPayload;
-}
 
 export class RobotResponseDto {
   @Expose()
@@ -59,10 +51,4 @@ export class RobotResponseDto {
 
   @Expose()
   updatedAt: Date;
-}
-
-export class RobotTradingResponseDto extends RobotResponseDto {
-  @Expose()
-  @Type(() => AccountCredentialsResponseDto)
-  declare account: AccountCredentialsResponseDto;
 }
