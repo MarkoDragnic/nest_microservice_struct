@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import path from 'path';
 import Joi from 'joi';
-import { CommonLibsModule, DatabasePostgresqlModule, HealthModule, LoggerModule, MongoLogSinkModule, internalRpcSchema } from '@app/common';
+import { CommonLibsModule, DatabasePostgresqlModule, HealthModule, LoggerModule, MongoLogSinkModule, internalRpcSchema, postgresSchema } from '@app/common';
 import { WriteAccountsModule } from './write-accounts/write-accounts.module';
 import { WriteRobotsModule } from './write-robots/write-robots.module';
 import { WritePositionsModule } from './write-positions/write-positions.module';
@@ -20,6 +20,7 @@ import { WriteUserModule } from './write-user/write-user.module';
       ],
       validationSchema: Joi.object({
         ...internalRpcSchema,
+        ...postgresSchema,
         PG_WRITE_TCP_HOST: Joi.string().required(),
         PG_WRITE_TCP_PORT: Joi.string().required(),
       }),
