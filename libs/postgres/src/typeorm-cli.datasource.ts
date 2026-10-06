@@ -6,7 +6,7 @@ import { config as dotenvConfig } from 'dotenv';
 
 import { DataSource } from 'typeorm';
 
-import * as PostgresEntities from '../../models/postgresql';
+import * as PostgresEntities from './models';
 import { POSTGRES_MIGRATIONS } from './migrations';
 
 const configuredEnvFile = process.env.TYPEORM_ENV_FILE || process.env.npm_package_config_typeormEnvFile || '.env';

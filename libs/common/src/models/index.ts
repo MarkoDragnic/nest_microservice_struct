@@ -1,1 +1,1 @@
-export * from './postgresql';
+export * from '@app/postgres/models';

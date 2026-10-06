@@ -1,5 +1,5 @@
-import { AbstractEntity } from '@app/common/database/postgresql';
-import { numericTransformer } from '@app/common/database/postgresql/numeric.transformer';
+import { AbstractEntity } from '../abstract.entity';
+import { numericTransformer } from '../numeric.transformer';
 import { Column, Entity } from 'typeorm';
 
 @Entity({ name: 'funds' })

@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ModelDefinition, MongooseModule } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
-import { CandleStorageService, MongoDbFactory } from './mongo';
+import { CandleStorageService } from './candle/candle-storage.service';
+import { MongoDbFactory } from './mongo-db.factory';
 
 @Module({
   imports: [

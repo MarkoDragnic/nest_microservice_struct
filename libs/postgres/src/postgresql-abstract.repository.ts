@@ -2,7 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { AbstractEntity } from './abstract.entity';
 import { FindOptionsRelations, FindOptionsWhere, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { LoggerService } from '../../logger';
+import { LoggerService } from '@app/core/logger';
 import { PaginatedResponseDto } from '@app/contracts/dto';
 
 export abstract class PostgresqlAbstractRepository<T extends AbstractEntity<T>> {

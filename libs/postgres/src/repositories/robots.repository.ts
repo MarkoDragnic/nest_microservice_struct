@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PostgresqlAbstractRepository } from '@app/common/database';
-import { Robot } from '@app/common/models';
-import { LoggerService } from '@app/common/logger';
+import { PostgresqlAbstractRepository } from '../postgresql-abstract.repository';
+import { Robot } from '../models';
+import { LoggerService } from '@app/core/logger';
 
 @Injectable()
 export class RobotsRepository extends PostgresqlAbstractRepository<Robot> {

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
-import { POSTGRES_MIGRATIONS } from './postgresql/migrations';
+import { POSTGRES_MIGRATIONS } from './migrations';
 import path from 'path';
 
 @Module({

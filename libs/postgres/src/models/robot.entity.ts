@@ -1,8 +1,8 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, Unique, UpdateDateColumn } from 'typeorm';
-import { AbstractEntity } from '@app/common/database/postgresql';
+import { AbstractEntity } from '../abstract.entity';
 import { RobotTypes } from '@app/contracts/types';
 import type { IIndicatorsConfig } from '@app/contracts/interfaces';
-import { User,Account,Funds,Instrument } from '@app/common/models';
+import { User,Account,Funds,Instrument } from './index';
 
 @Entity('robot')
 @Unique('UQ_robot_hash', ['hash'])

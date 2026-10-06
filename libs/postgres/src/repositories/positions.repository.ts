@@ -1,11 +1,11 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { PostgresqlAbstractRepository } from '@app/common/database';
-import { Funds, Position, Robot } from '@app/common/models';
+import { PostgresqlAbstractRepository } from '../postgresql-abstract.repository';
+import { Funds, Position, Robot } from '../models';
 import { ClosePositionDto, OpenPositionDto } from '@app/contracts/dto';
 import { PositionStatus, ResponseMessage } from '@app/contracts/types';
-import { LoggerService } from '@app/common/logger';
+import { LoggerService } from '@app/core/logger';
 
 @Injectable()
 export class PositionsRepository extends PostgresqlAbstractRepository<Position> {

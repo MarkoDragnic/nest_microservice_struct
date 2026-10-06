@@ -5,5 +5,4 @@ export * from '@app/core';
 export * from '@app/messaging';
 export * from '@app/redis';
 export * from '@app/mongo';
-export * from './database';
-export * from './models';
+export * from '@app/postgres';

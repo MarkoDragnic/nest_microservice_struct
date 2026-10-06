@@ -118,7 +118,7 @@ This project uses TypeORM migrations rather than `synchronize: true`, so schema 
 
 ```bash
 # Generate a migration from entity changes
-npm run migration:generate -- libs/common/src/database/postgresql/migrations/DescribeYourChange
+npm run migration:generate -- libs/postgres/src/migrations/DescribeYourChange
 
 # Preview pending migrations
 npm run migration:show

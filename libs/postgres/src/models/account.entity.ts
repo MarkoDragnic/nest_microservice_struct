@@ -1,5 +1,5 @@
 import { Column, Entity, Unique } from 'typeorm';
-import { AbstractEntity } from '@app/common/database/postgresql';
+import { AbstractEntity } from '../abstract.entity';
 import type { IEncryptedPayload } from '@app/contracts/interfaces';
 
 @Entity({ name: 'account' })

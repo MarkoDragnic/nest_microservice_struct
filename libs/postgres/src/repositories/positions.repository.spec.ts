@@ -1,10 +1,10 @@
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { PositionsRepository } from './positions.repository';
-import { Funds, Position, Robot } from '@app/common/models';
+import { Funds, Position, Robot } from '../models';
 import { ClosePositionDto, OpenPositionDto } from '@app/contracts/dto';
 import { PositionCloseReason, PositionStatus, RobotTypes } from '@app/contracts/types';
-import { LoggerService } from '@app/common/logger';
+import { LoggerService } from '@app/core/logger';
 
 describe('PositionsRepository', () => {
 	let repository: PositionsRepository;

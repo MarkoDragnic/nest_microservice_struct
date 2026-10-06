@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PostgresqlAbstractRepository } from '@app/common/database';
-import { User } from '@app/common/models';
-import { LoggerService } from '@app/common/logger';
+import { PostgresqlAbstractRepository } from '../postgresql-abstract.repository';
+import { User } from '../models';
+import { LoggerService } from '@app/core/logger';
 
 @Injectable()
 export class UsersRepository extends PostgresqlAbstractRepository<User> {

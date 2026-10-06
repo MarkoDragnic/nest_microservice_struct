@@ -33,10 +33,10 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/gateway/test/jest-e2e.json",
     "typeorm": "node -r ts-node/register/transpile-only -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
-    "migration:show": "npm run -s typeorm -- -d libs/common/src/database/postgresql/typeorm-cli.datasource.ts migration:show",
-    "migration:run": "npm run -s typeorm -- -d libs/common/src/database/postgresql/typeorm-cli.datasource.ts migration:run",
-    "migration:revert": "npm run -s typeorm -- -d libs/common/src/database/postgresql/typeorm-cli.datasource.ts migration:revert",
-    "migration:generate": "npm run -s typeorm -- -d libs/common/src/database/postgresql/typeorm-cli.datasource.ts migration:generate"
+    "migration:show": "npm run -s typeorm -- -d libs/postgres/src/typeorm-cli.datasource.ts migration:show",
+    "migration:run": "npm run -s typeorm -- -d libs/postgres/src/typeorm-cli.datasource.ts migration:run",
+    "migration:revert": "npm run -s typeorm -- -d libs/postgres/src/typeorm-cli.datasource.ts migration:revert",
+    "migration:generate": "npm run -s typeorm -- -d libs/postgres/src/typeorm-cli.datasource.ts migration:generate"
   },
   "config": {
     "typeormEnvFile": "libs/common/.env"

@@ -1,5 +1,5 @@
 import { Column, Entity, Unique } from 'typeorm';
-import { AbstractEntity } from '@app/common/database/postgresql';
+import { AbstractEntity } from '../abstract.entity';
 
 @Entity('user')
 @Unique('UQ_user_email', ['email'])

@@ -1,4 +1,4 @@
-import { AbstractEntity } from '@app/common/database/postgresql';
+import { AbstractEntity } from '../abstract.entity';
 import { Column, Entity } from 'typeorm';
 
 @Entity({ name: 'instrument' })
