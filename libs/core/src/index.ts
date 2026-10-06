@@ -4,5 +4,7 @@ export * from './libs';
 export * from './interceptors';
 export * from './tcp';
 export * from './logger';
+export * from './filters';
+export * from './health';
 export * from './middleware';
 export * from './metrics';

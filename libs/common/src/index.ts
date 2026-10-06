@@ -8,6 +8,4 @@ export * from './redis';
 export * from './clients';
 export * from './models';
 export * from './kafka';
-export * from './filters';
-export * from './health';
 export * from './throttler';
