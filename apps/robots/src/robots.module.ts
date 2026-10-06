@@ -2,20 +2,17 @@ import { Module } from '@nestjs/common';
 import { RobotsController } from './robots.controller';
 import { RobotsService } from './robots.service';
 import {
-  ClientTcpProviderService,
   GeneralService,
   GlobalRpcExceptionFilter,
   InternalRpcGuardModule,
   HealthModule,
-  IndicatorsRedisRepository,
-  PG_WRITE_SERVICE,
-  PG_READ_SERVICE,
-  RedisModule,
   LoggerModule,
-  MongoLogSinkModule,
   redisSchema,
   internalRpcSchema,
-} from '@app/common';
+} from '@app/core';
+import { ClientTcpProviderService, PG_WRITE_SERVICE, PG_READ_SERVICE } from '@app/messaging';
+import { IndicatorsRedisRepository, RedisModule } from '@app/redis';
+import { MongoLogSinkModule } from '@app/mongo';
 import { ConfigModule } from '@nestjs/config';
 import path from 'path';
 import Joi from 'joi';

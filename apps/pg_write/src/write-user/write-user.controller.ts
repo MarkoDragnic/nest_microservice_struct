@@ -1,8 +1,9 @@
 import { Controller, UseFilters, UseGuards } from '@nestjs/common';
 import { WriteUserService } from './write-user.service';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { GlobalRpcExceptionFilter, InternalRpcGuard, ResponseMessage, TCP_DB_EVENTS, tcpOk, User } from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { ResponseMessage, TCP_DB_EVENTS, tcpOk } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard, LoggerService } from '@app/core';
+import { User } from '@app/postgres';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @UseGuards(InternalRpcGuard)

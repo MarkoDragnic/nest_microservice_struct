@@ -1,14 +1,7 @@
 import { Controller, UseFilters, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import {
-  ClosePositionDto,
-  GlobalRpcExceptionFilter,
-  InternalRpcGuard,
-  OpenPositionDto,
-  ResponseMessage,
-  TCP_DB_EVENTS,
-  tcpOk,
-} from '@app/common';
+import { ClosePositionDto, OpenPositionDto, ResponseMessage, TCP_DB_EVENTS, tcpOk } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard } from '@app/core';
 import { WritePositionsService } from './write-positions.service';
 
 @UseFilters(GlobalRpcExceptionFilter)

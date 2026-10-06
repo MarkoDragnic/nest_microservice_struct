@@ -1,6 +1,7 @@
 import { Controller, UseFilters, UseGuards } from '@nestjs/common';
 import { WriteFundsService } from './write-funds.service';
-import { FundsUpdatePayloadDto, GlobalRpcExceptionFilter, InternalRpcGuard, ResponseMessage, TCP_DB_EVENTS, tcpOk } from '@app/common';
+import { FundsUpdatePayloadDto, ResponseMessage, TCP_DB_EVENTS, tcpOk } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard } from '@app/core';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 
 @UseFilters(GlobalRpcExceptionFilter)

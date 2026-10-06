@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WriteUserController } from './write-user.controller';
 import { WriteUserService } from './write-user.service';
-import { InternalRpcGuard } from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { InternalRpcGuard, LoggerService } from '@app/core';
 
 describe('WriteUserController', () => {
   let controller: WriteUserController;

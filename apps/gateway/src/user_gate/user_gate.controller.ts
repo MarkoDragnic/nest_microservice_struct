@@ -1,7 +1,8 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { Serializer, UserCreateDto, UserResponseDto } from '@app/common';
+import { UserCreateDto, UserResponseDto } from '@app/contracts';
+import { Serializer } from '@app/core';
 import { UserGateService } from './user_gate.service';
 
 @ApiTags('user')

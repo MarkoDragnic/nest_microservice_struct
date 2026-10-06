@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ReadUserController } from './read-user.controller';
 import { ReadUserService } from './read-user.service';
-import { DatabasePostgresqlModule, GlobalRpcExceptionFilter, InternalRpcGuardModule, User, UsersRepository } from '@app/common';
+import { GlobalRpcExceptionFilter, InternalRpcGuardModule } from '@app/core';
+import { DatabasePostgresqlModule, User, UsersRepository } from '@app/postgres';
 import { Entity } from 'typeorm';
 
 @Module({

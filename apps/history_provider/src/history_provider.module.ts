@@ -3,7 +3,15 @@ import { HistoryProviderController } from './history_provider.controller';
 import { HistoryProviderService } from './history_provider.service';
 import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
-import { DatabaseMongooseModule, GlobalRpcExceptionFilter, InternalRpcGuardModule, HealthModule, LoggerModule, MongoLogSinkModule, mongoDbSchema, internalRpcSchema } from '@app/common';
+import {
+  GlobalRpcExceptionFilter,
+  InternalRpcGuardModule,
+  HealthModule,
+  LoggerModule,
+  mongoDbSchema,
+  internalRpcSchema,
+} from '@app/core';
+import { DatabaseMongooseModule, MongoLogSinkModule } from '@app/mongo';
 import path from 'path';
 import { BinanceModule } from './external/binance';
 

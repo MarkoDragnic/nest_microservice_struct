@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WritePositionsController } from './write-positions.controller';
 import { WritePositionsService } from './write-positions.service';
-import { InternalRpcGuard } from '@app/common';
+import { InternalRpcGuard } from '@app/core';
 
 describe('WritePositionsController', () => {
   let controller: WritePositionsController;

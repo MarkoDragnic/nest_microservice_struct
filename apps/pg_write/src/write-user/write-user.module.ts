@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { WriteUserService } from './write-user.service';
 import { WriteUserController } from './write-user.controller';
-import { DatabasePostgresqlModule, GlobalRpcExceptionFilter, InternalRpcGuardModule, User, UsersRepository } from '@app/common';
+import { GlobalRpcExceptionFilter, InternalRpcGuardModule } from '@app/core';
+import { DatabasePostgresqlModule, User, UsersRepository } from '@app/postgres';
 
 @Module({
   imports: [DatabasePostgresqlModule.forFeature([User]), InternalRpcGuardModule],

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { GeneralService, IIndicatorsConfig, IndicatorsValues } from '@app/common';
-import { IIndicator } from '@app/common';
+import { IIndicatorsConfig, IndicatorsValues, IIndicator } from '@app/contracts';
+import { GeneralService } from '@app/core';
 
 @Injectable()
 export class RobotIndicatorsService {

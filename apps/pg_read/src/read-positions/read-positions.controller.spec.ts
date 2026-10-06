@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ReadPositionsController } from './read-positions.controller';
 import { ReadPositionsService } from './read-positions.service';
-import { InternalRpcGuard } from '@app/common';
+import { InternalRpcGuard } from '@app/core';
 
 describe('ReadPositionsController', () => {
   let controller: ReadPositionsController;

@@ -1,7 +1,9 @@
 import { Body, Controller, Get, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiCookieAuth, ApiBody } from '@nestjs/swagger';
 import { RobotGateService } from './robot_gate.service';
-import { CurrentUser, IndicatorsUpdateDto, PaginationDto, RobotCreateDto, User } from '@app/common';
+import { IndicatorsUpdateDto, PaginationDto, RobotCreateDto } from '@app/contracts';
+import { CurrentUser } from '@app/core';
+import { User } from '@app/postgres';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { OwnRobotGuard } from '../guards/own-robot.guard';
 

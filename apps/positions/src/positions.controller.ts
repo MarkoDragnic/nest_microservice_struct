@@ -1,8 +1,8 @@
 import { Controller, UseFilters, UseGuards } from '@nestjs/common';
 import { PositionsService } from './positions.service';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { ClosePositionDto, GlobalRpcExceptionFilter, InternalRpcGuard, OpenPositionDto, ResponseMessage, TCP_EVENTS, tcpOk } from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { ClosePositionDto, OpenPositionDto, ResponseMessage, TCP_EVENTS, tcpOk } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard, LoggerService } from '@app/core';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @UseGuards(InternalRpcGuard)

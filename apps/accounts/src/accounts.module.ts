@@ -4,7 +4,15 @@ import { AccountsService } from './accounts.service';
 import { ConfigModule } from '@nestjs/config';
 import path from 'path';
 import Joi from 'joi';
-import { ClientTcpProviderService, GlobalRpcExceptionFilter, InternalRpcGuardModule, HealthModule, PG_WRITE_SERVICE, LoggerModule, MongoLogSinkModule, internalRpcSchema } from '@app/common';
+import {
+  GlobalRpcExceptionFilter,
+  InternalRpcGuardModule,
+  HealthModule,
+  LoggerModule,
+  internalRpcSchema,
+} from '@app/core';
+import { ClientTcpProviderService, PG_WRITE_SERVICE } from '@app/messaging';
+import { MongoLogSinkModule } from '@app/mongo';
 import { CryptoService } from './crypto.service';
 
 @Module({

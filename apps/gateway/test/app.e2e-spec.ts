@@ -37,14 +37,9 @@ import { RobotGateModule } from '../src/robot_gate/robot_gate.module';
 import { AccountGateModule } from '../src/account_gate/account_gate.module';
 import { JwtAuthGuard } from '../src/guards/jwt-auth.guard';
 import { OwnRobotGuard } from '../src/guards/own-robot.guard';
-import {
-  AUTH_SERVICE,
-  ROBOTS_SERVICE,
-  ACCOUNTS_SERVICE,
-  PG_READ_SERVICE,
-  REDIS_CLIENT,
-  LoggerService,
-} from '@app/common';
+import { LoggerService } from '@app/core';
+import { AUTH_SERVICE, ROBOTS_SERVICE, ACCOUNTS_SERVICE, PG_READ_SERVICE } from '@app/messaging';
+import { REDIS_CLIENT } from '@app/redis';
 
 /* ------------------------------------------------------------------ */
 /*  Global mock LoggerService — needed by ClientTcpService in          */

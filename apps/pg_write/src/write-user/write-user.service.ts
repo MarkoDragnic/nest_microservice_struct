@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { User, UsersRepository } from '@app/common';
+import { User, UsersRepository } from '@app/postgres';
 import { QueryFailedError } from 'typeorm';
 
 @Injectable()

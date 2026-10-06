@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { RobotsRepository, PaginatedResponseDto, Robot } from '@app/common';
+import { PaginatedResponseDto } from '@app/contracts';
+import { RobotsRepository, Robot } from '@app/postgres';
 
 @Injectable()
 export class ReadRobotsService {

@@ -2,8 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AccountsController } from './accounts.controller';
 import { AccountsService } from './accounts.service';
 import { CryptoService } from './crypto.service';
-import { LoggerService } from '@app/common/logger';
-import { InternalRpcGuard } from '@app/common';
+import { LoggerService, InternalRpcGuard } from '@app/core';
 
 describe('AccountsController', () => {
   let accountsController: AccountsController;

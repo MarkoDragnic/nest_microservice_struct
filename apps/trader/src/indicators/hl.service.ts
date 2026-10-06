@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ICandleWithIndicators, HlRule } from '@app/common';
+import { ICandleWithIndicators, HlRule } from '@app/contracts';
 
 type HlIndicatorConfig = {
   enabled: boolean;

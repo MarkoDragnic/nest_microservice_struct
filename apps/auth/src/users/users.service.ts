@@ -1,9 +1,11 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { LoggerService, PG_READ_SERVICE, PG_WRITE_SERVICE, TCP_DB_EVENTS, User, UserCreateDto, UserCredentialsResponseDto, UserResponseDto } from '@app/common';
+import { TCP_DB_EVENTS, UserCreateDto, UserCredentialsResponseDto, UserResponseDto } from '@app/contracts';
+import { LoggerService } from '@app/core';
+import { PG_READ_SERVICE, PG_WRITE_SERVICE, ClientTcpService } from '@app/messaging';
+import { User } from '@app/postgres';
 import bcryptjs from 'bcryptjs';
 import { GetUserDto } from './dto/get-user.dto';
 import { ClientProxy } from '@nestjs/microservices';
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
 
 @Injectable()
 export class UsersService {

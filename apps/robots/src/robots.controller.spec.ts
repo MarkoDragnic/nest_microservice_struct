@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RobotsController } from './robots.controller';
 import { RobotsService } from './robots.service';
-import { LoggerService } from '@app/common/logger';
-import { InternalRpcGuard } from '@app/common';
+import { LoggerService, InternalRpcGuard } from '@app/core';
 
 describe('RobotsController', () => {
   let robotsController: RobotsController;

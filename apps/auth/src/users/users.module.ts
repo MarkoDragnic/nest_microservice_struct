@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { ClientTcpProviderService, GlobalRpcExceptionFilter, InternalRpcGuardModule, PG_WRITE_SERVICE, PG_READ_SERVICE } from '@app/common';
+import { GlobalRpcExceptionFilter, InternalRpcGuardModule } from '@app/core';
+import { ClientTcpProviderService, PG_WRITE_SERVICE, PG_READ_SERVICE } from '@app/messaging';
 
 @Module({
   imports: [

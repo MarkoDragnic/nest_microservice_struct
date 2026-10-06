@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HistoryProviderController } from './history_provider.controller';
 import { HistoryProviderService } from './history_provider.service';
-import { LoggerService } from '@app/common/logger';
-import { InternalRpcGuard } from '@app/common';
+import { LoggerService, InternalRpcGuard } from '@app/core';
 
 describe('HistoryProviderController', () => {
   let historyProviderController: HistoryProviderController;

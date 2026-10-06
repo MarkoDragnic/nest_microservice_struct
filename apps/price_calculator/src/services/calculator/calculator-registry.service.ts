@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RedisCalculatorProviderKeysService } from '@app/common';
+import { RedisCalculatorProviderKeysService } from '@app/redis';
 import { PriceCalculatorRepository } from '../../price_calculator.repository';
 import { CalculatorIdentityService } from './calculator-identity.service';
 import { IInstance, IUpdateInstancePayload } from '../../interfaces/price_calculator.interface';

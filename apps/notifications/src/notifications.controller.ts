@@ -3,12 +3,13 @@ import { InjectQueue } from '@nestjs/bull';
 import type { Queue } from 'bull';
 import { ConfigService } from '@nestjs/config';
 import { EventPattern, Payload, Transport } from '@nestjs/microservices';
-import { GlobalRpcExceptionFilter, KAFKA_TOPICS, type INotificationEventV1, KafkaDlqService } from '@app/common';
+import { KAFKA_TOPICS, type INotificationEventV1 } from '@app/contracts';
+import { GlobalRpcExceptionFilter, LoggerService } from '@app/core';
+import { KafkaDlqService } from '@app/messaging';
 import { NotifyEmailDto } from './types/email-notification.types';
 import { NotificationsTemplateService } from './notifications-template.service';
 import { NotificationChannel } from './types/notification.types';
 import { NOTIFICATION_QUEUE, QueueType } from './types/queue.types';
-import { LoggerService } from '@app/common/logger';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @Controller()

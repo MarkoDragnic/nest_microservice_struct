@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Account, ICandleWithIndicators, Environment, Position, Robot } from '@app/common';
+import { ICandleWithIndicators, Environment } from '@app/contracts';
+import { LoggerService } from '@app/core';
+import { Account, Position, Robot } from '@app/postgres';
 import { TraderPositionService } from './trader-position.service';
 import { TraderQuantityService } from './trader-quantity.service';
 import { TraderBinanceService } from '../binance/trader-binance.service';
-import { LoggerService } from '@app/common/logger';
 
 @Injectable()
 export class TraderExecutionService {

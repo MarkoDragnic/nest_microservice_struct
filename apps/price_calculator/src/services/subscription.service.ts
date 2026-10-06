@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { INormalizedTick, CandleStorageService, RedisPriceProviderKeysService, RedisService } from '@app/common';
+import { INormalizedTick } from '@app/contracts';
+import { LoggerService } from '@app/core';
+import { RedisPriceProviderKeysService, RedisService } from '@app/redis';
+import { CandleStorageService } from '@app/mongo';
 import { SelfCalculatorInstanceService } from './calculator/self-calculator-instance.service';
 import { CandleAggregatorService, CandleProcessedService } from './candle';
-import { LoggerService } from '@app/common/logger';
 
 @Injectable()
 export class SubscriptionService {

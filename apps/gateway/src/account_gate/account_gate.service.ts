@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { AccountCreateDto, ACCOUNTS_SERVICE, TCP_EVENTS, User } from '@app/common';
+import { AccountCreateDto, TCP_EVENTS, AccountResponseDto } from '@app/contracts';
+import { ACCOUNTS_SERVICE, ClientTcpService } from '@app/messaging';
+import { User } from '@app/postgres';
 import { ClientProxy } from '@nestjs/microservices';
-import { AccountResponseDto } from '@app/common/dto/account/account-response.dto';
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
 
 @Injectable()
 export class AccountGateService {

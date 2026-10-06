@@ -1,9 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ICandle } from '@app/common';
-import { CALCULATOR_SERVICE } from '@app/common/clients/services';
-import { KAFKA_TOPICS } from '@app/common/kafka';
+import { ICandle, KAFKA_TOPICS } from '@app/contracts';
+import { LoggerService } from '@app/core';
+import { CALCULATOR_SERVICE } from '@app/messaging';
 import { ClientProxy } from '@nestjs/microservices';
-import { LoggerService } from '@app/common/logger';
 
 @Injectable()
 export class CandleProcessedService {

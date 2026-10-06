@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RedisService, RedisTraderProviderKeyService } from '@app/common';
-import type { IIndicatorTriggerEventV1 } from '@app/common';
+import type { IIndicatorTriggerEventV1 } from '@app/contracts';
+import { RedisService, RedisTraderProviderKeyService } from '@app/redis';
 
 @Injectable()
 export class TraderSymbolClaimService {

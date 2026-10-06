@@ -4,16 +4,13 @@ import {
   INotificationPositionMailDto,
   NotificationTypes,
   OpenPositionDto,
-  PG_READ_SERVICE,
-  PG_WRITE_SERVICE,
-  Robot,
   TCP_DB_EVENTS,
   UserResponseDto,
-} from '@app/common';
-import { Position } from '@app/common/models';
+} from '@app/contracts';
+import { PG_READ_SERVICE, PG_WRITE_SERVICE, ClientTcpService } from '@app/messaging';
+import { Robot, Position } from '@app/postgres';
 import { PositionNotificationService } from './position-notification.service';
 import { ClientProxy } from '@nestjs/microservices';
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
 
 @Injectable()
 export class PositionsService {

@@ -3,7 +3,7 @@ import { RobotsModule } from './robots.module';
 import { Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
-import { startMetricsServer } from '@app/common';
+import { startMetricsServer } from '@app/core';
 async function bootstrap() {
   const app = await NestFactory.create(RobotsModule);
   app.enableShutdownHooks();

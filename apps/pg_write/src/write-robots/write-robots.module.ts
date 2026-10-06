@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { DatabasePostgresqlModule, Funds, GlobalRpcExceptionFilter, InternalRpcGuardModule, Instrument, Robot, RobotsRepository, User } from '@app/common';
+import { GlobalRpcExceptionFilter, InternalRpcGuardModule } from '@app/core';
+import { DatabasePostgresqlModule, Funds, Instrument, Robot, RobotsRepository, User } from '@app/postgres';
 import { WriteRobotController } from './write-robots.controller';
 import { WriteRobotsService } from './write-robots.service';
 

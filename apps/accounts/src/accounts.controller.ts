@@ -1,8 +1,9 @@
 import { Controller, UseFilters, UseGuards } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { AccountCreateDto, GlobalRpcExceptionFilter, InternalRpcGuard, TCP_EVENTS, type IEncryptedPayload, User } from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { AccountCreateDto, TCP_EVENTS, type IEncryptedPayload } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard, LoggerService } from '@app/core';
+import { User } from '@app/postgres';
 import { CryptoService } from './crypto.service';
 
 @UseGuards(InternalRpcGuard)

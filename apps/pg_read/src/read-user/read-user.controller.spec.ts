@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ReadUserController } from './read-user.controller';
 import { ReadUserService } from './read-user.service';
-import { InternalRpcGuard, SerializerService } from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { InternalRpcGuard, SerializerService, LoggerService } from '@app/core';
 
 describe('ReadUserController', () => {
   let controller: ReadUserController;

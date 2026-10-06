@@ -1,4 +1,6 @@
-import { AccountCreateDto, CurrentUser, User } from '@app/common';
+import { AccountCreateDto } from '@app/contracts';
+import { CurrentUser } from '@app/core';
+import { User } from '@app/postgres';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiCookieAuth, ApiBody } from '@nestjs/swagger';
 import { AccountGateService } from './account_gate.service';

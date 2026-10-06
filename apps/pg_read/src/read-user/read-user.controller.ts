@@ -1,17 +1,8 @@
 import { Controller, NotFoundException, UseFilters, UseGuards } from '@nestjs/common';
 import { ReadUserService } from './read-user.service';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import {
-  GlobalRpcExceptionFilter,
-  InternalRpcGuard,
-  ResponseMessage,
-  SerializerService,
-  TCP_DB_EVENTS,
-  tcpOk,
-  UserCredentialsResponseDto,
-  UserResponseDto,
-} from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { ResponseMessage, TCP_DB_EVENTS, tcpOk, UserCredentialsResponseDto, UserResponseDto } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard, SerializerService, LoggerService } from '@app/core';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @UseGuards(InternalRpcGuard)

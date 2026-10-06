@@ -1,18 +1,15 @@
 import { Controller, UseFilters, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 import {
-  GlobalRpcExceptionFilter,
-  InternalRpcGuard,
   ResponseMessage,
-  Robot,
   RobotIndicatorsUpdatePayloadDto,
   RobotResponseDto,
-  SerializerService,
   TCP_DB_EVENTS,
   tcpOk,
-} from '@app/common';
+} from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard, SerializerService, LoggerService } from '@app/core';
+import { Robot } from '@app/postgres';
 import { WriteRobotsService } from './write-robots.service';
-import { LoggerService } from '@app/common/logger';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @UseGuards(InternalRpcGuard)

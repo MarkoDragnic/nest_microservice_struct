@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { AccountEncryptedDto, AccountsRepository, ResponseMessage } from '@app/common';
-import { Account } from '@app/common/models';
-import { LoggerService } from '@app/common/logger';
+import { AccountEncryptedDto, ResponseMessage } from '@app/contracts';
+import { LoggerService } from '@app/core';
+import { AccountsRepository, Account } from '@app/postgres';
 
 @Injectable()
 export class WriteAccountsService {

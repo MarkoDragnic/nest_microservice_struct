@@ -1,9 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
-import { ROBOTS_SERVICE } from '@app/common/clients/services';
-import { TCP_EVENTS } from '@app/contracts/tcp';
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
+import { TCP_EVENTS } from '@app/contracts';
+import { ROBOTS_SERVICE, ClientTcpService } from '@app/messaging';
 
 @Injectable()
 export class OwnRobotGuard implements CanActivate {

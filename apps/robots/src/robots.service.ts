@@ -1,18 +1,11 @@
 import { Inject, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common';
-import {
-  IndicatorsRedisRepository,
-  IndicatorsUpdateDto,
-  ResponseMessage,
-  RobotCreateData,
-  Robot,
-  PG_WRITE_SERVICE,
-  TCP_DB_EVENTS,
-  PG_READ_SERVICE,
-} from '@app/common';
+import { IndicatorsUpdateDto, ResponseMessage, RobotCreateData, TCP_DB_EVENTS } from '@app/contracts';
+import { PG_WRITE_SERVICE, PG_READ_SERVICE, ClientTcpService } from '@app/messaging';
+import { IndicatorsRedisRepository } from '@app/redis';
+import { Robot } from '@app/postgres';
 import { hasher } from 'node-object-hash';
 import { RobotIndicatorsService } from './robot-indicators.service';
 import { ClientProxy } from '@nestjs/microservices';
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
 
 @Injectable()
 export class RobotsService {

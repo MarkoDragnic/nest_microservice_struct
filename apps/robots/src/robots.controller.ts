@@ -1,8 +1,8 @@
 import { Controller, UseFilters, UseGuards } from '@nestjs/common';
 import { RobotsService } from './robots.service';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { GlobalRpcExceptionFilter, IndicatorsUpdateDto, InternalRpcGuard, ResponseMessage, type RobotCreateData, TCP_EVENTS, tcpOk } from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { IndicatorsUpdateDto, ResponseMessage, type RobotCreateData, TCP_EVENTS, tcpOk } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard, LoggerService } from '@app/core';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @UseGuards(InternalRpcGuard)

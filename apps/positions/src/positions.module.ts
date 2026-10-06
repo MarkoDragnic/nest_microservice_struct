@@ -5,19 +5,21 @@ import { ConfigModule } from '@nestjs/config';
 import path from 'path';
 import Joi from 'joi';
 import {
-  ClientKafkaProviderModule,
-  ClientTcpProviderService,
   GlobalRpcExceptionFilter,
   InternalRpcGuardModule,
   HealthModule,
+  LoggerModule,
+  kafkaSchema,
+  internalRpcSchema,
+} from '@app/core';
+import {
+  ClientKafkaProviderModule,
+  ClientTcpProviderService,
   NOTIFICATION_SERVICE,
   PG_WRITE_SERVICE,
   PG_READ_SERVICE,
-  LoggerModule,
-  MongoLogSinkModule,
-  kafkaSchema,
-  internalRpcSchema,
-} from '@app/common';
+} from '@app/messaging';
+import { MongoLogSinkModule } from '@app/mongo';
 import { PositionNotificationService } from './position-notification.service';
 
 @Module({

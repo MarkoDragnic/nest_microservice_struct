@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { IIndicatorTriggerEventV1 } from '@app/common';
+import type { IIndicatorTriggerEventV1 } from '@app/contracts';
 
 @Injectable()
 export class TraderTickerFreshnessService {

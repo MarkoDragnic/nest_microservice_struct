@@ -5,20 +5,22 @@ import { ConfigModule } from '@nestjs/config';
 import path from 'path';
 import Joi from 'joi';
 import {
-  ClientTcpProviderService,
   GlobalRpcExceptionFilter,
   HealthModule,
-  POSITION_SERVICE,
-  RedisModule,
   LoggerModule,
-  MongoLogSinkModule,
-  ACCOUNTS_SERVICE,
-  PG_READ_SERVICE,
-  KafkaDlqModule,
   redisSchema,
   kafkaSchema,
   internalRpcSchema,
-} from '@app/common';
+} from '@app/core';
+import {
+  ClientTcpProviderService,
+  POSITION_SERVICE,
+  ACCOUNTS_SERVICE,
+  PG_READ_SERVICE,
+  KafkaDlqModule,
+} from '@app/messaging';
+import { RedisModule } from '@app/redis';
+import { MongoLogSinkModule } from '@app/mongo';
 import { TraderCloseRulesService } from './rules/trader-close-rules.service';
 import { TraderOpenRulesService } from './rules/trader-open-rules.service';
 import { IndicatorsModule } from './indicators';

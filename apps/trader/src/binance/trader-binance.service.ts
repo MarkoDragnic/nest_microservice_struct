@@ -1,12 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IBinanceCredentials, IBinanceTradeSignal } from '../interfaces/binance.interface';
 import { type BinanceOrderSide, type BinanceOrderType } from '../types/binance.types';
-import { Account, ACCOUNTS_SERVICE, type IEncryptedPayload, Environment, TCP_EVENTS } from '@app/common';
+import { type IEncryptedPayload, Environment, TCP_EVENTS } from '@app/contracts';
+import { ACCOUNTS_SERVICE, ClientTcpService } from '@app/messaging';
+import { Account } from '@app/postgres';
 import { ConfigService } from '@nestjs/config';
 import { createHmac } from 'node:crypto';
 import axios, { AxiosError } from 'axios';
 import { ClientProxy } from '@nestjs/microservices';
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
 
 @Injectable()
 export class TraderBinanceService {

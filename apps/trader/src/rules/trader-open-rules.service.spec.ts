@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TraderOpenRulesService } from './trader-open-rules.service';
 import { RsiService, HlService } from '../indicators';
-import { ICandleWithIndicators, IOpenIndicators, RsiRule, HlRule } from '@app/common';
+import { ICandleWithIndicators, IOpenIndicators, RsiRule, HlRule } from '@app/contracts';
 
 describe('TraderOpenRulesService', () => {
   let service: TraderOpenRulesService;

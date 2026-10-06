@@ -1,8 +1,8 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RedisService, RedisPriceProviderKeysService } from '@app/common';
-import { LoggerService } from '@app/common/logger';
-import { AssetProvider, ProviderId, ProviderState } from '@app/common';
+import { AssetProvider, ProviderId, ProviderState } from '@app/contracts';
+import { LoggerService } from '@app/core';
+import { RedisService, RedisPriceProviderKeysService } from '@app/redis';
 import { BinanceProvider } from '../websocket/binance.provider';
 import { NormalizeService } from './normalize.service';
 

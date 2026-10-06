@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ICandleWithIndicators, ICloseIndicators } from '@app/common';
+import { ICandleWithIndicators, ICloseIndicators } from '@app/contracts';
 import { HlService, MinProfitService, RsiService, StopLossService, TakeProfitService } from '../indicators';
 
 @Injectable()

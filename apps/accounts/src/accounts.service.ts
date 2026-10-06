@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Account, AccountCreateDto, AccountResponseDto, PG_WRITE_SERVICE, TCP_DB_EVENTS, User } from '@app/common';
+import { AccountCreateDto, AccountResponseDto, TCP_DB_EVENTS } from '@app/contracts';
+import { PG_WRITE_SERVICE, ClientTcpService } from '@app/messaging';
+import { Account, User } from '@app/postgres';
 import { CryptoService } from './crypto.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
 
 @Injectable()
 export class AccountsService {

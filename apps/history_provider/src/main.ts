@@ -3,7 +3,7 @@ import { HistoryProviderModule } from './history_provider.module';
 import { Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
-import { startMetricsServer } from '@app/common';
+import { startMetricsServer } from '@app/core';
 async function bootstrap() {
   const app = await NestFactory.create(HistoryProviderModule);
   app.enableShutdownHooks();

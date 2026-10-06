@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ProfitFactor } from '@app/common';
+import { ProfitFactor } from '@app/contracts';
 
 @Injectable()
 export class ProfitTargetService {

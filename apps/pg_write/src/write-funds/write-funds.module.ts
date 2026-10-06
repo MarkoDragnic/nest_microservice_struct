@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { WriteFundsService } from './write-funds.service';
 import { WriteFundsController } from './write-funds.controller';
-import { DatabasePostgresqlModule, Funds, FundsRepository, GlobalRpcExceptionFilter, InternalRpcGuardModule } from '@app/common';
+import { GlobalRpcExceptionFilter, InternalRpcGuardModule } from '@app/core';
+import { DatabasePostgresqlModule, Funds, FundsRepository } from '@app/postgres';
 
 @Module({
   imports: [DatabasePostgresqlModule.forFeature([Funds]), InternalRpcGuardModule],

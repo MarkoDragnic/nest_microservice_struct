@@ -2,9 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { IndicatorsModule } from './indicators.module';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
-import { LoggerService } from '@app/common/logger';
+import { LoggerService, startMetricsServer } from '@app/core';
 import { ValidationPipe } from '@nestjs/common';
-import { startMetricsServer } from '@app/common';
 async function bootstrap() {
   const app = await NestFactory.create(IndicatorsModule);
   app.enableShutdownHooks();

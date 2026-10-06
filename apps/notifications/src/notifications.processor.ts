@@ -4,7 +4,7 @@ import { FailedNotificationRepository } from './notification-faild.repository';
 import { IEmailJobData } from './interfaces/email-notification.interface';
 import { type Job } from 'bull';
 import { NOTIFICATION_QUEUE, QueueType } from './types/queue.types';
-import { LoggerService } from '@app/common/logger';
+import { LoggerService } from '@app/core';
 
 @Processor(NOTIFICATION_QUEUE)
 export class NotificationsProcessor {

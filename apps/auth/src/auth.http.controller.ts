@@ -6,7 +6,8 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { GatewayOnlyGuard } from './guards/gateway-only.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth.guard';
-import { CurrentUser, User } from '@app/common';
+import { CurrentUser } from '@app/core';
+import { User } from '@app/postgres';
 import { RefreshTokenPayload } from './interfaces/token-payload.interface';
 
 @ApiTags('auth')

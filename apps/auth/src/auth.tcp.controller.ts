@@ -1,7 +1,9 @@
 import { Controller, UseFilters, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { GlobalRpcExceptionFilter, InternalRpcGuard, TCP_EVENTS, User } from '@app/common';
+import { TCP_EVENTS } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard } from '@app/core';
+import { User } from '@app/postgres';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @UseGuards(InternalRpcGuard)

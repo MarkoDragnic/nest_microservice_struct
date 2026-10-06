@@ -1,15 +1,16 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   ICandle,
-  CandleStorageService,
   IHLValue,
   Indicators,
-  IndicatorsRedisRepository,
   IndicatorsValues,
   IKafkaEvent,
-} from '@app/common';
-import { IIndicatorTriggerEventV1, KAFKA_TOPICS } from '@app/common/kafka';
-import { TRADER_SERVICE } from '@app/common/clients/services';
+  IIndicatorTriggerEventV1,
+  KAFKA_TOPICS,
+} from '@app/contracts';
+import { TRADER_SERVICE } from '@app/messaging';
+import { IndicatorsRedisRepository } from '@app/redis';
+import { CandleStorageService } from '@app/mongo';
 import { ClientProxy } from '@nestjs/microservices';
 import { RsiService } from './indicators/rsi.service';
 import { HLService } from './indicators/hl.service';

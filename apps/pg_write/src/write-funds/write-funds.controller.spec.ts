@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WriteFundsController } from './write-funds.controller';
 import { WriteFundsService } from './write-funds.service';
-import { InternalRpcGuard } from '@app/common';
+import { InternalRpcGuard } from '@app/core';
 
 describe('WriteFundsController', () => {
   let controller: WriteFundsController;

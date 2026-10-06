@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { AUTH_SERVICE, UserCreateDto, User, TCP_EVENTS } from '@app/common';
+import { UserCreateDto, TCP_EVENTS } from '@app/contracts';
+import { AUTH_SERVICE, ClientTcpService } from '@app/messaging';
+import { User } from '@app/postgres';
 import { ClientProxy } from '@nestjs/microservices';
-
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
 
 @Injectable()
 export class UserGateService {

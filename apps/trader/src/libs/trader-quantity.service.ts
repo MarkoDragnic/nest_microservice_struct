@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Funds } from '@app/common';
+import { Funds } from '@app/postgres';
 
 @Injectable()
 export class TraderQuantityService {

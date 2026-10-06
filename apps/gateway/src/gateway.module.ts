@@ -9,7 +9,9 @@ import { AuthProxyMiddleware } from './middleware/auth_proxy.middleware';
 import { AuthRateLimitMiddleware } from './middleware/auth-rate-limit.middleware';
 import { AccountGateModule } from './account_gate/account_gate.module';
 import { AuthGateController } from './auth_gate/auth_gate.controller';
-import { HealthModule, LoggerModule, MongoLogSinkModule, MetricsModule, RedisClientModule, ThrottlerRedisModule, internalRpcSchema } from '@app/common';
+import { HealthModule, LoggerModule, MetricsModule, internalRpcSchema } from '@app/core';
+import { RedisClientModule, ThrottlerRedisModule } from '@app/redis';
+import { MongoLogSinkModule } from '@app/mongo';
 
 @Module({
   imports: [

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { ClosePositionDto, OpenPositionDto, PositionsRepository } from '@app/common';
+import { ClosePositionDto, OpenPositionDto } from '@app/contracts';
+import { PositionsRepository } from '@app/postgres';
 
 @Injectable()
 export class WritePositionsService {

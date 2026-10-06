@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ICloseIndicators } from '@app/common';
+import { ICloseIndicators } from '@app/contracts';
 import { ProfitTargetService } from './profit-target.service';
 
 @Injectable()

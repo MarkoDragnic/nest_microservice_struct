@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RedisPriceProviderKeysService } from '@app/common';
+import { RedisPriceProviderKeysService } from '@app/redis';
 import { PriceCalculatorRepository } from '../price_calculator.repository';
 
 @Injectable()

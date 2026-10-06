@@ -1,8 +1,8 @@
 import WebSocket from 'ws';
 import { ConfigService } from '@nestjs/config';
-import { RedisService, RedisPriceProviderKeysService } from '@app/common';
-import { LoggerService } from '@app/common/logger';
-import { AssetProvider, BinanceData, WsCallbackType } from '@app/common';
+import { AssetProvider, BinanceData, WsCallbackType } from '@app/contracts';
+import { LoggerService } from '@app/core';
+import { RedisService, RedisPriceProviderKeysService } from '@app/redis';
 import { NormalizeService } from '../services/normalize.service';
 
 export class BinanceProvider implements AssetProvider {

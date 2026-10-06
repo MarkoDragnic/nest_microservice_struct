@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IndicatorsUpdateDto, PG_READ_SERVICE, RobotCreateData, Robot, ROBOTS_SERVICE, TCP_DB_EVENTS, TCP_EVENTS } from '@app/common';
+import { IndicatorsUpdateDto, RobotCreateData, TCP_DB_EVENTS, TCP_EVENTS } from '@app/contracts';
+import { PG_READ_SERVICE, ROBOTS_SERVICE, ClientTcpService } from '@app/messaging';
+import { Robot } from '@app/postgres';
 import { ClientProxy } from '@nestjs/microservices';
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
 
 @Injectable()
 export class RobotGateService {

@@ -4,8 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { NotificationsController } from './notifications.controller';
 import { NotificationsTemplateService } from './notifications-template.service';
 import { NOTIFICATION_QUEUE } from './types/queue.types';
-import { LoggerService } from '@app/common/logger';
-import { KafkaDlqService } from '@app/common';
+import { LoggerService } from '@app/core';
+import { KafkaDlqService } from '@app/messaging';
 
 describe('NotificationsController', () => {
   let notificationsController: NotificationsController;

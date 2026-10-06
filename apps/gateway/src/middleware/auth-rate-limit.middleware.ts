@@ -3,7 +3,7 @@ import rateLimit, { type Options as RateLimitOptions } from 'express-rate-limit'
 import { RedisStore } from 'rate-limit-redis';
 import Redis from 'ioredis';
 import type { Request, Response, NextFunction } from 'express';
-import { REDIS_CLIENT } from '@app/common';
+import { REDIS_CLIENT } from '@app/redis';
 
 @Injectable()
 export class AuthRateLimitMiddleware implements NestMiddleware {

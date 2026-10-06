@@ -1,5 +1,5 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
-import { INotificationPositionMailDto, NotificationTypes } from '@app/common';
+import { INotificationPositionMailDto, NotificationTypes } from '@app/contracts';
 import { NotifyEmailDto } from './types/email-notification.types';
 
 @Injectable()

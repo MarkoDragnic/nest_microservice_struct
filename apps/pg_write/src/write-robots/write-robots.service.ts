@@ -1,8 +1,8 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, Repository } from 'typeorm';
-import { Funds, Instrument, ResponseMessage, RobotIndicatorsUpdatePayloadDto, RobotsRepository } from '@app/common';
-import { Robot } from '@app/common/models';
+import { ResponseMessage, RobotIndicatorsUpdatePayloadDto } from '@app/contracts';
+import { Funds, Instrument, RobotsRepository, Robot } from '@app/postgres';
 
 @Injectable()
 export class WriteRobotsService {

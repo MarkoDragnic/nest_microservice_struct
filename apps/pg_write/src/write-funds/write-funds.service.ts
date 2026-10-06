@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { FundsRepository, FundsUpdatePayloadDto } from '@app/common';
+import { FundsUpdatePayloadDto } from '@app/contracts';
+import { FundsRepository } from '@app/postgres';
 
 @Injectable()
 export class WriteFundsService {

@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import path from 'path';
 import { PriceCalculatorController } from './price_calculator.controller';
 import { PriceCalculatorService } from './price_calculator.service';
-import { DatabaseMongooseModule, HealthModule, RedisModule, LoggerModule, MongoLogSinkModule, redisSchema, kafkaSchema, mongoDbSchema, internalRpcSchema } from '@app/common';
+import { HealthModule, LoggerModule, redisSchema, kafkaSchema, mongoDbSchema, internalRpcSchema } from '@app/core';
+import { CALCULATOR_SERVICE, KafkaClientModule } from '@app/messaging';
+import { RedisModule } from '@app/redis';
+import { DatabaseMongooseModule, MongoLogSinkModule, CandleStorageService } from '@app/mongo';
 import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
 import { PriceCalculatorRepository } from './price_calculator.repository';
@@ -14,8 +17,6 @@ import { ClusterChangeDetectorService } from './services/cluster-change-detector
 import { CalculatorIdentityService } from './services/calculator/calculator-identity.service';
 import { SubscriptionService } from './services/subscription.service';
 import { CandleProcessedService, CandleAggregatorService } from './services/candle';
-
-import { CALCULATOR_SERVICE, CandleStorageService, KafkaClientModule } from '@app/common';
 
 @Module({
   imports: [

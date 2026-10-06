@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PaginatedResponseDto, Position, PositionsRepository } from '@app/common';
+import { PaginatedResponseDto } from '@app/contracts';
+import { Position, PositionsRepository } from '@app/postgres';
 
 @Injectable()
 export class ReadPositionsService {

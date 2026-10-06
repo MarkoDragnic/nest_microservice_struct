@@ -1,12 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  KAFKA_TOPICS,
-  IKafkaEvent,
-  NOTIFICATION_SERVICE,
-  INotificationPositionMailDto,
-  INotificationEventV1,
-} from '@app/common';
+import { KAFKA_TOPICS, IKafkaEvent, INotificationPositionMailDto, INotificationEventV1 } from '@app/contracts';
+import { NOTIFICATION_SERVICE } from '@app/messaging';
 @Injectable()
 export class PositionNotificationService {
   private readonly logger = new Logger(PositionNotificationService.name);

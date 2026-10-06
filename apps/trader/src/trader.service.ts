@@ -1,13 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IIndicatorTriggerEventV1, PG_READ_SERVICE, Position, Robot, TCP_DB_EVENTS } from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { IIndicatorTriggerEventV1, TCP_DB_EVENTS } from '@app/contracts';
+import { LoggerService } from '@app/core';
+import { PG_READ_SERVICE, ClientTcpService } from '@app/messaging';
+import { Position, Robot } from '@app/postgres';
 import { TraderCloseRulesService } from './rules/trader-close-rules.service';
 import { TraderOpenRulesService } from './rules/trader-open-rules.service';
 import { TraderBatchService } from './libs/trader-batch.service';
 
 import { TraderExecutionService } from './libs/trader-execution.service';
 import { ClientProxy } from '@nestjs/microservices';
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
 
 @Injectable()
 export class TraderService {

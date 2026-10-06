@@ -1,6 +1,7 @@
 import { Controller, NotFoundException, UseFilters, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { GlobalRpcExceptionFilter, InternalRpcGuard, ResponseMessage, TCP_DB_EVENTS, tcpOk } from '@app/common';
+import { ResponseMessage, TCP_DB_EVENTS, tcpOk } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard } from '@app/core';
 import { ReadPositionsService } from './read-positions.service';
 
 @UseFilters(GlobalRpcExceptionFilter)

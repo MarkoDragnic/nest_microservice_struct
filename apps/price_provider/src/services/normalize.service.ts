@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BinanceData, INormalizedTick } from '@app/common';
+import { BinanceData, INormalizedTick } from '@app/contracts';
 
 @Injectable()
 export class NormalizeService {

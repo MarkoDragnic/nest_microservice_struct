@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { PG_READ_SERVICE, PG_WRITE_SERVICE, TCP_DB_EVENTS } from '@app/common';
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
-import { LoggerService } from '@app/common/logger';
+import { TCP_DB_EVENTS } from '@app/contracts';
+import { LoggerService } from '@app/core';
+import { PG_READ_SERVICE, PG_WRITE_SERVICE, ClientTcpService } from '@app/messaging';
 import bcryptjs from 'bcryptjs';
 
 jest.mock('bcryptjs');

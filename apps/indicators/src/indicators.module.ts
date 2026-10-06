@@ -5,24 +5,24 @@ import { ConfigModule } from '@nestjs/config';
 import { IndicatorsController } from './indicators.controller';
 import { IndicatorsService } from './indicators.service';
 import {
-  CALCULATOR_SERVICE,
   GlobalRpcExceptionFilter,
   HealthModule,
-  HISTORY_SERVICE,
-  TRADER_SERVICE,
-  ClientTcpProviderService,
-  DatabaseMongooseModule,
   LoggerModule,
-  MongoLogSinkModule,
-  IndicatorsRedisRepository,
-  RedisModule,
-  KafkaClientModule,
-  KafkaDlqModule,
   redisSchema,
   kafkaSchema,
   mongoDbSchema,
   internalRpcSchema,
-} from '@app/common';
+} from '@app/core';
+import {
+  CALCULATOR_SERVICE,
+  HISTORY_SERVICE,
+  TRADER_SERVICE,
+  ClientTcpProviderService,
+  KafkaClientModule,
+  KafkaDlqModule,
+} from '@app/messaging';
+import { IndicatorsRedisRepository, RedisModule } from '@app/redis';
+import { DatabaseMongooseModule, MongoLogSinkModule } from '@app/mongo';
 import { RsiService } from './indicators/rsi.service';
 import { HLService } from './indicators/hl.service';
 
