@@ -20,20 +20,9 @@ import { RefreshTokenRepository } from './refresh-token.repository';
 
 @Module({
   imports: [
-    HealthModule.register({ http: true, tcp: true }),
-    MetricsModule,
-    RedisClientModule.register(),
-    ThrottlerModule.forRootAsync({
-      imports: [RedisClientModule.register()],
-      inject: [REDIS_CLIENT],
-      useFactory: (redisClient: Redis | undefined) => ({
-        throttlers: [{ ttl: 60000, limit: 20 }],
-        ...(redisClient ? { storage: new ThrottlerStorageRedisService(redisClient) } : {}),
-      }),
-    }),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/auth/.env')],
+      envFilePath: [path.resolve(process.cwd(), 'apps/auth/.env'), path.resolve(process.cwd(), 'env/logger.env')],
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('development', 'production', 'test').required(),
         JWT_SECRET: Joi.string().min(32).required(),
@@ -55,6 +44,17 @@ import { RefreshTokenRepository } from './refresh-token.repository';
         PG_WRITE_TCP_PORT: Joi.number().required(),
         PG_READ_TCP_HOST: Joi.string().required(),
         PG_READ_TCP_PORT: Joi.number().required(),
+      }),
+    }),
+    HealthModule.register({ http: true, tcp: true }),
+    MetricsModule,
+    RedisClientModule.register(),
+    ThrottlerModule.forRootAsync({
+      imports: [RedisClientModule.register()],
+      inject: [REDIS_CLIENT],
+      useFactory: (redisClient: Redis | undefined) => ({
+        throttlers: [{ ttl: 60000, limit: 20 }],
+        ...(redisClient ? { storage: new ThrottlerStorageRedisService(redisClient) } : {}),
       }),
     }),
     JwtModule.registerAsync({

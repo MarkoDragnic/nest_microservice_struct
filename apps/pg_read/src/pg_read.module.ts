@@ -11,18 +11,22 @@ import { ReadUserModule } from './read-user/read-user.module';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    MongoLogSinkModule.forRoot(),
-    LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/pg_read/.env')],
+      envFilePath: [
+        path.resolve(process.cwd(), 'apps/pg_read/.env'),
+        path.resolve(process.cwd(), 'env/logger.env'),
+        path.resolve(process.cwd(), 'env/postgres.env'),
+      ],
       validationSchema: Joi.object({
         ...internalRpcSchema,
         PG_READ_TCP_HOST: Joi.string().required(),
         PG_READ_TCP_PORT: Joi.string().required(),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
     CommonLibsModule,
     DatabasePostgresqlModule,
     ReadRobotsModule,

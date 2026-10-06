@@ -13,15 +13,9 @@ import { HealthModule, LoggerModule, MongoLogSinkModule, MetricsModule, RedisCli
 
 @Module({
   imports: [
-    HealthModule.register({ http: true, tcp: false }),
-    MetricsModule,
-    RedisClientModule.register(),
-    ThrottlerRedisModule.forRoot({ ttl: 60000, limit: 100 }),
-    MongoLogSinkModule.forRoot(),
-    LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/gateway/.env')],
+      envFilePath: [path.resolve(process.cwd(), 'apps/gateway/.env'), path.resolve(process.cwd(), 'env/logger.env')],
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('development', 'production', 'test').required(),
         HTTP_PORT: Joi.number().required(),
@@ -44,6 +38,12 @@ import { HealthModule, LoggerModule, MongoLogSinkModule, MetricsModule, RedisCli
         ACCOUNTS_CLIENT_PORT: Joi.number().required(),
       }),
     }),
+    HealthModule.register({ http: true, tcp: false }),
+    MetricsModule,
+    RedisClientModule.register(),
+    ThrottlerRedisModule.forRoot({ ttl: 60000, limit: 100 }),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
 
     RobotGateModule,
     UserGateModule,

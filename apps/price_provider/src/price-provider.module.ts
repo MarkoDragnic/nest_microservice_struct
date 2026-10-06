@@ -11,7 +11,10 @@ import { PriceProviderController } from './price-provider.controller';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/price_provider/.env')],
+      envFilePath: [
+        path.resolve(process.cwd(), 'apps/price_provider/.env'),
+        path.resolve(process.cwd(), 'env/logger.env'),
+      ],
       validationSchema: Joi.object({
         ...redisSchema,
         REDIS_PASSWORD: Joi.string().required(),

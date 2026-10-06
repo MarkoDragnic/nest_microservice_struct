@@ -32,12 +32,8 @@ import { TraderBinanceService } from './binance/trader-binance.service';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    MongoLogSinkModule.forRoot(),
-    LoggerModule.forRoot(),
-    KafkaDlqModule.register(),
     ConfigModule.forRoot({
-      envFilePath: [path.resolve(process.cwd(), 'apps/trader/.env')],
+      envFilePath: [path.resolve(process.cwd(), 'apps/trader/.env'), path.resolve(process.cwd(), 'env/logger.env')],
       isGlobal: true,
       validationSchema: Joi.object({
         ...redisSchema,
@@ -56,6 +52,10 @@ import { TraderBinanceService } from './binance/trader-binance.service';
         BINANCE_TRADE_ENDPOINT: Joi.string().required(),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    KafkaDlqModule.register(),
     RedisModule,
     ClientTcpProviderService.register({
       name: POSITION_SERVICE,

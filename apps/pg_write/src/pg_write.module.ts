@@ -11,18 +11,22 @@ import { WriteUserModule } from './write-user/write-user.module';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    MongoLogSinkModule.forRoot(),
-    LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/pg_write/.env')],
+      envFilePath: [
+        path.resolve(process.cwd(), 'apps/pg_write/.env'),
+        path.resolve(process.cwd(), 'env/logger.env'),
+        path.resolve(process.cwd(), 'env/postgres.env'),
+      ],
       validationSchema: Joi.object({
         ...internalRpcSchema,
         PG_WRITE_TCP_HOST: Joi.string().required(),
         PG_WRITE_TCP_PORT: Joi.string().required(),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
     CommonLibsModule,
     DatabasePostgresqlModule,
     WriteAccountsModule,

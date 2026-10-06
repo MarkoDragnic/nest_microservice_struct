@@ -9,14 +9,11 @@ import { BinanceModule } from './external/binance';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    MongoLogSinkModule.forRoot(),
-    LoggerModule.forRoot(),
-    InternalRpcGuardModule,
-    DatabaseMongooseModule,
-    BinanceModule,
     ConfigModule.forRoot({
-      envFilePath: [path.resolve(process.cwd(), 'apps/history_provider/.env')],
+      envFilePath: [
+        path.resolve(process.cwd(), 'apps/history_provider/.env'),
+        path.resolve(process.cwd(), 'env/logger.env'),
+      ],
       isGlobal: true,
       validationSchema: Joi.object({
         ...mongoDbSchema,
@@ -27,6 +24,12 @@ import { BinanceModule } from './external/binance';
         BINANCE_KLINES_ENDPOINT: Joi.string().optional().default('/api/v3/klines'),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    InternalRpcGuardModule,
+    DatabaseMongooseModule,
+    BinanceModule,
   ],
   controllers: [HistoryProviderController],
   providers: [HistoryProviderService, GlobalRpcExceptionFilter],

@@ -23,13 +23,8 @@ import { RobotIndicatorsService } from './robot-indicators.service';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    MongoLogSinkModule.forRoot(),
-    LoggerModule.forRoot(),
-    InternalRpcGuardModule,
-    RedisModule,
     ConfigModule.forRoot({
-      envFilePath: [path.resolve(process.cwd(), 'apps/robots/.env')],
+      envFilePath: [path.resolve(process.cwd(), 'apps/robots/.env'), path.resolve(process.cwd(), 'env/logger.env')],
       isGlobal: true,
       validationSchema: Joi.object({
         ...redisSchema,
@@ -43,6 +38,11 @@ import { RobotIndicatorsService } from './robot-indicators.service';
         PG_READ_TCP_PORT: Joi.number().required(),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    InternalRpcGuardModule,
+    RedisModule,
     ClientTcpProviderService.register({
       name: PG_WRITE_SERVICE,
       port: 'PG_WRITE_TCP_PORT',

@@ -22,13 +22,9 @@ import { PositionNotificationService } from './position-notification.service';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    MongoLogSinkModule.forRoot(),
-    LoggerModule.forRoot(),
-    InternalRpcGuardModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/positions/.env')],
+      envFilePath: [path.resolve(process.cwd(), 'apps/positions/.env'), path.resolve(process.cwd(), 'env/logger.env')],
       validationSchema: Joi.object({
         ...kafkaSchema,
         ...internalRpcSchema,
@@ -41,6 +37,10 @@ import { PositionNotificationService } from './position-notification.service';
         PG_READ_TCP_PORT: Joi.number().required(),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    InternalRpcGuardModule,
     ClientKafkaProviderModule.register({
       name: NOTIFICATION_SERVICE,
       clientId: 'INSTANCE_ID',

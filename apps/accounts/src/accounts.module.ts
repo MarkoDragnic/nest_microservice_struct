@@ -9,13 +9,9 @@ import { CryptoService } from './crypto.service';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    MongoLogSinkModule.forRoot(),
-    LoggerModule.forRoot(),
-    InternalRpcGuardModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/accounts/.env')],
+      envFilePath: [path.resolve(process.cwd(), 'apps/accounts/.env'), path.resolve(process.cwd(), 'env/logger.env')],
       validationSchema: Joi.object({
         ...internalRpcSchema,
         ACCOUNT_TCP_HOST: Joi.string().required(),
@@ -25,6 +21,10 @@ import { CryptoService } from './crypto.service';
         ENCRYPTION_CREDENTIAL_KEY: Joi.string().length(64).hex().required(),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    InternalRpcGuardModule,
     ClientTcpProviderService.register({
       name: PG_WRITE_SERVICE,
       port: 'PG_WRITE_TCP_PORT',

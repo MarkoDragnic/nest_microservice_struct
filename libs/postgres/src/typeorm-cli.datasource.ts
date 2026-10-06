@@ -9,7 +9,8 @@ import { DataSource } from 'typeorm';
 import * as PostgresEntities from './models';
 import { POSTGRES_MIGRATIONS } from './migrations';
 
-const configuredEnvFile = process.env.TYPEORM_ENV_FILE || process.env.npm_package_config_typeormEnvFile || '.env';
+const configuredEnvFile =
+  process.env.TYPEORM_ENV_FILE || process.env.npm_package_config_typeormEnvFile || 'env/postgres.env';
 
 const resolvedEnvFile = path.isAbsolute(configuredEnvFile)
   ? configuredEnvFile

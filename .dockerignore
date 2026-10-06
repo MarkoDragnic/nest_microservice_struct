@@ -12,6 +12,7 @@ dist
 .env
 **/.env
 .env.*
+env/*.env
 
 # Docker files — don't copy into the image
 Dockerfile

@@ -14,13 +14,12 @@ import { NOTIFICATION_QUEUE } from './types/queue.types';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    MongoLogSinkModule.forRoot(),
-    LoggerModule.forRoot(),
-    KafkaDlqModule.register(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/notifications/.env')],
+      envFilePath: [
+        path.resolve(process.cwd(), 'apps/notifications/.env'),
+        path.resolve(process.cwd(), 'env/logger.env'),
+      ],
       validationSchema: Joi.object({
         ...redisSchema,
         ...kafkaSchema,
@@ -38,6 +37,10 @@ import { NOTIFICATION_QUEUE } from './types/queue.types';
         NOTIFICATION_EMAIL_BACKOFF_DELAY_MS: Joi.number().integer().min(0).optional().default(30000),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    KafkaDlqModule.register(),
     DatabaseMongooseModule,
     DatabaseMongooseModule.forMongooseFeature([
       { name: FailedNotificationDocument.name, schema: FailedNotificationSchema },

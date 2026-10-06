@@ -80,4 +80,20 @@ describe('MongoLogSinkModule', () => {
 
     await moduleRef.close();
   });
+
+  it('fails at startup when MONGODB_LOGGER_URI is loaded only after MongoLogSinkModule.forRoot() ran', async () => {
+    delete process.env.MONGODB_LOGGER_URI;
+
+    // Wrong order: the sink is evaluated first, and only then does the app config make the URI available.
+    const sinkModule = MongoLogSinkModule.forRoot();
+    process.env.MONGODB_LOGGER_URI = 'mongodb://localhost:27017/logs-test';
+    const imports = [
+      sinkModule,
+      LoggerModule.forRoot(),
+      ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
+      ConsumerModule,
+    ];
+
+    await expect(Test.createTestingModule({ imports }).compile()).rejects.toThrow(/MONGODB_LOGGER_URI/);
+  });
 });

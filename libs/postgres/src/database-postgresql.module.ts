@@ -1,16 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { POSTGRES_MIGRATIONS } from './migrations';
-import path from 'path';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: [path.resolve(process.cwd(), 'libs/common/.env')],
-      expandVariables: true,
-    }),
     TypeOrmModule.forRootAsync({
       useFactory: (configService: ConfigService) => {
         const migrationsRun = configService.get('POSTGRES_MIGRATIONS_RUN') === 'true';

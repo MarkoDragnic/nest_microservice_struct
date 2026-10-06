@@ -19,14 +19,12 @@ import { CALCULATOR_SERVICE, CandleStorageService, KafkaClientModule } from '@ap
 
 @Module({
   imports: [
-    HealthModule.register(),
-    MongoLogSinkModule.forRoot(),
-    LoggerModule.forRoot(),
-    DatabaseMongooseModule,
-    RedisModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/price_calculator/.env')],
+      envFilePath: [
+        path.resolve(process.cwd(), 'apps/price_calculator/.env'),
+        path.resolve(process.cwd(), 'env/logger.env'),
+      ],
       validationSchema: Joi.object({
         ...redisSchema,
         REDIS_PASSWORD: Joi.string().required(),
@@ -39,6 +37,11 @@ import { CALCULATOR_SERVICE, CandleStorageService, KafkaClientModule } from '@ap
         CALCULATOR_TCP_PORT: Joi.number().optional().default(30012),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    DatabaseMongooseModule,
+    RedisModule,
     KafkaClientModule.register({ name: CALCULATOR_SERVICE }),
   ],
 

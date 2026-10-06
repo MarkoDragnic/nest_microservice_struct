@@ -135,7 +135,8 @@ services:
       dockerfile: apps/pg_write/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
+      - ./env/postgres.env
       - ./apps/pg_write/.env
     environment:
       <<: [*common-env, *postgres-env, *internal-rpc-env]
@@ -162,7 +163,8 @@ services:
       dockerfile: apps/pg_read/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
+      - ./env/postgres.env
       - ./apps/pg_read/.env
     environment:
       <<: [*common-env, *postgres-env, *internal-rpc-env]
@@ -190,10 +192,10 @@ services:
       dockerfile: apps/auth/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/auth/.env
     environment:
-      <<: [*common-env, *postgres-env, *redis-env, *internal-rpc-env]
+      <<: [*common-env, *redis-env, *internal-rpc-env]
       AUTH_TCP_HOST: 0.0.0.0
       PG_WRITE_TCP_HOST: pg_write
       PG_READ_TCP_HOST: pg_read
@@ -223,10 +225,10 @@ services:
       dockerfile: apps/accounts/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/accounts/.env
     environment:
-      <<: [*common-env, *postgres-env, *internal-rpc-env]
+      <<: [*common-env, *internal-rpc-env]
       ACCOUNT_TCP_HOST: 0.0.0.0
       PG_WRITE_TCP_HOST: pg_write
       METRICS_PORT: 9003
@@ -252,10 +254,10 @@ services:
       dockerfile: apps/robots/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/robots/.env
     environment:
-      <<: [*common-env, *postgres-env, *redis-env, *kafka-env, *internal-rpc-env]
+      <<: [*common-env, *redis-env, *kafka-env, *internal-rpc-env]
       ROBOTS_TCP_HOST: 0.0.0.0
       PG_WRITE_TCP_HOST: pg_write
       PG_READ_TCP_HOST: pg_read
@@ -286,10 +288,10 @@ services:
       dockerfile: apps/positions/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/positions/.env
     environment:
-      <<: [*common-env, *postgres-env, *kafka-env, *internal-rpc-env]
+      <<: [*common-env, *kafka-env, *internal-rpc-env]
       INSTANCE_ID: positions-service-1
       KAFKA_CONSUMER_GROUP: positions-consumer
       POSITION_TCP_HOST: 0.0.0.0
@@ -322,10 +324,10 @@ services:
       dockerfile: apps/trader/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/trader/.env
     environment:
-      <<: [*common-env, *postgres-env, *redis-env, *kafka-env, *internal-rpc-env]
+      <<: [*common-env, *redis-env, *kafka-env, *internal-rpc-env]
       INSTANCE_ID: trader-service-1
       KAFKA_CONSUMER_GROUP: trader-consumer
       POSITION_CLIENT_HOST: positions
@@ -362,10 +364,10 @@ services:
       dockerfile: apps/history_provider/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/history_provider/.env
     environment:
-      <<: [*common-env, *postgres-env, *internal-rpc-env]
+      <<: [*common-env, *internal-rpc-env]
       MONGODB_URI: mongodb://mongo:27017/
       HISTORY_TCP_HOST: 0.0.0.0
       METRICS_PORT: 9011
@@ -389,10 +391,10 @@ services:
       dockerfile: apps/indicators/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/indicators/.env
     environment:
-      <<: [*common-env, *postgres-env, *redis-env, *kafka-env, *internal-rpc-env]
+      <<: [*common-env, *redis-env, *kafka-env, *internal-rpc-env]
       INSTANCE_ID: indicators-service-1
       KAFKA_CONSUMER_GROUP: indicators-consumer
       MONGODB_URI: mongodb://mongo:27017/
@@ -423,10 +425,10 @@ services:
       dockerfile: apps/price_calculator/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/price_calculator/.env
     environment:
-      <<: [*common-env, *postgres-env, *redis-env, *kafka-env, *internal-rpc-env]
+      <<: [*common-env, *redis-env, *kafka-env, *internal-rpc-env]
       INSTANCE_ID: calculator-service-1
       KAFKA_CONSUMER_GROUP: calculator-consumer
       MONGODB_URI: mongodb://mongo:27017/
@@ -455,10 +457,10 @@ services:
       dockerfile: apps/notifications/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/notifications/.env
     environment:
-      <<: [*common-env, *postgres-env, *redis-env, *kafka-env, *internal-rpc-env]
+      <<: [*common-env, *redis-env, *kafka-env, *internal-rpc-env]
       INSTANCE_ID: notifications-service-1
       KAFKA_CONSUMER_GROUP: notifications-consumer
       MONGODB_URI: mongodb://mongo:27017/notifications
@@ -487,10 +489,10 @@ services:
       dockerfile: apps/gateway/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/gateway/.env
     environment:
-      <<: [*common-env, *postgres-env, *redis-env, *internal-rpc-env]
+      <<: [*common-env, *redis-env, *internal-rpc-env]
       AUTH_HTTP_HOST: auth
       AUTH_TCP_HOST: auth
       AUTH_CLIENT_HOST: auth
@@ -529,7 +531,7 @@ services:
       dockerfile: apps/price_provider/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/price_provider/.env
     environment:
       <<: [*common-env, *redis-env, *internal-rpc-env]

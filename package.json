@@ -39,7 +39,7 @@
     "migration:generate": "npm run -s typeorm -- -d libs/postgres/src/typeorm-cli.datasource.ts migration:generate"
   },
   "config": {
-    "typeormEnvFile": "libs/common/.env"
+    "typeormEnvFile": "env/postgres.env"
   },
   "dependencies": {
     "@nest-lab/throttler-storage-redis": "^1.2.0",
