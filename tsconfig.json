@@ -23,12 +23,6 @@
     "noFallthroughCasesInSwitch": false,
     "types": ["jest", "node"],
     "paths": {
-      "@app/common": [
-        "./libs/common/src"
-      ],
-      "@app/common/*": [
-        "./libs/common/src/*"
-      ],
       "@app/contracts": [
         "./libs/contracts/src"
       ],

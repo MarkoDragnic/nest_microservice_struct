@@ -121,7 +121,6 @@
       "<rootDir>/apps/"
     ],
     "moduleNameMapper": {
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
       "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
       "^@app/messaging(|/.*)$": "<rootDir>/libs/messaging/src/$1",
