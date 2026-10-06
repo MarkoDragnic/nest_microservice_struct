@@ -1,4 +1,4 @@
-import { LoggerService } from '../logger';
+import { LoggerService } from '@app/core/logger';
 import type Redis from 'ioredis';
 import { RedisService } from './redis.service';
 

@@ -3,8 +3,8 @@ import {
   RedisAbstractRepository,
   RedisIndicatorsProviderKeysService,
   RedisService,
-} from '@app/common/redis';
-import { LoggerService } from '@app/common/logger';
+} from '@app/redis';
+import { LoggerService } from '@app/core/logger';
 
 @Injectable()
 export class IndicatorsRedisRepository extends RedisAbstractRepository {

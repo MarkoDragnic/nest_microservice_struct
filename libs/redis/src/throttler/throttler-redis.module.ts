@@ -3,7 +3,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import Redis from 'ioredis';
-import { REDIS_CLIENT, RedisClientModule } from '../redis/redis-client.module';
+import { REDIS_CLIENT, RedisClientModule } from '../redis-client.module';
 
 export interface ThrottlerRedisModuleOptions {
   ttl: number;

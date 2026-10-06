@@ -1,4 +1,2 @@
 export * from '@app/contracts/kafka';
-export * from './kafka-client.module';
-export * from './kafka-dlq.module';
-export * from './kafka-dlq.service';
+export * from '@app/messaging/kafka';

@@ -1,12 +1,1 @@
-export const CALCULATOR_SERVICE = 'price_calculator';
-export const INDICATORS_SERVICE = 'indicators';
-export const HISTORY_SERVICE = 'history_provider';
-export const AUTH_SERVICE = 'auth';
-export const ROBOTS_SERVICE = 'robots';
-export const TRADER_SERVICE = 'trader';
-export const POSITION_SERVICE = 'positions';
-export const ACCOUNTS_SERVICE = 'accounts';
-export const NOTIFICATION_SERVICE = 'notifications';
-export const PG_WRITE_SERVICE = 'pg_write';
-export const PG_READ_SERVICE = 'pg_read';
-export const PRICE_PROVIDER_SERVICE = 'price_provider';
+export * from '@app/messaging/clients/services';
