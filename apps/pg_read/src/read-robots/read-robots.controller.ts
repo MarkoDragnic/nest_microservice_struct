@@ -2,7 +2,7 @@ import { Controller, NotFoundException, UseFilters, UseGuards } from '@nestjs/co
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 import { ResponseMessage, RobotResponseDto, TCP_DB_EVENTS, tcpOk } from '@app/contracts';
 import { GlobalRpcExceptionFilter, InternalRpcGuard, SerializerService } from '@app/core';
-import { toTradingRobot } from '@app/postgres';
+import { toRobotNotificationTarget, toTradingRobot } from '@app/postgres';
 import { ReadRobotsService } from './read-robots.service';
 
 @UseFilters(GlobalRpcExceptionFilter)
@@ -19,6 +19,13 @@ export class ReadRobotsController {
     const robot = await this.readRobotsService.findOne(params.id);
     if (!robot) throw new NotFoundException(ResponseMessage.ROBOT_NOT_FOUND);
     return tcpOk(this.serializerService.serialize(RobotResponseDto, robot), ResponseMessage.ROBOT_FOUND);
+  }
+
+  @MessagePattern(TCP_DB_EVENTS.ROBOT_FIND_NOTIFICATION_TARGET, Transport.TCP)
+  async findNotificationTarget(@Payload() params: { id: string }) {
+    const robot = await this.readRobotsService.findOne(params.id);
+    if (!robot) throw new NotFoundException(ResponseMessage.ROBOT_NOT_FOUND);
+    return tcpOk(toRobotNotificationTarget(robot), ResponseMessage.ROBOT_FOUND);
   }
 
   @MessagePattern(TCP_DB_EVENTS.ROBOT_FIND_ALL_BY_SYMBOL, Transport.TCP)

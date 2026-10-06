@@ -1,11 +1,15 @@
 import { NotificationTypes } from '../types/notifications/notification.types';
-import { UserResponseDto } from '../dto/user/user-response.dto';
+
+export interface INotificationUser {
+  email: string;
+  notifyByEmail: boolean;
+}
 
 export interface INotificationPositionData {
-  user: UserResponseDto;
+  user: INotificationUser;
   symbol: string;
   robotName: string;
-  openedAt: Date;
+  openedAt: string;
   closedAt?: string;
   entryPrice: number;
   closePrice?: number;

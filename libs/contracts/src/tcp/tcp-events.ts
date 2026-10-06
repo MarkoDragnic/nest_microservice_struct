@@ -26,6 +26,7 @@ export const TCP_DB_EVENTS = {
   ROBOT_CREATE: 'robot.db.create',
   ROBOT_INDICATORS_UPSERT: 'robot-indicators.db.upsert',
   ROBOT_FIND_ONE: 'robot.db.find-one',
+  ROBOT_FIND_NOTIFICATION_TARGET: 'robot.db.find-notification-target',
   ROBOT_FIND_ALL_BY_SYMBOL: 'robot.db.find-all-by-symbol',
   ROBOT_FIND_PAGINATED: 'robot.db.find-paginated',
 

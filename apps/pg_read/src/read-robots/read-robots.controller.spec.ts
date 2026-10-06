@@ -1,12 +1,13 @@
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { InternalRpcGuard, SerializerService } from '@app/core';
-import { Robot } from '@app/postgres';
+import { Robot, User } from '@app/postgres';
 import { ReadRobotsController } from './read-robots.controller';
 import { ReadRobotsService } from './read-robots.service';
 
 describe('ReadRobotsController', () => {
   let controller: ReadRobotsController;
-  const readRobotsService = { findAllActiveBySymbol: jest.fn() };
+  const readRobotsService = { findAllActiveBySymbol: jest.fn(), findOne: jest.fn() };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -35,5 +36,34 @@ describe('ReadRobotsController', () => {
     expect(readRobotsService.findAllActiveBySymbol).toHaveBeenCalledWith('BTCUSDT');
     expect(response.data).toEqual([{ id: 'robot-1', account: null, funds: null, indicators: undefined }]);
     expect(Object.keys(response.data[0]).sort()).toEqual(['account', 'funds', 'id', 'indicators']);
+  });
+
+  describe('find-notification-target', () => {
+    it('answers with the robot name and the owner contact fields only', async () => {
+      const robot = Object.assign(new Robot(), {
+        id: 'robot-1',
+        name: 'Robot one',
+        hash: 'robot-hash',
+        fsymbol: 'BTCUSDT',
+        owner: Object.assign(new User(), {
+          id: 'user-1',
+          email: 'owner@example.com',
+          notifyByEmail: true,
+          roles: ['user'],
+        }),
+      });
+      readRobotsService.findOne.mockResolvedValue(robot);
+
+      const response = await controller.findNotificationTarget({ id: 'robot-1' });
+
+      expect(readRobotsService.findOne).toHaveBeenCalledWith('robot-1');
+      expect(response.data).toEqual({ name: 'Robot one', owner: { email: 'owner@example.com', notifyByEmail: true } });
+    });
+
+    it('rejects when the robot does not exist', async () => {
+      readRobotsService.findOne.mockResolvedValue(null);
+
+      await expect(controller.findNotificationTarget({ id: 'missing' })).rejects.toBeInstanceOf(NotFoundException);
+    });
   });
 });

@@ -2,7 +2,7 @@ import { Controller, NotFoundException, UseFilters, UseGuards } from '@nestjs/co
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 import { ResponseMessage, TCP_DB_EVENTS, tcpOk } from '@app/contracts';
 import { GlobalRpcExceptionFilter, InternalRpcGuard } from '@app/core';
-import { toTradingPosition } from '@app/postgres';
+import { toPositionRobot, toTradingPosition } from '@app/postgres';
 import { ReadPositionsService } from './read-positions.service';
 
 @UseFilters(GlobalRpcExceptionFilter)
@@ -15,7 +15,7 @@ export class ReadPositionsController {
   async findOne(@Payload() params: { id: string }) {
     const position = await this.readPositionService.findOne(params.id);
     if (!position) throw new NotFoundException(ResponseMessage.POSITION_NOT_FOUND);
-    return tcpOk(position, ResponseMessage.POSITION_FOUND);
+    return tcpOk(toPositionRobot(position), ResponseMessage.POSITION_FOUND);
   }
 
   @MessagePattern(TCP_DB_EVENTS.POSITION_OPEN_FOR_ROBOTS, Transport.TCP)

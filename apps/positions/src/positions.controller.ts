@@ -17,13 +17,13 @@ export class PositionsController {
 
   @MessagePattern(TCP_EVENTS.POSITION_OPEN, Transport.TCP)
   async openPosition(@Payload() data: OpenPositionDto) {
-    const position = await this.positionsService.create(data);
-    return tcpOk(position, ResponseMessage.POSITION_CREATED);
+    await this.positionsService.create(data);
+    return tcpOk(null, ResponseMessage.POSITION_CREATED);
   }
 
   @MessagePattern(TCP_EVENTS.POSITION_CLOSE, Transport.TCP)
   async closePosition(@Payload() position: ClosePositionDto) {
-    const closedPosition = await this.positionsService.close(position);
-    return tcpOk(closedPosition, ResponseMessage.POSITION_CLOSED);
+    await this.positionsService.close(position);
+    return tcpOk(null, ResponseMessage.POSITION_CLOSED);
   }
 }
