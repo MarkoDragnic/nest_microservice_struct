@@ -3,10 +3,17 @@
 # Full end-to-end smoke test for the microservices stack.
 # Requires: curl, node, docker
 # Usage: bash scripts/test-e2e.sh
+#
+# The Redis checks reach Redis through the compose file the stack was started with.
+# Default: docker-compose.full.yml in this checkout. Override with E2E_COMPOSE_FILE.
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
 BASE="http://localhost:4040"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+COMPOSE_FILE="${E2E_COMPOSE_FILE:-$ROOT/docker-compose.full.yml}"
+# same password as --requirepass on the redis service in the compose file
+REDIS_PASSWORD="app_redis_password"
 COOKIE_JAR=$(mktemp)
 PASS=0
 FAIL=0
@@ -68,9 +75,32 @@ assert_empty() {
   fi
 }
 
-redis_keys() {
-  docker exec microservices-redis-1 redis-cli -a app_redis_password KEYS "$1" 2>/dev/null | grep -v "Warning" || true
+# Runs redis-cli in the redis service of the running stack. Going through compose finds the
+# container by service, so it does not depend on what the compose project is called.
+redis_cli() {
+  docker compose -f "$COMPOSE_FILE" exec -T -e REDISCLI_AUTH="$REDIS_PASSWORD" redis redis-cli "$@"
 }
+
+# Prints the keys matching a pattern. If Redis cannot be queried, this fails and stops the
+# script: an empty answer must always mean "no such key", never "the lookup failed".
+redis_keys() {
+  local out
+  if ! out=$(redis_cli KEYS "$1" 2>&1); then
+    red "Redis lookup failed" >&2
+    printf '  %s\n' "$out" >&2
+    return 1
+  fi
+  printf '%s' "$out"
+}
+
+# The Redis checks below only mean something if Redis can be reached, so check that first.
+if ! PONG=$(redis_cli PING 2>&1) || [[ "$PONG" != *PONG* ]]; then
+  red "Cannot reach Redis through docker compose"
+  printf '  %s\n' "compose file: $COMPOSE_FILE" "$PONG"
+  echo "  Start the stack from this checkout, or set E2E_COMPOSE_FILE to the compose file it was started with."
+  rm -f "$COOKIE_JAR"
+  exit 1
+fi
 
 # unique email per run so reruns don't collide
 EMAIL="smoketest_$(date +%s)@demo.com"
@@ -205,6 +235,10 @@ assert_status "PATCH /robot no auth — 401" 401 "$STATUS"
 header "AUTH — Logout (revocation)"
 # ─────────────────────────────────────────────────────────────────────────────
 
+# keep the cookies from before logout: the logout below clears them in COOKIE_JAR
+REVOKED_JAR=$(mktemp)
+cp "$COOKIE_JAR" "$REVOKED_JAR"
+
 STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
   -b "$COOKIE_JAR" -c "$COOKIE_JAR" -X POST "$BASE/auth/logout")
 assert_status "POST /auth/logout — 200" 200 "$STATUS"
@@ -212,10 +246,16 @@ assert_status "POST /auth/logout — 200" 200 "$STATUS"
 REMAINING=$(redis_keys "refresh_token:${USER_ID}:*")
 assert_empty "Redis — session token deleted after logout" "$REMAINING"
 
-# refresh with the now-revoked cookie must fail
-STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-  -b "$COOKIE_JAR" -X POST "$BASE/auth/refresh")
-assert_status "POST /auth/refresh after logout — 401" 401 "$STATUS"
+# Replaying the refresh cookie from before logout must fail. The cookie is still sent, so a
+# 401 here means the server revoked the token, not that the cookie was missing.
+if grep -q $'\tRefresh\t' "$REVOKED_JAR"; then
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+    -b "$REVOKED_JAR" -X POST "$BASE/auth/refresh")
+  assert_status "POST /auth/refresh after logout — 401" 401 "$STATUS"
+else
+  red "POST /auth/refresh after logout — no Refresh cookie was saved to replay"
+  (( FAIL++ )) || true
+fi
 
 # ─────────────────────────────────────────────────────────────────────────────
 header "PROTECTED ROUTES — Cookies expired after logout"
@@ -297,7 +337,7 @@ echo "  Passed: $PASS / $TOTAL"
 echo "  Failed: $FAIL / $TOTAL"
 echo ""
 
-rm -f "$COOKIE_JAR"
+rm -f "$COOKIE_JAR" "$REVOKED_JAR"
 
 [[ $FAIL -eq 0 ]] && exit 0 || exit 1
 
