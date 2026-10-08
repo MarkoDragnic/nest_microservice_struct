@@ -1,8 +1,14 @@
 import { Inject, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common';
-import { IndicatorsUpdateDto, ResponseMessage, RobotCreateData, TCP_DB_EVENTS } from '@app/contracts';
+import {
+  IndicatorsUpdateDto,
+  ResponseMessage,
+  RobotCreateData,
+  type RobotResponseDto,
+  TCP_DB_EVENTS,
+} from '@app/contracts';
+import type { ManagedRobot, RobotCreateRequest } from '@app/contracts/internal';
 import { PG_WRITE_SERVICE, PG_READ_SERVICE, ClientTcpService } from '@app/messaging';
 import { IndicatorsRedisRepository } from '@app/redis';
-import { Robot } from '@app/postgres';
 import { hasher } from 'node-object-hash';
 import { RobotIndicatorsService } from './robot-indicators.service';
 import { ClientProxy } from '@nestjs/microservices';
@@ -20,22 +26,39 @@ export class RobotsService {
     private readonly tcpClientService: ClientTcpService,
   ) {}
 
-  async create(data: RobotCreateData): Promise<Robot> {
-    const hash = this.makeRobotHash(data);
-    const { accountId, ...robot } = data.robot;
+  // The owner comes from the authenticated user and the hash is computed here. Every other field
+  // is copied from the body by name, so nothing extra in the body can reach pg_write.
+  async create(data: RobotCreateData): Promise<RobotResponseDto> {
+    const { robot } = data;
 
-    const robotData = {
-      owner: { id: data.user.id },
-      hash,
-      account: { id: accountId },
-      ...robot,
-    } as Robot;
+    const request: RobotCreateRequest = {
+      owner: { id: data.user.id as string },
+      account: { id: robot.accountId },
+      hash: this.makeRobotHash(data),
+      name: robot.name,
+      fsymbol: robot.fsymbol,
+      type: robot.type,
+      assets: robot.assets,
+      active: robot.active,
+      funds: {
+        initial: robot.funds.initial,
+        value: robot.funds.value,
+        base: robot.funds.base,
+        dynamic: robot.funds.dynamic,
+        partial: robot.funds.partial,
+        size: robot.funds.size,
+      },
+      instrument: {
+        name: robot.instrument.name,
+        symbol: robot.instrument.symbol,
+      },
+    };
 
-    return await this.tcpClientService.send<Robot>(this.pgWriteClient, TCP_DB_EVENTS.ROBOT_CREATE, robotData);
+    return await this.tcpClientService.send<RobotResponseDto>(this.pgWriteClient, TCP_DB_EVENTS.ROBOT_CREATE, request);
   }
 
-  async upsertIndicators(indicators: IndicatorsUpdateDto): Promise<Robot> {
-    const robot = await this.tcpClientService.send<Robot>(this.pgReadClient, TCP_DB_EVENTS.ROBOT_FIND_ONE, {
+  async upsertIndicators(indicators: IndicatorsUpdateDto): Promise<RobotResponseDto> {
+    const robot = await this.tcpClientService.send<ManagedRobot>(this.pgReadClient, TCP_DB_EVENTS.ROBOT_FIND_ONE, {
       id: indicators.robotId,
     });
 
@@ -51,7 +74,7 @@ export class RobotsService {
       },
     };
 
-    const response = await this.tcpClientService.send<Robot>(
+    const response = await this.tcpClientService.send<RobotResponseDto>(
       this.pgWriteClient,
       TCP_DB_EVENTS.ROBOT_INDICATORS_UPSERT,
       updatePayload,
@@ -73,7 +96,7 @@ export class RobotsService {
   }
 
   async getOwner(robotId: string): Promise<string> {
-    const robot = await this.tcpClientService.send<Robot>(this.pgReadClient, TCP_DB_EVENTS.ROBOT_FIND_ONE, {
+    const robot = await this.tcpClientService.send<ManagedRobot>(this.pgReadClient, TCP_DB_EVENTS.ROBOT_FIND_ONE, {
       id: robotId,
     });
 
@@ -90,7 +113,7 @@ export class RobotsService {
       type: data.robot.type,
       account: data.robot.accountId,
       assets: data.robot.assets,
-      instrument: data.robot.instrument,
+      instrument: { name: data.robot.instrument.name, symbol: data.robot.instrument.symbol },
     });
   }
 

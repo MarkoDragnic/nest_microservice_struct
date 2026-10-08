@@ -7,8 +7,8 @@ import {
   TCP_DB_EVENTS,
   tcpOk,
 } from '@app/contracts';
+import type { RobotCreateRequest } from '@app/contracts/internal';
 import { GlobalRpcExceptionFilter, InternalRpcGuard, SerializerService, LoggerService } from '@app/core';
-import { Robot } from '@app/postgres';
 import { WriteRobotsService } from './write-robots.service';
 
 @UseFilters(GlobalRpcExceptionFilter)
@@ -24,7 +24,7 @@ export class WriteRobotController {
   }
 
   @MessagePattern(TCP_DB_EVENTS.ROBOT_CREATE, Transport.TCP)
-  async create(@Payload() data: Robot) {
+  async create(@Payload() data: RobotCreateRequest) {
     const robot = await this.writeRobotsService.create(data);
     return tcpOk(this.serializerService.serialize(RobotResponseDto, robot), ResponseMessage.ROBOT_CREATED);
   }

@@ -38,6 +38,32 @@ describe('ReadRobotsController', () => {
     expect(Object.keys(response.data[0]).sort()).toEqual(['account', 'funds', 'id', 'indicators']);
   });
 
+  describe('find-one', () => {
+    it('answers with the symbol, the indicators and the owner id only', async () => {
+      const robot = Object.assign(new Robot(), {
+        id: 'robot-1',
+        name: 'Robot one',
+        hash: 'robot-hash',
+        fsymbol: 'BTCUSDT',
+        indicators: undefined,
+        owner: Object.assign(new User(), { id: 'user-1', email: 'owner@example.com', notifyByEmail: true }),
+      });
+      readRobotsService.findOne.mockResolvedValue(robot);
+
+      const response = await controller.findOne({ id: 'robot-1' });
+
+      expect(readRobotsService.findOne).toHaveBeenCalledWith('robot-1');
+      expect(response.data).toEqual({ fsymbol: 'BTCUSDT', indicators: undefined, owner: { id: 'user-1' } });
+      expect(JSON.stringify(response.data)).not.toContain('owner@example.com');
+    });
+
+    it('rejects when the robot does not exist', async () => {
+      readRobotsService.findOne.mockResolvedValue(null);
+
+      await expect(controller.findOne({ id: 'missing' })).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
   describe('find-notification-target', () => {
     it('answers with the robot name and the owner contact fields only', async () => {
       const robot = Object.assign(new Robot(), {
