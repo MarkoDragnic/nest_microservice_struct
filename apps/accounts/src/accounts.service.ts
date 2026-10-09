@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { AccountCreateDto, AccountResponseDto, TCP_DB_EVENTS } from '@app/contracts';
+import { AccountCreateDto, AccountResponseDto, AuthenticatedUser, TCP_DB_EVENTS } from '@app/contracts';
 import { PG_WRITE_SERVICE, ClientTcpService } from '@app/messaging';
-import { Account, User } from '@app/postgres';
 import { CryptoService } from './crypto.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
@@ -14,9 +13,9 @@ export class AccountsService {
     private readonly cryptoService: CryptoService,
   ) {}
 
-  async create(user: User, account: AccountCreateDto): Promise<AccountResponseDto> {
+  async create(user: AuthenticatedUser, account: AccountCreateDto): Promise<AccountResponseDto> {
     const encryptedData = {
-      userId: user.id as string,
+      userId: user.id,
       exchange: account.exchange,
       environment: account.environment,
       apiKeyEncrypted: this.cryptoService.encrypt(account.apiKey),

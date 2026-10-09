@@ -6,8 +6,8 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { GatewayOnlyGuard } from './guards/gateway-only.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth.guard';
+import { type AuthenticatedUser } from '@app/contracts';
 import { CurrentUser } from '@app/core';
-import { User } from '@app/postgres';
 import { RefreshTokenPayload } from './interfaces/token-payload.interface';
 
 @ApiTags('auth')
@@ -24,7 +24,7 @@ export class AuthHttpController {
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@CurrentUser() user: User, @Res({ passthrough: true }) response: Response) {
+  async login(@CurrentUser() user: AuthenticatedUser, @Res({ passthrough: true }) response: Response) {
     if (!user.id) throw new InternalServerErrorException('Authenticated user has no id');
     await this.authService.login({ id: user.id }, response);
     return { ok: true };

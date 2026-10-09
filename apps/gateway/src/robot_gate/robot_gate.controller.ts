@@ -1,9 +1,8 @@
 import { Body, Controller, Get, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiCookieAuth, ApiBody } from '@nestjs/swagger';
 import { RobotGateService } from './robot_gate.service';
-import { IndicatorsUpdateDto, PaginationDto, RobotCreateDto } from '@app/contracts';
+import { type AuthenticatedUser, IndicatorsUpdateDto, PaginationDto, RobotCreateDto } from '@app/contracts';
 import { CurrentUser } from '@app/core';
-import { User } from '@app/postgres';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { OwnRobotGuard } from '../guards/own-robot.guard';
 
@@ -18,8 +17,8 @@ export class RobotGateController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @Get()
-  async list(@CurrentUser() user: User, @Query() pagination: PaginationDto) {
-    return await this.robotService.listRobots(user.id!, pagination.page, pagination.limit);
+  async list(@CurrentUser() user: AuthenticatedUser, @Query() pagination: PaginationDto) {
+    return await this.robotService.listRobots(user.id, pagination.page, pagination.limit);
   }
 
   @ApiOperation({ summary: 'List positions across all your robots (paginated)' })
@@ -28,8 +27,8 @@ export class RobotGateController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @Get('positions')
-  async listPositions(@CurrentUser() user: User, @Query() pagination: PaginationDto) {
-    return await this.robotService.listPositions(user.id!, pagination.page, pagination.limit);
+  async listPositions(@CurrentUser() user: AuthenticatedUser, @Query() pagination: PaginationDto) {
+    return await this.robotService.listPositions(user.id, pagination.page, pagination.limit);
   }
 
   @ApiOperation({ summary: 'Create a new trading robot' })
@@ -39,7 +38,7 @@ export class RobotGateController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@CurrentUser() user: User, @Body() robot: RobotCreateDto) {
+  async create(@CurrentUser() user: AuthenticatedUser, @Body() robot: RobotCreateDto) {
     return await this.robotService.createRobot({ robot, user });
   }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { ITokenPayload } from '../interfaces/token-payload.interface';
@@ -22,6 +22,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate({ userId }: ITokenPayload) {
-    return this.usersService.getUser({ id: userId });
+    const user = await this.usersService.getUser({ id: userId });
+    if (!user.isActive) {
+      throw new UnauthorizedException('User is not active');
+    }
+    return user;
   }
 }

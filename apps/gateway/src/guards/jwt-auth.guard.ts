@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, map, Observable, tap } from 'rxjs';
-import { TCP_EVENTS } from '@app/contracts';
+import { AuthenticatedUser, TCP_EVENTS } from '@app/contracts';
 import { LoggerService } from '@app/core';
 import { AUTH_SERVICE } from '@app/messaging';
 import { ClientProxy } from '@nestjs/microservices';
@@ -35,7 +35,12 @@ export class JwtAuthGuard implements CanActivate {
         if (res?.error) {
           throw new UnauthorizedException(typeof res?.message === 'string' ? res.message : 'Authentication failed');
         }
-        context.switchToHttp().getRequest().user = res;
+        
+        if (typeof res?.id !== 'string' || res.id === '') {
+          throw new UnauthorizedException('Authentication answer has no user id');
+        }
+        const user: AuthenticatedUser = { id: res.id };
+        context.switchToHttp().getRequest().user = user;
       }),
       map(() => true),
       catchError((err) => {

@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { UserCreateDto, TCP_EVENTS } from '@app/contracts';
+import { UserCreateDto, TCP_EVENTS, UserResponseDto } from '@app/contracts';
 import { AUTH_SERVICE, ClientTcpService } from '@app/messaging';
-import { User } from '@app/postgres';
 import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
@@ -12,6 +11,6 @@ export class UserGateService {
   ) {}
 
   async create(user: UserCreateDto) {
-    return await this.tcpClientService.send<User>(this.authClient, TCP_EVENTS.USER_CREATE, user);
+    return await this.tcpClientService.send<UserResponseDto>(this.authClient, TCP_EVENTS.USER_CREATE, user);
   }
 }

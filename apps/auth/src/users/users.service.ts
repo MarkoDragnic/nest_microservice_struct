@@ -1,8 +1,13 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { TCP_DB_EVENTS, UserCreateDto, UserCredentialsResponseDto, UserResponseDto } from '@app/contracts';
+import {
+  AuthenticatedUser,
+  TCP_DB_EVENTS,
+  UserCreateDto,
+  UserCredentialsResponseDto,
+  UserResponseDto,
+} from '@app/contracts';
 import { LoggerService } from '@app/core';
 import { PG_READ_SERVICE, PG_WRITE_SERVICE, ClientTcpService } from '@app/messaging';
-import { User } from '@app/postgres';
 import bcryptjs from 'bcryptjs';
 import { GetUserDto } from './dto/get-user.dto';
 import { ClientProxy } from '@nestjs/microservices';
@@ -18,7 +23,7 @@ export class UsersService {
     this.logger.setContext(UsersService.name);
   }
 
-  async verifyUser(email: string, password: string) {
+  async verifyUser(email: string, password: string): Promise<AuthenticatedUser> {
     const user = await this.tcpClientService.send<UserCredentialsResponseDto>(
       this.pgReadClient,
       TCP_DB_EVENTS.USER_FIND_ONE_WITH_PASSWORD,
@@ -28,10 +33,11 @@ export class UsersService {
     if (!(await bcryptjs.compare(password, user.password))) {
       throw new UnauthorizedException('Credentials are not valid ');
     }
-    return user;
+    // The login needs the id. The password hash stays in this method.
+    return { id: user.id };
   }
 
-  async create(user: UserCreateDto): Promise<User> {
+  async create(user: UserCreateDto): Promise<UserResponseDto> {
     const hashedPassword = await bcryptjs.hash(user.password, 16);
     const newUser = {
       ...user,
@@ -41,7 +47,7 @@ export class UsersService {
       isActive: true,
     };
 
-    return await this.tcpClientService.send<User>(this.pgWriteClient, TCP_DB_EVENTS.USER_CREATE, newUser);
+    return await this.tcpClientService.send<UserResponseDto>(this.pgWriteClient, TCP_DB_EVENTS.USER_CREATE, newUser);
   }
 
   async getUser(getUserDto: GetUserDto) {

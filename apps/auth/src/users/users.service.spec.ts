@@ -44,14 +44,14 @@ describe('UsersService', () => {
   });
 
   describe('verifyUser', () => {
-    it('should return user when credentials are valid', async () => {
+    it('should return the user id only, not the credentials, when credentials are valid', async () => {
       const user = { id: '1', email: 'test@test.com', password: 'hashed' };
       mockTcpClientService.send.mockResolvedValue(user);
       (bcryptjs.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await service.verifyUser('test@test.com', 'password');
 
-      expect(result).toEqual(user);
+      expect(result).toEqual({ id: '1' });
       expect(mockTcpClientService.send).toHaveBeenCalledWith(
         mockPgReadClient,
         TCP_DB_EVENTS.USER_FIND_ONE_WITH_PASSWORD,
