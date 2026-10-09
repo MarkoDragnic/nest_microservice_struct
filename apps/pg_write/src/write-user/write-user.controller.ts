@@ -1,8 +1,8 @@
 import { Controller, UseFilters, UseGuards } from '@nestjs/common';
 import { WriteUserService } from './write-user.service';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { ResponseMessage, TCP_DB_EVENTS, tcpOk } from '@app/contracts';
-import { GlobalRpcExceptionFilter, InternalRpcGuard, LoggerService } from '@app/core';
+import { ResponseMessage, TCP_DB_EVENTS, tcpOk, UserResponseDto } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard, LoggerService, SerializerService } from '@app/core';
 import { User } from '@app/postgres';
 
 @UseFilters(GlobalRpcExceptionFilter)
@@ -11,6 +11,7 @@ import { User } from '@app/postgres';
 export class WriteUserController {
   constructor(
     private readonly writeUserService: WriteUserService,
+    private readonly serializerService: SerializerService,
     private readonly logger: LoggerService,
   ) {
     this.logger.setContext(WriteUserController.name);
@@ -19,6 +20,6 @@ export class WriteUserController {
   @MessagePattern(TCP_DB_EVENTS.USER_CREATE, Transport.TCP)
   async create(@Payload() data: User) {
     const user = await this.writeUserService.create(data);
-    return tcpOk(user, ResponseMessage.USER_CREATED);
+    return tcpOk(this.serializerService.serialize(UserResponseDto, user), ResponseMessage.USER_CREATED);
   }
 }
