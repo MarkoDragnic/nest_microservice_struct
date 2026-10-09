@@ -4,3 +4,4 @@ export * from './position-change.mapper';
 export * from './robot-notification-target.mapper';
 export * from './managed-robot.mapper';
 export * from './position-response.mapper';
+export * from './robot-response.mapper';

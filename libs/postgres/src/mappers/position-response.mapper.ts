@@ -15,8 +15,10 @@ export const toPositionResponse = (position: Position): PositionResponseDto => (
   quantity: position.quantity,
   openTransactionValue: position.openTransactionValue ?? null,
   closeTransactionValue: position.closeTransactionValue ?? null,
+  transaction: position.transaction,
   closeReason: position.closeReason ?? null,
   openedAt: toIso(position.openedAt),
   closedAt: position.closedAt ? toIso(position.closedAt) : null,
+  rules: position.rules ?? null,
   robot: { id: position.robot.id as string, name: position.robot.name },
 });

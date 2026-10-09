@@ -1,4 +1,5 @@
 import { Expose, Type } from 'class-transformer';
+import type { IIndicatorsConfig } from '../../interfaces/indicators-config.interface';
 import { PositionCloseReason, PositionStatus } from '../../types/positions/position.types';
 import { RobotTypes } from '../../types/robots/robot.types';
 
@@ -41,6 +42,9 @@ export class PositionResponseDto {
   closeTransactionValue: number | null;
 
   @Expose()
+  transaction: number;
+
+  @Expose()
   closeReason: PositionCloseReason | null;
 
   @Expose()
@@ -48,6 +52,9 @@ export class PositionResponseDto {
 
   @Expose()
   closedAt: string | null;
+
+  @Expose()
+  rules: IIndicatorsConfig | null;
 
   @Expose()
   @Type(() => PositionRobotResponseDto)

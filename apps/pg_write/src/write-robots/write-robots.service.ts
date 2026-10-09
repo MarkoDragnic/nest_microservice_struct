@@ -34,7 +34,7 @@ export class WriteRobotsService {
         }),
       );
 
-      return await this.robotsRepository.create({
+      const saved = await this.robotsRepository.create({
         owner: { id: request.owner.id },
         account: { id: request.account.id },
         hash: request.hash,
@@ -46,6 +46,8 @@ export class WriteRobotsService {
         funds,
         instrument,
       } as unknown as Robot);
+      
+      return await this.robotsRepository.findOne({ id: saved.id });
     } catch (error: unknown) {
       const isDuplicate =
         error instanceof Error &&

@@ -1,26 +1,37 @@
 import { Expose, Type } from 'class-transformer';
-import { UserResponseDto } from '../user/user-response.dto';
-import { AccountResponseDto } from '../account/account-response.dto';
+import type { IIndicatorsConfig } from '../../interfaces/indicators-config.interface';
+import { RobotTypes } from '../../types/robots/robot.types';
+import { FundsResponseDto } from '../funds/funds-response.dto';
 import { InstrumentResponseDto } from './instrument.dto';
-import { type IIndicatorsConfig } from '@app/contracts/interfaces';
-import { FundsResponseDto } from '@app/contracts/dto';
 
+// The account a robot trades on, as its owner sees it. Never the keys.
+export class RobotAccountResponseDto {
+  @Expose()
+  id: string;
+
+  @Expose()
+  exchange: string;
+
+  @Expose()
+  environment: string;
+
+  @Expose()
+  revokedAt: string | null;
+}
+
+// A robot in the public responses: the list, create and upsert-indicators. Dates are ISO strings.
 export class RobotResponseDto {
   @Expose()
   id: string;
 
   @Expose()
-  @Type(() => UserResponseDto)
-  owner: UserResponseDto;
+  name: string;
 
   @Expose()
   fsymbol: string;
 
   @Expose()
-  name: string;
-
-  @Expose()
-  type: string;
+  type: RobotTypes;
 
   @Expose()
   assets: string;
@@ -29,26 +40,23 @@ export class RobotResponseDto {
   active: boolean;
 
   @Expose()
-  @Type(() => AccountResponseDto)
-  account: AccountResponseDto;
+  indicators: IIndicatorsConfig | null;
 
   @Expose()
-  hash: string;
+  createdAt: string;
+
+  @Expose()
+  updatedAt: string;
+
+  @Expose()
+  @Type(() => RobotAccountResponseDto)
+  account: RobotAccountResponseDto | null;
 
   @Expose()
   @Type(() => FundsResponseDto)
-  funds: FundsResponseDto;
+  funds: FundsResponseDto | null;
 
   @Expose()
   @Type(() => InstrumentResponseDto)
-  instrument: InstrumentResponseDto;
-
-  @Expose()
-  indicators?: IIndicatorsConfig;
-
-  @Expose()
-  createdAt: Date;
-
-  @Expose()
-  updatedAt: Date;
+  instrument: InstrumentResponseDto | null;
 }

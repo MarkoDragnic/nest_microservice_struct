@@ -98,8 +98,6 @@ const NOT_IN_THE_LIST = [
   'ROBOT-FULL-SYMBOL',
   'robot-assets',
   'robot-rule',
-  'position-rule',
-  '777',
 ];
 
 describe('ReadPositionsController', () => {
@@ -203,9 +201,11 @@ describe('ReadPositionsController', () => {
             quantity: 0.01,
             openTransactionValue: 500,
             closeTransactionValue: 510,
+            transaction: 777,
             closeReason: PositionCloseReason.STRATEGY,
             openedAt: '2026-01-05T00:00:00.000Z',
             closedAt: '2026-01-06T00:00:00.000Z',
+            rules: { open: { rsi: { enabled: true, period: 14, rule: 'position-rule', value: 30 } } },
             robot: { id: 'robot-1', name: 'Robot one' },
           },
         ],
@@ -231,8 +231,10 @@ describe('ReadPositionsController', () => {
         'openedAt',
         'quantity',
         'robot',
+        'rules',
         'status',
         'symbol',
+        'transaction',
         'type',
       ]);
       expect(Object.keys(position.robot).sort()).toEqual(['id', 'name']);

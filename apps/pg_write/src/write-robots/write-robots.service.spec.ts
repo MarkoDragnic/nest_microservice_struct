@@ -5,7 +5,7 @@ import { Funds, Instrument, RobotsRepository } from '@app/postgres';
 import { WriteRobotsService } from './write-robots.service';
 
 describe('WriteRobotsService', () => {
-  const robotsRepository = { create: jest.fn() };
+  const robotsRepository = { create: jest.fn(), findOne: jest.fn() };
   const fundsRepo = { create: jest.fn(), save: jest.fn() };
   const instrumentRepo = { create: jest.fn(), save: jest.fn() };
   let service: WriteRobotsService;
@@ -67,6 +67,18 @@ describe('WriteRobotsService', () => {
     expect(fundsRepo.create).toHaveBeenCalledWith(expectedFunds);
     expect(instrumentRepo.create).toHaveBeenCalledWith(expectedInstrument);
     expect(robotsRepository.create).toHaveBeenCalledWith(expectedRobot);
+  });
+
+  // save() hands back only the ids of the owner and the account it was given. The answer needs the
+  // account's exchange and environment, so the robot is read back with its relations.
+  it('answers create with the robot read back from the database, not the instance it saved', async () => {
+    const readBack = { id: 'robot-1', account: { id: 'account-1', exchange: 'binance', environment: 'sandbox' } };
+    robotsRepository.findOne.mockResolvedValue(readBack);
+
+    const created = await service.create(request);
+
+    expect(robotsRepository.findOne).toHaveBeenCalledWith({ id: 'robot-1' });
+    expect(created).toBe(readBack);
   });
 
   it('applies none of the extra fields in a payload', async () => {

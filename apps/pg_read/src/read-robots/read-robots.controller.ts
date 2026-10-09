@@ -1,18 +1,15 @@
 import { Controller, NotFoundException, UseFilters, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { ResponseMessage, RobotResponseDto, TCP_DB_EVENTS, tcpOk } from '@app/contracts';
-import { GlobalRpcExceptionFilter, InternalRpcGuard, SerializerService } from '@app/core';
-import { toManagedRobot, toRobotNotificationTarget, toTradingRobot } from '@app/postgres';
+import { PaginatedResponseDto, ResponseMessage, TCP_DB_EVENTS, tcpOk } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard } from '@app/core';
+import { toManagedRobot, toRobotNotificationTarget, toRobotResponse, toTradingRobot } from '@app/postgres';
 import { ReadRobotsService } from './read-robots.service';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @UseGuards(InternalRpcGuard)
 @Controller()
 export class ReadRobotsController {
-  constructor(
-    private readonly readRobotsService: ReadRobotsService,
-    private readonly serializerService: SerializerService,
-  ) {}
+  constructor(private readonly readRobotsService: ReadRobotsService) {}
 
   @MessagePattern(TCP_DB_EVENTS.ROBOT_FIND_ONE, Transport.TCP)
   async findOne(@Payload() params: { id: string }) {
@@ -37,9 +34,7 @@ export class ReadRobotsController {
   @MessagePattern(TCP_DB_EVENTS.ROBOT_FIND_PAGINATED, Transport.TCP)
   async findPaginated(@Payload() params: { userId: string; page: number; limit: number }) {
     const result = await this.readRobotsService.findPaginated(params.userId, params.page, params.limit);
-    return tcpOk(
-      { ...result, data: this.serializerService.serialize(RobotResponseDto, result.data) },
-      ResponseMessage.ROBOTS_LISTED,
-    );
+    const robots = new PaginatedResponseDto(result.data.map(toRobotResponse), result.total, result.page, result.limit);
+    return tcpOk(robots, ResponseMessage.ROBOTS_LISTED);
   }
 }

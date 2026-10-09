@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { PositionCloseReason, PositionStatus, RobotTypes } from '@app/contracts';
-import { loadedPosition } from './fixtures';
+import { indicatorsConfig, loadedPosition } from './fixtures';
 import { toPositionResponse } from './position-response.mapper';
 
 describe('toPositionResponse', () => {
@@ -15,9 +15,11 @@ describe('toPositionResponse', () => {
       quantity: 0.01,
       openTransactionValue: 500,
       closeTransactionValue: null,
+      transaction: 500,
       closeReason: null,
       openedAt: '2026-01-05T00:00:00.000Z',
       closedAt: null,
+      rules: indicatorsConfig,
       robot: { id: 'robot-1', name: 'Robot one' },
     });
   });
@@ -29,6 +31,7 @@ describe('toPositionResponse', () => {
       closedAt: new Date('2026-01-06T00:00:00.000Z'),
       closeReason: PositionCloseReason.STRATEGY,
       closeTransactionValue: 510,
+      transaction: 10,
     });
 
     expect(toPositionResponse(closed)).toMatchObject({
@@ -37,6 +40,7 @@ describe('toPositionResponse', () => {
       closedAt: '2026-01-06T00:00:00.000Z',
       closeReason: PositionCloseReason.STRATEGY,
       closeTransactionValue: 510,
+      transaction: 10,
     });
   });
 
@@ -47,6 +51,7 @@ describe('toPositionResponse', () => {
       closeReason: undefined,
       openTransactionValue: undefined,
       closeTransactionValue: undefined,
+      rules: undefined,
     });
 
     expect(JSON.parse(JSON.stringify(toPositionResponse(unset)))).toMatchObject({
@@ -55,6 +60,7 @@ describe('toPositionResponse', () => {
       closeReason: null,
       openTransactionValue: null,
       closeTransactionValue: null,
+      rules: null,
     });
   });
 
@@ -72,8 +78,10 @@ describe('toPositionResponse', () => {
       'openedAt',
       'quantity',
       'robot',
+      'rules',
       'status',
       'symbol',
+      'transaction',
       'type',
     ]);
     expect(Object.keys(position.robot).sort()).toEqual(['id', 'name']);
