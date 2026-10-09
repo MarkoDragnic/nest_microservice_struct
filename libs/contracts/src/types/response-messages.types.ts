@@ -27,6 +27,7 @@ export enum ResponseMessage {
 
   ACCOUNT_CREATED = 'Account created',
   ACCOUNT_ALREADY_EXISTS = 'Account already exists',
+  ACCOUNT_NOT_FOUND = 'Account not found',
 
   FUNDS_UPDATED = 'Funds updated',
 }
