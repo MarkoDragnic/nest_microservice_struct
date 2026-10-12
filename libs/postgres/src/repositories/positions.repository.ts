@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { PostgresqlAbstractRepository } from '../postgresql-abstract.repository';
 import { Funds, Position, Robot } from '../models';
 import { ClosePositionDto, OpenPositionDto } from '@app/contracts/dto';
@@ -23,6 +23,14 @@ export class PositionsRepository extends PostgresqlAbstractRepository<Position> 
       const robotRepository = manager.getRepository(Robot);
       const fundsRepository = manager.getRepository(Funds);
       const positionsRepository = manager.getRepository(Position);
+
+      const lockedRobot = await this.robotLock(manager)
+        .where('robot.id = :robotId', { robotId: data.robotId })
+        .getOne();
+
+      if (!lockedRobot) {
+        throw new NotFoundException(ResponseMessage.ROBOT_NOT_FOUND);
+      }
 
       const robot = await robotRepository.findOne({
         where: { id: data.robotId },
@@ -75,23 +83,25 @@ export class PositionsRepository extends PostgresqlAbstractRepository<Position> 
       const robotRepository = manager.getRepository(Robot);
       const fundsRepository = manager.getRepository(Funds);
 
-      const position = await positionsRepository
-        .createQueryBuilder('position')
-        .innerJoinAndSelect('position.robot', 'robot')
-        .setLock('pessimistic_write')
-        .where('position.id = :id', { id: data.positionId })
+      const lockedRobot = await this.robotLock(manager)
+        .where((robots) => {
+          const robotOfPosition = robots
+            .subQuery()
+            .select('position.robot_id')
+            .from(Position, 'position')
+            .where('position.id = :positionId')
+            .getQuery();
+          return `robot.id = ${robotOfPosition}`;
+        })
+        .setParameter('positionId', data.positionId)
         .getOne();
 
-      if (!position) {
+      if (!lockedRobot) {
         throw new NotFoundException(ResponseMessage.POSITION_NOT_FOUND);
       }
 
-      if (position.status === PositionStatus.CLOSED) {
-        throw new ConflictException('Position is already closed');
-      }
-
       const robot = await robotRepository.findOne({
-        where: { id: position.robot.id },
+        where: { id: lockedRobot.id },
         relations: { funds: true },
       });
 
@@ -106,6 +116,20 @@ export class PositionsRepository extends PostgresqlAbstractRepository<Position> 
 
       if (!funds) {
         throw new NotFoundException('Funds not found');
+      }
+
+      const position = await positionsRepository
+        .createQueryBuilder('position')
+        .setLock('pessimistic_write')
+        .where('position.id = :id', { id: data.positionId })
+        .getOne();
+
+      if (!position) {
+        throw new NotFoundException(ResponseMessage.POSITION_NOT_FOUND);
+      }
+
+      if (position.status === PositionStatus.CLOSED) {
+        throw new ConflictException('Position is already closed');
       }
 
       const openReservedValue = this.roundMoney(position.openTransactionValue ?? position.transaction ?? 0);
@@ -140,6 +164,11 @@ export class PositionsRepository extends PostgresqlAbstractRepository<Position> 
       .andWhere('robot.id IN (:...robotIds)', { robotIds })
       .andWhere('position.symbol = :symbol', { symbol })
       .getMany();
+  }
+
+  // Every transaction that moves a robot's money locks the robot row first, then its funds, then the position.
+  private robotLock(manager: EntityManager) {
+    return manager.getRepository(Robot).createQueryBuilder('robot').select('robot.id').setLock('pessimistic_write');
   }
 
   private roundMoney(value: number) {
