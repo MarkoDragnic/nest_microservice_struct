@@ -8,7 +8,6 @@ import { DatabasePostgresqlModule, postgresSchema } from '@app/postgres';
 import { WriteAccountsModule } from './write-accounts/write-accounts.module';
 import { WriteRobotsModule } from './write-robots/write-robots.module';
 import { WritePositionsModule } from './write-positions/write-positions.module';
-import { WriteFundsModule } from './write-funds/write-funds.module';
 import { WriteUserModule } from './write-user/write-user.module';
 
 @Module({
@@ -35,7 +34,6 @@ import { WriteUserModule } from './write-user/write-user.module';
     WriteAccountsModule,
     WriteRobotsModule,
     WritePositionsModule,
-    WriteFundsModule,
     WriteUserModule,
   ],
 })

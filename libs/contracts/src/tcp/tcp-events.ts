@@ -36,8 +36,6 @@ export const TCP_DB_EVENTS = {
   POSITION_CLOSE_TRANSACTIONAL: 'position.db.close-transactional',
   POSITION_OPEN_FOR_ROBOTS: 'position.db.open-for-robots',
 
-  FUNDS_UPDATE: 'funds.db.update',
-
   USER_FIND_ONE: 'user.db.find-one',
   USER_FIND_ONE_WITH_PASSWORD: 'user.db.find-one-with-password',
   USER_CREATE: 'user.db.create',
