@@ -2,9 +2,9 @@ import { Test } from '@nestjs/testing';
 import {
   HlRule,
   type IIndicatorsConfig,
-  type IndicatorsUpdateDto,
   ProfitFactor,
   type RobotCreateDto,
+  type RobotIndicatorsUpdateData,
   RsiRule,
   TCP_DB_EVENTS,
 } from '@app/contracts';
@@ -124,11 +124,16 @@ describe('RobotsService', () => {
       });
       const next = indicators(21);
 
-      const result = await service.upsertIndicators({ robotId: 'robot-1', ...next } as IndicatorsUpdateDto);
+      const result = await service.upsertIndicators({
+        robotId: 'robot-1',
+        userId: 'user-1',
+        ...next,
+      } as RobotIndicatorsUpdateData);
 
       expect(tcpClientService.send).toHaveBeenCalledWith(pgReadClient, TCP_DB_EVENTS.ROBOT_FIND_ONE, { id: 'robot-1' });
       expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ROBOT_INDICATORS_UPSERT, {
         robotId: 'robot-1',
+        ownerId: 'user-1',
         indicators: { open: next.open, close: next.close },
       });
       expect(indicatorsRedisRepository.updateIndicatorsUse).toHaveBeenCalledWith('BTCUSDT', {
@@ -136,6 +141,47 @@ describe('RobotsService', () => {
         add: [{ indicator: 'rsi', period: 21 }],
       });
       expect(result).toBe(updated);
+    });
+
+    it('names the user who asked as the owner, not the owner of the robot or one named in the body', async () => {
+      answerWith({
+        [TCP_DB_EVENTS.ROBOT_FIND_ONE]: { fsymbol: 'BTCUSDT', indicators: indicators(14), owner: { id: 'user-2' } },
+        [TCP_DB_EVENTS.ROBOT_INDICATORS_UPSERT]: { id: 'robot-of-another-user' },
+      });
+      const next = indicators(21);
+      const withExtraFields = {
+        robotId: 'robot-of-another-user',
+        userId: 'user-1',
+        ownerId: 'user-2',
+        owner: { id: 'user-2' },
+        ...next,
+      } as RobotIndicatorsUpdateData;
+
+      await service.upsertIndicators(withExtraFields);
+
+      expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ROBOT_INDICATORS_UPSERT, {
+        robotId: 'robot-of-another-user',
+        ownerId: 'user-1',
+        indicators: { open: next.open, close: next.close },
+      });
+    });
+
+    it('leaves the indicator registry alone when pg_write refuses the update', async () => {
+      const refusal = new Error('Robot not found');
+      tcpClientService.send.mockImplementation((_client: unknown, pattern: string) =>
+        pattern === TCP_DB_EVENTS.ROBOT_INDICATORS_UPSERT
+          ? Promise.reject(refusal)
+          : Promise.resolve({ fsymbol: 'BTCUSDT', indicators: indicators(14), owner: { id: 'user-2' } }),
+      );
+
+      const update = service.upsertIndicators({
+        robotId: 'robot-of-another-user',
+        userId: 'user-1',
+        ...indicators(21),
+      } as RobotIndicatorsUpdateData);
+
+      await expect(update).rejects.toBe(refusal);
+      expect(indicatorsRedisRepository.updateIndicatorsUse).not.toHaveBeenCalled();
     });
   });
 

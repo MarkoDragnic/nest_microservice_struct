@@ -1,8 +1,8 @@
 import { Inject, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common';
 import {
-  IndicatorsUpdateDto,
   ResponseMessage,
   RobotCreateData,
+  type RobotIndicatorsUpdateData,
   type RobotResponseDto,
   TCP_DB_EVENTS,
 } from '@app/contracts';
@@ -57,7 +57,7 @@ export class RobotsService {
     return await this.tcpClientService.send<RobotResponseDto>(this.pgWriteClient, TCP_DB_EVENTS.ROBOT_CREATE, request);
   }
 
-  async upsertIndicators(indicators: IndicatorsUpdateDto): Promise<RobotResponseDto> {
+  async upsertIndicators(indicators: RobotIndicatorsUpdateData): Promise<RobotResponseDto> {
     const robot = await this.tcpClientService.send<ManagedRobot>(this.pgReadClient, TCP_DB_EVENTS.ROBOT_FIND_ONE, {
       id: indicators.robotId,
     });
@@ -68,6 +68,7 @@ export class RobotsService {
 
     const updatePayload = {
       robotId: indicators.robotId,
+      ownerId: indicators.userId,
       indicators: {
         open: indicators.open,
         close: indicators.close,

@@ -5,6 +5,8 @@ import { ResponseMessage, RobotIndicatorsUpdatePayloadDto } from '@app/contracts
 import type { RobotCreateRequest } from '@app/contracts/internal';
 import { Account, Funds, Instrument, RobotsRepository, Robot } from '@app/postgres';
 
+const isId = (value: unknown): value is string => typeof value === 'string' && value !== '';
+
 @Injectable()
 export class WriteRobotsService {
   constructor(
@@ -69,7 +71,6 @@ export class WriteRobotsService {
   }
 
   private async requireAccountOfOwner(manager: EntityManager, accountId: unknown, ownerId: unknown): Promise<void> {
-    const isId = (value: unknown): value is string => typeof value === 'string' && value !== '';
     const account =
       isId(accountId) && isId(ownerId)
         ? await manager.getRepository(Account).findOne({ where: { id: accountId, userId: ownerId } })
@@ -81,13 +82,17 @@ export class WriteRobotsService {
   }
 
   async upsertIndicators(payload: RobotIndicatorsUpdatePayloadDto): Promise<Robot> {
-    const robot = await this.robotsRepository.findOneAndUpdate(
-      { id: payload.robotId },
-      { indicators: payload.indicators },
-    );
-    if (!robot) {
+    const { robotId, ownerId } = payload;
+    const updated =
+      isId(robotId) && isId(ownerId)
+        ? await this.dataSource
+            .getRepository(Robot)
+            .update({ id: robotId, owner: { id: ownerId } }, { indicators: payload.indicators })
+        : null;
+
+    if (!updated?.affected) {
       throw new NotFoundException(ResponseMessage.ROBOT_NOT_FOUND);
     }
-    return robot;
+    return this.robotsRepository.findOne({ id: robotId });
   }
 }

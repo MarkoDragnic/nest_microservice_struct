@@ -50,7 +50,7 @@ export class RobotGateController {
   @ApiResponse({ status: 403, description: 'Not the robot owner' })
   @UseGuards(JwtAuthGuard, OwnRobotGuard)
   @Patch()
-  async upsertIndicators(@Body() data: IndicatorsUpdateDto) {
-    return await this.robotService.upsertIndicators(data);
+  async upsertIndicators(@CurrentUser() user: AuthenticatedUser, @Body() data: IndicatorsUpdateDto) {
+    return await this.robotService.upsertIndicators(user.id, data);
   }
 }

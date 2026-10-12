@@ -1,5 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IndicatorsUpdateDto, RobotCreateData, RobotResponseDto, TCP_DB_EVENTS, TCP_EVENTS } from '@app/contracts';
+import {
+  IndicatorsUpdateDto,
+  RobotCreateData,
+  type RobotIndicatorsUpdateData,
+  RobotResponseDto,
+  TCP_DB_EVENTS,
+  TCP_EVENTS,
+} from '@app/contracts';
 import { PG_READ_SERVICE, ROBOTS_SERVICE, ClientTcpService } from '@app/messaging';
 import { ClientProxy } from '@nestjs/microservices';
 
@@ -15,11 +22,18 @@ export class RobotGateService {
     return await this.tcpClientService.send<RobotResponseDto>(this.robotClient, TCP_EVENTS.ROBOT_CREATE, data);
   }
 
-  async upsertIndicators(indicators: IndicatorsUpdateDto) {
+  async upsertIndicators(userId: string, indicators: IndicatorsUpdateDto) {
+    const data: RobotIndicatorsUpdateData = {
+      robotId: indicators.robotId,
+      open: indicators.open,
+      close: indicators.close,
+      userId,
+    };
+
     return await this.tcpClientService.send<RobotResponseDto>(
       this.robotClient,
       TCP_EVENTS.ROBOT_INDICATORS_UPSERT,
-      indicators,
+      data,
     );
   }
 

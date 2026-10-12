@@ -10,6 +10,7 @@ export enum ResponseMessage {
   USER_CREATED = 'User created',
   USER_EMAIL_IN_USE = 'Invalid credentials',
   USER_NOT_FOUND = 'User not found',
+  USER_ID_REQUIRED = 'User id is required',
 
   ROBOT_CREATED = 'Robot created',
   ROBOT_ALREADY_EXISTS = 'Robot already exists',

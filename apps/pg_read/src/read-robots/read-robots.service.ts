@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { PaginatedResponseDto } from '@app/contracts';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { PaginatedResponseDto, ResponseMessage } from '@app/contracts';
 import { RobotsRepository, Robot } from '@app/postgres';
 
 @Injectable()
@@ -14,6 +14,10 @@ export class ReadRobotsService {
   }
 
   async findPaginated(userId: string, page: number, limit: number): Promise<PaginatedResponseDto<Robot>> {
+    if (typeof userId !== 'string' || userId === '') {
+      throw new BadRequestException(ResponseMessage.USER_ID_REQUIRED);
+    }
+
     return await this.robotsRepository.findPaginated(
       { owner: { id: userId } } as any,
       page,

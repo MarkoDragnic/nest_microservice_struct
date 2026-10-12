@@ -1,6 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getDataSourceToken } from '@nestjs/typeorm';
+import type { IIndicatorsConfig, RobotIndicatorsUpdatePayloadDto } from '@app/contracts';
 import type { RobotCreateRequest } from '@app/contracts/internal';
 import { Account, Funds, Instrument, Robot, RobotsRepository } from '@app/postgres';
 import { WriteRobotsService } from './write-robots.service';
@@ -10,8 +11,8 @@ describe('WriteRobotsService', () => {
   const accountRepo = { findOne: jest.fn() };
   const fundsRepo = { create: jest.fn(), save: jest.fn() };
   const instrumentRepo = { create: jest.fn(), save: jest.fn() };
-  const robotRepo = { create: jest.fn(), save: jest.fn() };
-  const dataSource = { transaction: jest.fn() };
+  const robotRepo = { create: jest.fn(), save: jest.fn(), update: jest.fn() };
+  const dataSource = { transaction: jest.fn(), getRepository: jest.fn() };
   let service: WriteRobotsService;
 
   // The repositories of the transaction. Everything the service writes goes through them.
@@ -34,6 +35,16 @@ describe('WriteRobotsService', () => {
     const conditions = Object.entries(where).filter(([, value]) => value !== undefined && value !== null);
     const account = accounts.find((row) => conditions.every(([key, value]) => row[key as keyof typeof row] === value));
     return Promise.resolve(account ?? null);
+  };
+
+  type RobotRow = { id: string; ownerId: string; indicators: unknown };
+  let robots: RobotRow[];
+
+  // Updates the way the UPDATE statement does: every row that matches all the conditions it is given.
+  const updateRobots = (where: { id?: string; owner?: { id?: string } }, changes: object) => {
+    const matching = robots.filter((row) => row.id === where.id && (!where.owner || row.ownerId === where.owner.id));
+    matching.forEach((row) => Object.assign(row, changes));
+    return Promise.resolve({ affected: matching.length });
   };
 
   const request: RobotCreateRequest = {
@@ -73,6 +84,12 @@ describe('WriteRobotsService', () => {
   beforeEach(async () => {
     jest.resetAllMocks();
     dataSource.transaction.mockImplementation((work: (transaction: typeof manager) => unknown) => work(manager));
+    dataSource.getRepository.mockImplementation(manager.getRepository);
+    robots = [
+      { id: 'robot-1', ownerId: 'user-1', indicators: null },
+      { id: 'robot-of-another-user', ownerId: 'user-2', indicators: null },
+    ];
+    robotRepo.update.mockImplementation(updateRobots);
     accountRepo.findOne.mockImplementation(findAccount);
     // Stand-ins for TypeORM: create() returns what it was given, save() adds the generated id.
     fundsRepo.create.mockImplementation((data: object) => ({ ...data }));
@@ -177,6 +194,80 @@ describe('WriteRobotsService', () => {
       await expect(service.create(incomplete)).rejects.toThrow(new NotFoundException('Account not found'));
 
       expectNothingCreated();
+    });
+  });
+
+  describe('the indicators of a robot are updated only for its owner', () => {
+    const indicators = {
+      open: { rsi: { enabled: true, period: 14, rule: 'less', value: 30 } },
+      close: { take_profit: { enabled: true, factor: 'percent', value: 5 } },
+    } as unknown as IIndicatorsConfig;
+    const payload: RobotIndicatorsUpdatePayloadDto = { robotId: 'robot-1', ownerId: 'user-1', indicators };
+    const robotOfAnotherUser = () => robots.find((row) => row.id === 'robot-of-another-user');
+
+    it('updates the robot by its id and its owner together, and nothing but its indicators', async () => {
+      const withExtraFields = {
+        ...payload,
+        id: 'robot-of-another-user',
+        owner: { id: 'user-2' },
+        active: false,
+        hash: 'chosen-hash',
+      } as RobotIndicatorsUpdatePayloadDto;
+
+      await service.upsertIndicators(withExtraFields);
+
+      expect(robotRepo.update).toHaveBeenCalledTimes(1);
+      expect(robotRepo.update).toHaveBeenCalledWith({ id: 'robot-1', owner: { id: 'user-1' } }, { indicators });
+      expect(robots[0]).toEqual({ id: 'robot-1', ownerId: 'user-1', indicators });
+    });
+
+    it('answers with the robot read back from the database', async () => {
+      const readBack = { id: 'robot-1', indicators };
+      robotsRepository.findOne.mockResolvedValue(readBack);
+
+      const updated = await service.upsertIndicators(payload);
+
+      expect(robotsRepository.findOne).toHaveBeenCalledWith({ id: 'robot-1' });
+      expect(updated).toBe(readBack);
+    });
+
+    it('refuses the robot of another user, and changes nothing', async () => {
+      const onAnotherUsersRobot = { ...payload, robotId: 'robot-of-another-user' };
+
+      await expect(service.upsertIndicators(onAnotherUsersRobot)).rejects.toThrow(
+        new NotFoundException('Robot not found'),
+      );
+
+      expect(robotOfAnotherUser()).toEqual({ id: 'robot-of-another-user', ownerId: 'user-2', indicators: null });
+      expect(robotsRepository.findOne).not.toHaveBeenCalled();
+    });
+
+    it('answers the robot of another user exactly as it answers a robot that does not exist', async () => {
+      const refusal = (robotId: string) =>
+        service.upsertIndicators({ ...payload, robotId }).catch((error: NotFoundException) => ({
+          status: error.getStatus(),
+          body: error.getResponse(),
+        }));
+
+      const foreign = await refusal('robot-of-another-user');
+      const missing = await refusal('robot-that-does-not-exist');
+
+      expect(foreign).toEqual({ status: 404, body: expect.objectContaining({ message: 'Robot not found' }) });
+      expect(missing).toEqual(foreign);
+    });
+
+    it.each([
+      ['the owner id', { ownerId: undefined }],
+      ['the owner id, sent as null', { ownerId: null }],
+      ['the owner id, sent as an empty string', { ownerId: '' }],
+      ['the robot id', { robotId: undefined }],
+      ['the robot id, sent as an empty string', { robotId: '' }],
+    ])('refuses a request without %s, and sends no update', async (_case, missing) => {
+      const incomplete = { ...payload, ...missing } as unknown as RobotIndicatorsUpdatePayloadDto;
+
+      await expect(service.upsertIndicators(incomplete)).rejects.toThrow(new NotFoundException('Robot not found'));
+
+      expect(robotRepo.update).not.toHaveBeenCalled();
     });
   });
 });

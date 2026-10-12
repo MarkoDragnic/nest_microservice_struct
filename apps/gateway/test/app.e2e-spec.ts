@@ -39,6 +39,7 @@ import { JwtAuthGuard } from '../src/guards/jwt-auth.guard';
 import { OwnRobotGuard } from '../src/guards/own-robot.guard';
 import { LoggerService } from '@app/core';
 import { AUTH_SERVICE, ROBOTS_SERVICE, ACCOUNTS_SERVICE, PG_READ_SERVICE } from '@app/messaging';
+import { TCP_EVENTS } from '@app/contracts';
 import { REDIS_CLIENT } from '@app/redis';
 
 /* ------------------------------------------------------------------ */
@@ -229,6 +230,38 @@ describe('Gateway (e2e)', () => {
       const res = await request(app.getHttpServer()).post('/robot').send({});
 
       expect(res.status).toBe(400);
+    });
+  });
+
+  describe('PATCH /robot', () => {
+    const indicators = {
+      open: {
+        rsi: { enabled: true, period: 14, rule: 'less', value: 30 },
+        hl: { enabled: false, period: 20, rule: 'greater', value: 0 },
+      },
+      close: {
+        take_profit: { enabled: true, factor: 'percent', value: 5 },
+        stop_lose: { enabled: true, factor: 'percent', value: 2 },
+        min_profit: { enabled: false, factor: 'value', value: 0 },
+        rsi: { enabled: false, period: 14, rule: 'greater', value: 70 },
+        hl: { enabled: false, period: 20, rule: 'less', value: 0 },
+      },
+    };
+    const robotId = '7b0e5a52-6c1d-4f0e-9d53-0c1b8f6a2e11';
+
+    it('should send the indicators with the id of the authenticated user, not one from the body', async () => {
+      ROBOTS_CLIENT.send.mockClear();
+
+      const res = await request(app.getHttpServer())
+        .patch('/robot')
+        .send({ robotId, ...indicators, userId: 'another-user-id', ownerId: 'another-user-id' });
+
+      expect(res.status).toBe(200);
+      expect(ROBOTS_CLIENT.send).toHaveBeenCalledTimes(1);
+      expect(ROBOTS_CLIENT.send).toHaveBeenCalledWith(TCP_EVENTS.ROBOT_INDICATORS_UPSERT, {
+        payload: { robotId, open: indicators.open, close: indicators.close, userId: 'test-user-id' },
+        serviceToken: 'test-token',
+      });
     });
   });
 
