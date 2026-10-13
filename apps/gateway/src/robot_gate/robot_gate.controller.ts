@@ -46,8 +46,9 @@ export class RobotGateController {
   @ApiCookieAuth()
   @ApiBody({ type: IndicatorsUpdateDto })
   @ApiResponse({ status: 200, description: 'Indicators updated' })
+  @ApiResponse({ status: 400, description: 'Invalid robot id or indicators' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Not the robot owner' })
+  @ApiResponse({ status: 404, description: 'Robot not found' })
   @UseGuards(JwtAuthGuard, OwnRobotGuard)
   @Patch()
   async upsertIndicators(@CurrentUser() user: AuthenticatedUser, @Body() data: IndicatorsUpdateDto) {

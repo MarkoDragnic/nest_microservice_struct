@@ -232,6 +232,43 @@ STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH "$BASE/robot" \
 assert_status "PATCH /robot no auth — 401" 401 "$STATUS"
 
 # ─────────────────────────────────────────────────────────────────────────────
+header "OWNERSHIP — A second user cannot use the first user's account or robot"
+# ─────────────────────────────────────────────────────────────────────────────
+
+OTHER_EMAIL="other_$EMAIL"
+OTHER_JAR=$(mktemp)
+
+curl -s -o /dev/null -X POST "$BASE/user" \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"$OTHER_EMAIL\",\"password\":\"$PASSWORD\",\"notifyByEmail\":false}"
+curl -s -o /dev/null -c "$OTHER_JAR" -X POST "$BASE/auth/login" \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"$OTHER_EMAIL\",\"password\":\"$PASSWORD\"}"
+
+# ROBOT_BODY names the first user's account
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" -b "$OTHER_JAR" -X POST "$BASE/robot" \
+  -H "Content-Type: application/json" \
+  -d "$ROBOT_BODY")
+assert_status "POST /robot on another user's account — 404" 404 "$STATUS"
+
+# INDICATORS_BODY names the first user's robot
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" -b "$OTHER_JAR" -X PATCH "$BASE/robot" \
+  -H "Content-Type: application/json" \
+  -d "$INDICATORS_BODY")
+assert_status "PATCH /robot of another user — 404" 404 "$STATUS"
+
+# version 4 shape, or the gateway answers 400 before the robot is looked up
+MISSING_ROBOT_ID="00000000-0000-4000-8000-000000000000"
+MISSING_ROBOT_BODY="${INDICATORS_BODY/$ROBOT_ID/$MISSING_ROBOT_ID}"
+
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" -b "$COOKIE_JAR" -X PATCH "$BASE/robot" \
+  -H "Content-Type: application/json" \
+  -d "$MISSING_ROBOT_BODY")
+assert_status "PATCH /robot that does not exist — 404" 404 "$STATUS"
+
+curl -s -o /dev/null -b "$OTHER_JAR" -c "$OTHER_JAR" -X POST "$BASE/auth/logout"
+
+# ─────────────────────────────────────────────────────────────────────────────
 header "AUTH — Logout (revocation)"
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -337,7 +374,7 @@ echo "  Passed: $PASS / $TOTAL"
 echo "  Failed: $FAIL / $TOTAL"
 echo ""
 
-rm -f "$COOKIE_JAR" "$REVOKED_JAR"
+rm -f "$COOKIE_JAR" "$REVOKED_JAR" "$OTHER_JAR"
 
 [[ $FAIL -eq 0 ]] && exit 0 || exit 1
 
