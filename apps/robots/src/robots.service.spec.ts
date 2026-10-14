@@ -1,8 +1,10 @@
+import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import {
   HlRule,
   type IIndicatorsConfig,
   ProfitFactor,
+  type RobotCreateData,
   type RobotCreateDto,
   type RobotIndicatorsUpdateData,
   RsiRule,
@@ -76,10 +78,38 @@ describe('RobotsService', () => {
       const created = { id: 'robot-1', name: 'Robot one' };
       answerWith({ [TCP_DB_EVENTS.ROBOT_CREATE]: created });
 
-      const result = await service.create({ robot: robotBody, user: { id: 'user-1' } });
+      const result = await service.create({ robot: robotBody, user: { id: 'user-1' }, userId: 'user-1' });
 
       expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ROBOT_CREATE, expectedRequest);
       expect(result).toBe(created);
+    });
+
+    it('takes the owner and the hash from userId, not from user', async () => {
+      answerWith({ [TCP_DB_EVENTS.ROBOT_CREATE]: { id: 'robot-1' } });
+
+      await service.create({ robot: robotBody, user: { id: 'another-user' }, userId: 'user-1' });
+
+      expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ROBOT_CREATE, expectedRequest);
+    });
+
+    it('creates the robot from a message that carries userId and no user', async () => {
+      answerWith({ [TCP_DB_EVENTS.ROBOT_CREATE]: { id: 'robot-1' } });
+
+      await service.create({ robot: robotBody, userId: 'user-1' } as RobotCreateData);
+
+      expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ROBOT_CREATE, expectedRequest);
+    });
+
+    it.each([
+      ['missing', undefined],
+      ['an empty string', ''],
+      ['an object', { id: 'user-1' }],
+    ])('refuses a create message whose userId is %s, without falling back to user', async (_case, userId) => {
+      const attempt = service.create({ robot: robotBody, user: { id: 'user-1' }, userId: userId as string });
+
+      await expect(attempt).rejects.toBeInstanceOf(BadRequestException);
+      await expect(attempt).rejects.toThrow('User id is required');
+      expect(tcpClientService.send).not.toHaveBeenCalled();
     });
 
     it('takes owner, account and hash only from trusted input, never from extra fields in the body', async () => {
@@ -87,6 +117,8 @@ describe('RobotsService', () => {
       const tamperedBody = {
         ...robotBody,
         id: 'chosen-robot-id',
+        userId: 'another-user',
+        user: { id: 'another-user' },
         ownerId: 'another-user',
         owner: { id: 'another-user' },
         account: { id: 'another-account' },
@@ -95,7 +127,7 @@ describe('RobotsService', () => {
         instrument: { ...robotBody.instrument, id: 'chosen-instrument-id' },
       } as RobotCreateDto;
 
-      await service.create({ robot: tamperedBody, user: { id: 'user-1' } });
+      await service.create({ robot: tamperedBody, user: { id: 'user-1' }, userId: 'user-1' });
 
       expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ROBOT_CREATE, expectedRequest);
     });

@@ -231,6 +231,31 @@ describe('Gateway (e2e)', () => {
 
       expect(res.status).toBe(400);
     });
+
+    it('should send the id of the authenticated user as userId next to user, not one from the body', async () => {
+      ROBOTS_CLIENT.send.mockClear();
+      const robot = {
+        name: 'Robot one',
+        fsymbol: 'BTCUSDT',
+        type: 'test',
+        assets: 'BTC',
+        active: true,
+        accountId: '550e8400-e29b-41d4-a716-446655440000',
+        funds: { initial: 1000, value: 1000, base: 'USDT', dynamic: false, partial: '0', size: 100 },
+        instrument: { name: 'Bitcoin', symbol: 'BTC' },
+      };
+
+      const res = await request(app.getHttpServer())
+        .post('/robot')
+        .send({ ...robot, userId: 'another-user-id', user: { id: 'another-user-id' } });
+
+      expect(res.status).toBe(201);
+      expect(ROBOTS_CLIENT.send).toHaveBeenCalledTimes(1);
+      expect(ROBOTS_CLIENT.send).toHaveBeenCalledWith(TCP_EVENTS.ROBOT_CREATE, {
+        payload: { robot, user: { id: 'test-user-id', email: 'test@example.com' }, userId: 'test-user-id' },
+        serviceToken: 'test-token',
+      });
+    });
   });
 
   describe('PATCH /robot', () => {
@@ -272,6 +297,22 @@ describe('Gateway (e2e)', () => {
       const res = await request(app.getHttpServer()).post('/account').send({});
 
       expect(res.status).toBe(400);
+    });
+
+    it('should send the id of the authenticated user as userId next to user, not one from the body', async () => {
+      ACCOUNTS_CLIENT.send.mockClear();
+      const account = { exchange: 'binance', environment: 'test', apiKey: 'test-key', apiSecret: 'test-secret' };
+
+      const res = await request(app.getHttpServer())
+        .post('/account')
+        .send({ ...account, userId: 'another-user-id', user: { id: 'another-user-id' } });
+
+      expect(res.status).toBe(201);
+      expect(ACCOUNTS_CLIENT.send).toHaveBeenCalledTimes(1);
+      expect(ACCOUNTS_CLIENT.send).toHaveBeenCalledWith(TCP_EVENTS.ACCOUNT_CREATE, {
+        payload: { user: { id: 'test-user-id', email: 'test@example.com' }, userId: 'test-user-id', account },
+        serviceToken: 'test-token',
+      });
     });
   });
 });

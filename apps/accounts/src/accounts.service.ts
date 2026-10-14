@@ -1,5 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { AccountCreateDto, AccountResponseDto, AuthenticatedUser, TCP_DB_EVENTS } from '@app/contracts';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { AccountCreateDto, AccountResponseDto, ResponseMessage, TCP_DB_EVENTS } from '@app/contracts';
 import { PG_WRITE_SERVICE, ClientTcpService } from '@app/messaging';
 import { CryptoService } from './crypto.service';
 import { ClientProxy } from '@nestjs/microservices';
@@ -13,9 +13,13 @@ export class AccountsService {
     private readonly cryptoService: CryptoService,
   ) {}
 
-  async create(user: AuthenticatedUser, account: AccountCreateDto): Promise<AccountResponseDto> {
+  async create(userId: string, account: AccountCreateDto): Promise<AccountResponseDto> {
+    if (typeof userId !== 'string' || userId === '') {
+      throw new BadRequestException(ResponseMessage.USER_ID_REQUIRED);
+    }
+
     const encryptedData = {
-      userId: user.id,
+      userId,
       exchange: account.exchange,
       environment: account.environment,
       apiKeyEncrypted: this.cryptoService.encrypt(account.apiKey),

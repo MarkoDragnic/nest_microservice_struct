@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common';
 import {
   ResponseMessage,
   RobotCreateData,
@@ -29,10 +29,14 @@ export class RobotsService {
   // The owner comes from the authenticated user and the hash is computed here. Every other field
   // is copied from the body by name, so nothing extra in the body can reach pg_write.
   async create(data: RobotCreateData): Promise<RobotResponseDto> {
-    const { robot } = data;
+    const { robot, userId } = data;
+
+    if (typeof userId !== 'string' || userId === '') {
+      throw new BadRequestException(ResponseMessage.USER_ID_REQUIRED);
+    }
 
     const request: RobotCreateRequest = {
-      owner: { id: data.user.id as string },
+      owner: { id: userId },
       account: { id: robot.accountId },
       hash: this.makeRobotHash(data),
       name: robot.name,
@@ -109,7 +113,7 @@ export class RobotsService {
 
   private makeRobotHash(data: RobotCreateData): string {
     return this.sortHasher.hash({
-      owner: data.user.id as string,
+      owner: data.userId,
       name: data.robot.name,
       type: data.robot.type,
       account: data.robot.accountId,

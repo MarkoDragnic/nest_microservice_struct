@@ -13,6 +13,7 @@ export class AccountGateService {
   async create(user: AuthenticatedUser, account: AccountCreateDto) {
     return await this.tcpClientService.send<AccountResponseDto>(this.accountClient, TCP_EVENTS.ACCOUNT_CREATE, {
       user,
+      userId: user.id,
       account,
     });
   }
