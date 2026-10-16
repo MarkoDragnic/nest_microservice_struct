@@ -179,6 +179,10 @@ describe('LoggerService', () => {
       'passphrase',
       'private_key',
       'client_secret',
+      'passwordHash',
+      'passwordhash',
+      'password_hash',
+      'PASSWORD-HASH',
     ])('redacts the %s key', async (key) => {
       expect(await metadataSentToSink({ [key]: 'secret-value', orderId: '42' })).toEqual({
         [key]: '[REDACTED]',

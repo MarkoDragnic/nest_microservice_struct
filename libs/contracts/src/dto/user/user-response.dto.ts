@@ -22,8 +22,3 @@ export class UserResponseDto {
   @Expose()
   isActive: boolean;
 }
-
-export class UserCredentialsResponseDto extends UserResponseDto {
-  @Expose()
-  declare password: string;
-}

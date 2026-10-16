@@ -5,3 +5,5 @@ export * from './position-change.interface';
 export * from './robot-notification-target.interface';
 export * from './managed-robot.interface';
 export * from './robot-create-request.interface';
+export * from './user-create-request.interface';
+export * from './user-credentials.interface';

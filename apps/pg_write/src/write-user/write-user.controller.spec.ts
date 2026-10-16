@@ -62,7 +62,10 @@ describe('WriteUserController', () => {
       email: 'user@example.com',
       password: PASSWORD_HASH,
       notifyByEmail: true,
-    } as User);
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+      isActive: true,
+    });
 
     expect(response.data).toEqual({
       id: 'user-1',

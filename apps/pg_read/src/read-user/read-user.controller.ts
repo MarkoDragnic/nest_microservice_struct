@@ -1,8 +1,9 @@
 import { Controller, NotFoundException, UseFilters, UseGuards } from '@nestjs/common';
 import { ReadUserService } from './read-user.service';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { ResponseMessage, TCP_DB_EVENTS, tcpOk, UserCredentialsResponseDto, UserResponseDto } from '@app/contracts';
+import { ResponseMessage, TCP_DB_EVENTS, tcpOk, UserResponseDto } from '@app/contracts';
 import { GlobalRpcExceptionFilter, InternalRpcGuard, SerializerService, LoggerService } from '@app/core';
+import { toUserCredentials } from '@app/postgres';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @UseGuards(InternalRpcGuard)
@@ -26,6 +27,6 @@ export class ReadUserController {
   @MessagePattern(TCP_DB_EVENTS.USER_FIND_ONE_WITH_PASSWORD, Transport.TCP)
   async findOneWithPassword(@Payload() params: { email: string }) {
     const user = await this.readUserService.findOneWithPassword(params.email);
-    return tcpOk(this.serializerService.serialize(UserCredentialsResponseDto, user), ResponseMessage.USER_CREATED);
+    return tcpOk(toUserCredentials(user), ResponseMessage.USER_CREATED);
   }
 }

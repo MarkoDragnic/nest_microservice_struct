@@ -1,12 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { TCP_DB_EVENTS } from '@app/contracts';
+import { TCP_DB_EVENTS, type UserCreateDto } from '@app/contracts';
 import { LoggerService } from '@app/core';
 import { PG_READ_SERVICE, PG_WRITE_SERVICE, ClientTcpService } from '@app/messaging';
 import bcryptjs from 'bcryptjs';
 
 jest.mock('bcryptjs');
+
+const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -87,10 +89,38 @@ describe('UsersService', () => {
         expect.objectContaining({
           email: 'new@test.com',
           password: 'hashed-password',
+          notifyByEmail: true,
           isActive: true,
         }),
       );
       expect(result).toEqual(createdUser);
+    });
+
+    it('should send pg_write only the fields of a new user, not roles, id or isActive from the message', async () => {
+      (bcryptjs.hash as jest.Mock).mockResolvedValue('hashed-password');
+      mockTcpClientService.send.mockResolvedValue({});
+      const message = {
+        email: 'new@test.com',
+        password: 'P@ssw0rd1',
+        notifyByEmail: false,
+        roles: ['admin'],
+        id: 'chosen-user-id',
+        isActive: false,
+      } as UserCreateDto;
+
+      await service.create(message);
+
+      const [client, pattern, sent] = mockTcpClientService.send.mock.calls[0];
+      expect(client).toBe(mockPgWriteClient);
+      expect(pattern).toBe(TCP_DB_EVENTS.USER_CREATE);
+      expect(JSON.parse(JSON.stringify(sent))).toEqual({
+        email: 'new@test.com',
+        password: 'hashed-password',
+        notifyByEmail: false,
+        createdAt: expect.stringMatching(ISO_TIMESTAMP),
+        updatedAt: expect.stringMatching(ISO_TIMESTAMP),
+        isActive: true,
+      });
     });
 
     it('should not send plain text password to pg_write', async () => {

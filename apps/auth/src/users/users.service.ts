@@ -1,11 +1,6 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import {
-  AuthenticatedUser,
-  TCP_DB_EVENTS,
-  UserCreateDto,
-  UserCredentialsResponseDto,
-  UserResponseDto,
-} from '@app/contracts';
+import { AuthenticatedUser, TCP_DB_EVENTS, UserCreateDto, UserResponseDto } from '@app/contracts';
+import type { UserCreateRequest, UserCredentials } from '@app/contracts/internal';
 import { LoggerService } from '@app/core';
 import { PG_READ_SERVICE, PG_WRITE_SERVICE, ClientTcpService } from '@app/messaging';
 import bcryptjs from 'bcryptjs';
@@ -24,7 +19,7 @@ export class UsersService {
   }
 
   async verifyUser(email: string, password: string): Promise<AuthenticatedUser> {
-    const user = await this.tcpClientService.send<UserCredentialsResponseDto>(
+    const user = await this.tcpClientService.send<UserCredentials>(
       this.pgReadClient,
       TCP_DB_EVENTS.USER_FIND_ONE_WITH_PASSWORD,
       { email },
@@ -38,12 +33,13 @@ export class UsersService {
   }
 
   async create(user: UserCreateDto): Promise<UserResponseDto> {
-    const hashedPassword = await bcryptjs.hash(user.password, 16);
-    const newUser = {
-      ...user,
-      password: hashedPassword,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    const now = new Date().toISOString();
+    const newUser: UserCreateRequest = {
+      email: user.email,
+      password: await bcryptjs.hash(user.password, 16),
+      notifyByEmail: user.notifyByEmail,
+      createdAt: now,
+      updatedAt: now,
       isActive: true,
     };
 

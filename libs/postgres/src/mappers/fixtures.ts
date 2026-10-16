@@ -38,19 +38,23 @@ export const loadedAccount = (overrides: Partial<Account> = {}) =>
     ...overrides,
   });
 
+export const loadedUser = (overrides: Partial<User> = {}) =>
+  make(User, {
+    id: 'user-1',
+    email: 'owner@example.com',
+    password: 'owner-password-hash',
+    roles: ['user'],
+    notifyByEmail: true,
+    createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    updatedAt: new Date('2026-01-02T00:00:00.000Z'),
+    isActive: true,
+    ...overrides,
+  });
+
 export const loadedRobot = (overrides: Partial<Robot> = {}) =>
   make(Robot, {
     id: 'robot-1',
-    owner: make(User, {
-      id: 'user-1',
-      email: 'owner@example.com',
-      password: 'owner-password-hash',
-      roles: ['user'],
-      notifyByEmail: true,
-      createdAt: new Date('2026-01-01T00:00:00.000Z'),
-      updatedAt: new Date('2026-01-02T00:00:00.000Z'),
-      isActive: true,
-    }),
+    owner: loadedUser(),
     fsymbol: 'BTCUSDT',
     name: 'Robot one',
     type: RobotTypes.TEST,

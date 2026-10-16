@@ -75,9 +75,10 @@ describe('ReadUserController', () => {
     expect(onTheWire).not.toContain('password');
   });
 
-  it('answers the login credentials pattern with the password hash', async () => {
+  it('answers the login credentials pattern with the id and the password hash, and nothing else', async () => {
     const response = await controller.findOneWithPassword({ email: 'user@example.com' });
 
-    expect(response.data.password).toBe(PASSWORD_HASH);
+    expect(response.data).toEqual({ id: 'user-1', password: PASSWORD_HASH });
+    expect(Object.keys(response.data).sort()).toEqual(['id', 'password']);
   });
 });

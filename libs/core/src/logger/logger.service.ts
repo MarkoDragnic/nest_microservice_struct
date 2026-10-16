@@ -52,6 +52,7 @@ export class LoggerService extends ConsoleLogger {
       'authorization', 'cookie', 'jwt', 'refreshToken',
       'accessToken', 'xApiKey',
       'setCookie', 'passphrase', 'privateKey', 'clientSecret',
+      'passwordHash',
     ].map((key) => LoggerService.normalizeKey(key)),
   );
 

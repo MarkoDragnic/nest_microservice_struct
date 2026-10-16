@@ -77,6 +77,23 @@ describe('AccountsController', () => {
       expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ACCOUNT_CREATE, expectedRequest);
     });
 
+    it('applies no userId, encrypted keys or dates named inside the account body', async () => {
+      tcpClientService.send.mockResolvedValue({ id: 'account-1' });
+      const account = {
+        ...accountBody,
+        id: 'chosen-account-id',
+        userId: 'another-user',
+        apiKeyEncrypted: { iv: 'iv', content: 'encrypted:key-of-another-user', tag: 'tag' },
+        apiSecretEncrypted: { iv: 'iv', content: 'encrypted:secret-of-another-user', tag: 'tag' },
+        createdAt: '2020-01-01T00:00:00.000Z',
+        revokedAt: '2020-01-01T00:00:00.000Z',
+      } as AccountCreateDto;
+
+      await accountsController.create({ userId: 'user-1', account });
+
+      expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ACCOUNT_CREATE, expectedRequest);
+    });
+
     it('creates the account from a message that carries userId and no user', async () => {
       tcpClientService.send.mockResolvedValue({ id: 'account-1' });
 
