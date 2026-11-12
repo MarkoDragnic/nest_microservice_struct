@@ -10,7 +10,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { isNotFound } from '../is-not-found';
 
 const BCRYPT_COST = 12;
-const INVALID_CREDENTIALS = 'Credentials are not valid ';
+const INVALID_CREDENTIALS = 'Credentials are not valid.';
 
 @Injectable()
 export class UsersService {
