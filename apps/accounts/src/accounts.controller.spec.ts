@@ -60,15 +60,13 @@ describe('AccountsController', () => {
     it('asks pg_write to create the account for the authenticated user and returns its answer', async () => {
       const created = { id: 'account-1', exchange: 'binance' };
       tcpClientService.send.mockResolvedValue(created);
-      const message = { user: { id: 'user-1' }, userId: 'user-1', account: accountBody };
-
-      const result = await accountsController.create(message);
+      const result = await accountsController.create({ userId: 'user-1', account: accountBody });
 
       expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ACCOUNT_CREATE, expectedRequest);
       expect(result).toBe(created);
     });
 
-    it('takes the owner from userId, not from user', async () => {
+    it('takes the owner from userId, not from a user field in the message', async () => {
       tcpClientService.send.mockResolvedValue({ id: 'account-1' });
       const message = { user: { id: 'another-user' }, userId: 'user-1', account: accountBody };
 
@@ -90,14 +88,6 @@ describe('AccountsController', () => {
       } as AccountCreateDto;
 
       await accountsController.create({ userId: 'user-1', account });
-
-      expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ACCOUNT_CREATE, expectedRequest);
-    });
-
-    it('creates the account from a message that carries userId and no user', async () => {
-      tcpClientService.send.mockResolvedValue({ id: 'account-1' });
-
-      await accountsController.create({ userId: 'user-1', account: accountBody });
 
       expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ACCOUNT_CREATE, expectedRequest);
     });

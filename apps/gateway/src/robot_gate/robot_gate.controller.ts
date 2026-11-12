@@ -39,7 +39,7 @@ export class RobotGateController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@CurrentUser() user: AuthenticatedUser, @Body() robot: RobotCreateDto) {
-    return await this.robotService.createRobot({ robot, user, userId: user.id });
+    return await this.robotService.createRobot({ robot, userId: user.id });
   }
 
   @ApiOperation({ summary: 'Update robot trading indicators' })

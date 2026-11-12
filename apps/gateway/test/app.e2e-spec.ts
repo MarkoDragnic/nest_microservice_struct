@@ -232,7 +232,7 @@ describe('Gateway (e2e)', () => {
       expect(res.status).toBe(400);
     });
 
-    it('should send the id of the authenticated user as userId next to user, not one from the body', async () => {
+    it('should send the id of the authenticated user as userId and no user, not one from the body', async () => {
       ROBOTS_CLIENT.send.mockClear();
       const robot = {
         name: 'Robot one',
@@ -252,7 +252,7 @@ describe('Gateway (e2e)', () => {
       expect(res.status).toBe(201);
       expect(ROBOTS_CLIENT.send).toHaveBeenCalledTimes(1);
       expect(ROBOTS_CLIENT.send).toHaveBeenCalledWith(TCP_EVENTS.ROBOT_CREATE, {
-        payload: { robot, user: { id: 'test-user-id', email: 'test@example.com' }, userId: 'test-user-id' },
+        payload: { robot, userId: 'test-user-id' },
         serviceToken: 'test-token',
       });
     });
@@ -299,7 +299,7 @@ describe('Gateway (e2e)', () => {
       expect(res.status).toBe(400);
     });
 
-    it('should send the id of the authenticated user as userId next to user, not one from the body', async () => {
+    it('should send the id of the authenticated user as userId and no user, not one from the body', async () => {
       ACCOUNTS_CLIENT.send.mockClear();
       const account = { exchange: 'binance', environment: 'test', apiKey: 'test-key', apiSecret: 'test-secret' };
 
@@ -310,7 +310,7 @@ describe('Gateway (e2e)', () => {
       expect(res.status).toBe(201);
       expect(ACCOUNTS_CLIENT.send).toHaveBeenCalledTimes(1);
       expect(ACCOUNTS_CLIENT.send).toHaveBeenCalledWith(TCP_EVENTS.ACCOUNT_CREATE, {
-        payload: { user: { id: 'test-user-id', email: 'test@example.com' }, userId: 'test-user-id', account },
+        payload: { userId: 'test-user-id', account },
         serviceToken: 'test-token',
       });
     });

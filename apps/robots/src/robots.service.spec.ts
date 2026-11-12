@@ -4,7 +4,6 @@ import {
   HlRule,
   type IIndicatorsConfig,
   ProfitFactor,
-  type RobotCreateData,
   type RobotCreateDto,
   type RobotIndicatorsUpdateData,
   RsiRule,
@@ -78,24 +77,17 @@ describe('RobotsService', () => {
       const created = { id: 'robot-1', name: 'Robot one' };
       answerWith({ [TCP_DB_EVENTS.ROBOT_CREATE]: created });
 
-      const result = await service.create({ robot: robotBody, user: { id: 'user-1' }, userId: 'user-1' });
+      const result = await service.create({ robot: robotBody, userId: 'user-1' });
 
       expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ROBOT_CREATE, expectedRequest);
       expect(result).toBe(created);
     });
 
-    it('takes the owner and the hash from userId, not from user', async () => {
+    it('takes the owner and the hash from userId, not from a user field in the message', async () => {
       answerWith({ [TCP_DB_EVENTS.ROBOT_CREATE]: { id: 'robot-1' } });
+      const message = { robot: robotBody, user: { id: 'another-user' }, userId: 'user-1' };
 
-      await service.create({ robot: robotBody, user: { id: 'another-user' }, userId: 'user-1' });
-
-      expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ROBOT_CREATE, expectedRequest);
-    });
-
-    it('creates the robot from a message that carries userId and no user', async () => {
-      answerWith({ [TCP_DB_EVENTS.ROBOT_CREATE]: { id: 'robot-1' } });
-
-      await service.create({ robot: robotBody, userId: 'user-1' } as RobotCreateData);
+      await service.create(message);
 
       expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ROBOT_CREATE, expectedRequest);
     });
@@ -105,7 +97,9 @@ describe('RobotsService', () => {
       ['an empty string', ''],
       ['an object', { id: 'user-1' }],
     ])('refuses a create message whose userId is %s, without falling back to user', async (_case, userId) => {
-      const attempt = service.create({ robot: robotBody, user: { id: 'user-1' }, userId: userId as string });
+      const message = { robot: robotBody, user: { id: 'user-1' }, userId: userId as string };
+
+      const attempt = service.create(message);
 
       await expect(attempt).rejects.toBeInstanceOf(BadRequestException);
       await expect(attempt).rejects.toThrow('User id is required');
@@ -127,7 +121,7 @@ describe('RobotsService', () => {
         instrument: { ...robotBody.instrument, id: 'chosen-instrument-id' },
       } as RobotCreateDto;
 
-      await service.create({ robot: tamperedBody, user: { id: 'user-1' }, userId: 'user-1' });
+      await service.create({ robot: tamperedBody, userId: 'user-1' });
 
       expect(tcpClientService.send).toHaveBeenCalledWith(pgWriteClient, TCP_DB_EVENTS.ROBOT_CREATE, expectedRequest);
     });
