@@ -59,5 +59,46 @@ describe('InternalRpcGuard', () => {
         email: 'user@example.com',
       });
     });
+
+    it('leaves the handler data deep-equal to the payload, with nothing from the envelope', () => {
+      const guard = createGuard();
+      const payload = { id: '123', email: 'user@example.com' };
+      const data = {
+        payload: { ...payload },
+        serviceToken: 'local-cluster-rpc-token',
+        correlationId: 'b0a1c2d3-0000-4000-8000-000000000001',
+      };
+      const context = createRpcContext(data) as any;
+
+      expect(guard.canActivate(context)).toBe(true);
+      expect(data).toEqual(payload);
+      expect(Object.keys(data).sort()).toEqual(['email', 'id']);
+    });
+
+    it('keeps payload fields that are named like envelope fields', () => {
+      const guard = createGuard();
+      const data = {
+        payload: { correlationId: 'from-the-sender', payload: 'inner' },
+        serviceToken: 'local-cluster-rpc-token',
+        correlationId: 'from-the-envelope',
+      };
+      const context = createRpcContext(data) as any;
+
+      expect(guard.canActivate(context)).toBe(true);
+      expect(data).toEqual({ correlationId: 'from-the-sender', payload: 'inner' });
+    });
+
+    it('leaves a non-object payload under payload and removes the rest of the envelope', () => {
+      const guard = createGuard();
+      const data = {
+        payload: 'BTCUSDT',
+        serviceToken: 'local-cluster-rpc-token',
+        correlationId: 'b0a1c2d3-0000-4000-8000-000000000001',
+      };
+      const context = createRpcContext(data) as any;
+
+      expect(guard.canActivate(context)).toBe(true);
+      expect(data).toEqual({ payload: 'BTCUSDT' });
+    });
   });
 });

@@ -32,14 +32,19 @@ export class InternalRpcGuard implements CanActivate {
       throw new UnauthorizedException('Invalid internal RPC token');
     }
 
-    const payload = data?.payload;
-    if (data && typeof data === 'object') {
-      delete (data as Record<string, unknown>).serviceToken;
+    const envelope = data as Record<string, unknown>;
+    const payload = envelope.payload;
+    const isObjectPayload = !!payload && typeof payload === 'object' && !Array.isArray(payload);
+
+    // Handlers read this same object, so it is emptied and refilled in place.
+    for (const key of Object.keys(envelope)) {
+      if (isObjectPayload || key !== 'payload') {
+        delete envelope[key];
+      }
     }
 
-    if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
-      delete (data as Record<string, unknown>).payload;
-      Object.assign(data as Record<string, unknown>, payload);
+    if (isObjectPayload) {
+      Object.assign(envelope, payload);
     }
 
     return true;
