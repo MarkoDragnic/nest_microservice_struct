@@ -1,10 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { type Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 import { ITokenPayload, IRefreshTokenPayload } from './interfaces/token-payload.interface';
 import { RefreshTokenRepository } from './refresh-token.repository';
+import { UsersService } from './users/users.service';
+
+const isNotFound = (error: unknown): boolean =>
+  error instanceof RpcException && (error.getError() as { statusCode?: number })?.statusCode === 404;
 
 @Injectable()
 export class AuthService {
@@ -17,6 +22,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly usersService: UsersService,
   ) {
     this.jwtExpirationSeconds = this.configService.getOrThrow<number>('JWT_EXPIRATION');
     this.jwtRefreshExpirationSeconds = this.configService.getOrThrow<number>('JWT_REFRESH_EXPIRATION');
@@ -29,6 +35,9 @@ export class AuthService {
   }
 
   async refresh(userId: string, oldTokenId: string, response: Response) {
+    if (!(await this.isActive(userId))) {
+      throw new UnauthorizedException('Refresh token is invalid or has been revoked');
+    }
     await this.refreshTokenRepository.delete(userId, oldTokenId);
     await this.issueTokens(userId, response);
   }
@@ -36,6 +45,16 @@ export class AuthService {
   async logout(userId: string, tokenId: string, response: Response) {
     await this.refreshTokenRepository.delete(userId, tokenId);
     this.clearCookies(response);
+  }
+
+  private async isActive(userId: string): Promise<boolean> {
+    try {
+      const user = await this.usersService.getUser({ id: userId });
+      return user?.isActive === true;
+    } catch (error) {
+      if (isNotFound(error)) return false;
+      throw error;
+    }
   }
 
   private async issueTokens(userId: string, response: Response): Promise<void> {

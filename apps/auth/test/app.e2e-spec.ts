@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, UnauthorizedException, ValidationPipe } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import request from 'supertest';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -128,6 +129,7 @@ describe('Auth (e2e)', () => {
   beforeEach(() => {
     tokenStore.clear();
     jest.clearAllMocks();
+    mockUsersService.getUser.mockReset();
   });
 
   /** Login and return raw Set-Cookie headers */
@@ -137,6 +139,19 @@ describe('Auth (e2e)', () => {
       .post('/auth/login')
       .send({ email: 'test@example.com', password: 'ValidPass1!' });
     return res.headers['set-cookie'] as unknown as string[];
+  }
+
+  async function loginAndGetRefreshCookie(): Promise<string> {
+    return (await loginAndGetCookies()).find((c: string) => c.startsWith('Refresh='))!;
+  }
+
+  /** What refresh answers for a token that was revoked by logout */
+  async function refreshWithRevokedToken(): Promise<request.Response> {
+    const refreshCookie = await loginAndGetRefreshCookie();
+    await request(app.getHttpServer()).post('/auth/logout').set('Cookie', [refreshCookie]);
+    const res = await request(app.getHttpServer()).post('/auth/refresh').set('Cookie', [refreshCookie]);
+    expect(res.status).toBe(401);
+    return res;
   }
 
   /* ----------- Login ----------- */
@@ -186,6 +201,7 @@ describe('Auth (e2e)', () => {
     it('should return 200 and rotate tokens with valid refresh cookie', async () => {
       const cookies = await loginAndGetCookies();
       const refreshCookie = cookies.find((c: string) => c.startsWith('Refresh='));
+      mockUsersService.getUser.mockResolvedValueOnce({ ...TEST_USER, isActive: true });
 
       const res = await request(app.getHttpServer())
         .post('/auth/refresh')
@@ -195,6 +211,32 @@ describe('Auth (e2e)', () => {
       expect(res.body).toEqual({ ok: true });
       expect(extractCookie(res, 'Authentication')).toBeDefined();
       expect(extractCookie(res, 'Refresh')).toBeDefined();
+    });
+
+    it('should refuse an inactive user with the same answer as a revoked token', async () => {
+      const revoked = await refreshWithRevokedToken();
+      const refreshCookie = await loginAndGetRefreshCookie();
+      mockUsersService.getUser.mockResolvedValueOnce({ ...TEST_USER, isActive: false });
+
+      const res = await request(app.getHttpServer()).post('/auth/refresh').set('Cookie', [refreshCookie]);
+
+      expect(mockUsersService.getUser).toHaveBeenCalledWith({ id: TEST_USER.id });
+      expect(res.status).toBe(401);
+      expect(res.body).toEqual(revoked.body);
+      expect(extractCookie(res, 'Authentication')).toBeUndefined();
+    });
+
+    it('should refuse a user that no longer exists with the same answer as a revoked token', async () => {
+      const revoked = await refreshWithRevokedToken();
+      const refreshCookie = await loginAndGetRefreshCookie();
+      mockUsersService.getUser.mockRejectedValueOnce(
+        new RpcException({ statusCode: 404, message: 'Entity not found.', error: true }),
+      );
+
+      const res = await request(app.getHttpServer()).post('/auth/refresh').set('Cookie', [refreshCookie]);
+
+      expect(res.status).toBe(401);
+      expect(res.body).toEqual(revoked.body);
     });
   });
 
@@ -217,6 +259,16 @@ describe('Auth (e2e)', () => {
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ ok: true });
+    });
+
+    it('should log out an inactive user and revoke the token', async () => {
+      mockUsersService.getUser.mockResolvedValue({ ...TEST_USER, isActive: false });
+      const refreshCookie = await loginAndGetRefreshCookie();
+
+      const res = await request(app.getHttpServer()).post('/auth/logout').set('Cookie', [refreshCookie]);
+
+      expect(res.status).toBe(200);
+      expect(tokenStore.get(TEST_USER.id)?.size).toBe(0);
     });
 
     it('should reject refresh after logout (token revoked)', async () => {

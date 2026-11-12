@@ -1,9 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { UnauthorizedException } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenRepository } from './refresh-token.repository';
+import { UsersService } from './users/users.service';
 import { type Response } from 'express';
+
+const expectRefusedLikeARevokedToken = async (refresh: Promise<void>) => {
+  const error = await refresh.catch((e: unknown) => e);
+  expect(error).toBeInstanceOf(UnauthorizedException);
+  expect((error as UnauthorizedException).getResponse()).toEqual(
+    new UnauthorizedException('Refresh token is invalid or has been revoked').getResponse(),
+  );
+};
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -33,6 +44,10 @@ describe('AuthService', () => {
     exists: jest.fn().mockResolvedValue(true),
   };
 
+  const mockUsersService = {
+    getUser: jest.fn(),
+  };
+
   beforeEach(async () => {
     mockResponse = {
       cookie: jest.fn(),
@@ -45,6 +60,7 @@ describe('AuthService', () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: JwtService, useValue: mockJwtService },
         { provide: RefreshTokenRepository, useValue: mockRefreshTokenRepository },
+        { provide: UsersService, useValue: mockUsersService },
       ],
     }).compile();
 
@@ -53,6 +69,7 @@ describe('AuthService', () => {
     refreshTokenRepository = module.get<RefreshTokenRepository>(RefreshTokenRepository);
 
     jest.clearAllMocks();
+    mockUsersService.getUser.mockReset();
   });
 
   describe('login', () => {
@@ -110,13 +127,52 @@ describe('AuthService', () => {
   });
 
   describe('refresh', () => {
+    const expectNothingIssued = () => {
+      expect(refreshTokenRepository.delete).not.toHaveBeenCalled();
+      expect(jwtService.sign).not.toHaveBeenCalled();
+      expect(mockResponse.cookie).not.toHaveBeenCalled();
+    };
+
     it('should delete old token and issue new pair', async () => {
+      mockUsersService.getUser.mockResolvedValueOnce({ id: 'user-123', isActive: true });
+
       await service.refresh('user-123', 'old-token-id', mockResponse as Response);
 
+      expect(mockUsersService.getUser).toHaveBeenCalledWith({ id: 'user-123' });
       expect(refreshTokenRepository.delete).toHaveBeenCalledWith('user-123', 'old-token-id');
       expect(jwtService.sign).toHaveBeenCalledTimes(2);
       expect(refreshTokenRepository.save).toHaveBeenCalledWith('user-123', expect.any(String));
       expect(mockResponse.cookie).toHaveBeenCalledTimes(2);
+    });
+
+    it.each([false, undefined, 'true'])(
+      'should refuse a user whose isActive is %p, the same as a revoked token',
+      async (isActive) => {
+        mockUsersService.getUser.mockResolvedValueOnce({ id: 'user-123', isActive });
+
+        await expectRefusedLikeARevokedToken(service.refresh('user-123', 'old-token-id', mockResponse as Response));
+        expectNothingIssued();
+      },
+    );
+
+    it('should refuse a user that does not exist, the same as a revoked token', async () => {
+      mockUsersService.getUser.mockRejectedValueOnce(
+        new RpcException({ statusCode: 404, message: 'Entity not found.', error: true }),
+      );
+
+      await expectRefusedLikeARevokedToken(service.refresh('user-123', 'old-token-id', mockResponse as Response));
+      expectNothingIssued();
+    });
+
+    it.each([
+      ['a timeout', new RpcException({ statusCode: 503, message: 'Service timeout on user.db.find-one', error: true })],
+      ['a server error', new RpcException({ statusCode: 500, message: 'Something went wrong', error: true })],
+      ['an error without a status', new Error('connect ECONNREFUSED')],
+    ])('should pass on %s of pg_read as it is', async (_name, failure) => {
+      mockUsersService.getUser.mockRejectedValueOnce(failure);
+
+      await expect(service.refresh('user-123', 'old-token-id', mockResponse as Response)).rejects.toBe(failure);
+      expectNothingIssued();
     });
   });
 

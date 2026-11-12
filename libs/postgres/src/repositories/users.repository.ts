@@ -20,6 +20,7 @@ export class UsersRepository extends PostgresqlAbstractRepository<User> {
       .createQueryBuilder('user')
       .addSelect('user.password')
       .where('user.email = :email', { email })
+      .andWhere('user.isActive = :isActive', { isActive: true })
       .getOne();
 
     if (!user) {
