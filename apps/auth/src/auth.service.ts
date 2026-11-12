@@ -1,5 +1,4 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
 import { type Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -7,9 +6,7 @@ import { randomUUID } from 'crypto';
 import { ITokenPayload, IRefreshTokenPayload } from './interfaces/token-payload.interface';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { UsersService } from './users/users.service';
-
-const isNotFound = (error: unknown): boolean =>
-  error instanceof RpcException && (error.getError() as { statusCode?: number })?.statusCode === 404;
+import { isNotFound } from './is-not-found';
 
 @Injectable()
 export class AuthService {
