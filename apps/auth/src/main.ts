@@ -36,7 +36,7 @@ async function bootstrap() {
       port: configService.get('AUTH_TCP_PORT'),
     },
   });
-  
+
   await app.startAllMicroservices();
 
   await app.listen(configService.get('AUTH_HTTP_PORT') as string);

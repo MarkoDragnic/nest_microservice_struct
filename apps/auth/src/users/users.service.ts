@@ -61,6 +61,10 @@ export class UsersService {
   }
 
   async getUser(getUserDto: GetUserDto) {
-    return await this.tcpClientService.send<UserResponseDto>(this.pgReadClient, TCP_DB_EVENTS.USER_FIND_ONE, getUserDto);
+    return await this.tcpClientService.send<UserResponseDto>(
+      this.pgReadClient,
+      TCP_DB_EVENTS.USER_FIND_ONE,
+      getUserDto,
+    );
   }
 }

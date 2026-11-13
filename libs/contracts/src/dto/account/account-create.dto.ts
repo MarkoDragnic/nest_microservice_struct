@@ -2,7 +2,6 @@ import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Environment, Exchange } from '@app/contracts/types';
 
-
 export class AccountCreateDto {
   @ApiProperty({ enum: Exchange, example: Exchange.BINANCE })
   @IsNotEmpty()

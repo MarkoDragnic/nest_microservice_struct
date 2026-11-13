@@ -17,7 +17,14 @@ export class AuthHttpController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: 'Login with email and password' })
-  @ApiBody({ schema: { properties: { email: { type: 'string', example: 'user@example.com' }, password: { type: 'string', example: 'P@ssw0rd1' } } } })
+  @ApiBody({
+    schema: {
+      properties: {
+        email: { type: 'string', example: 'user@example.com' },
+        password: { type: 'string', example: 'P@ssw0rd1' },
+      },
+    },
+  })
   @ApiResponse({ status: 201, description: 'Login successful, cookies set' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @ApiResponse({ status: 429, description: 'Rate limit exceeded' })
@@ -37,10 +44,7 @@ export class AuthHttpController {
   @UseGuards(RefreshAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  async refresh(
-    @CurrentUser() payload: RefreshTokenPayload,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async refresh(@CurrentUser() payload: RefreshTokenPayload, @Res({ passthrough: true }) response: Response) {
     await this.authService.refresh(payload.userId, payload.tokenId, response);
     return { ok: true };
   }
@@ -52,12 +56,8 @@ export class AuthHttpController {
   @UseGuards(RefreshAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('logout')
-  async logout(
-    @CurrentUser() payload: RefreshTokenPayload,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async logout(@CurrentUser() payload: RefreshTokenPayload, @Res({ passthrough: true }) response: Response) {
     await this.authService.logout(payload.userId, payload.tokenId, response);
     return { ok: true };
   }
 }
-

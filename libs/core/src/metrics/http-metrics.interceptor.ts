@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  type NestInterceptor,
-  type ExecutionContext,
-  type CallHandler,
-} from '@nestjs/common';
+import { Injectable, type NestInterceptor, type ExecutionContext, type CallHandler } from '@nestjs/common';
 import { type Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Histogram } from 'prom-client';

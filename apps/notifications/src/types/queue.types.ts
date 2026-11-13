@@ -3,4 +3,3 @@ export enum QueueType {
 }
 
 export const NOTIFICATION_QUEUE = 'notifications';
-

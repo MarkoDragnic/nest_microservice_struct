@@ -12,11 +12,9 @@ export class RedisCalculatorProviderKeysService {
   getKeyName(...args: string[]) {
     return this.REDIS_PREFIX.redis_prefix + ':' + args.join(':');
   }
-  instanceKey = (id: string) =>
-    this.getKeyName(this.REDIS_PREFIX.instances, id);
+  instanceKey = (id: string) => this.getKeyName(this.REDIS_PREFIX.instances, id);
 
-  providersKey = (id: string) =>
-    this.getKeyName(this.REDIS_PREFIX.providers, id);
+  providersKey = (id: string) => this.getKeyName(this.REDIS_PREFIX.providers, id);
 
   activeProvidersKey = this.getKeyName(this.REDIS_PREFIX.active_providers);
 }

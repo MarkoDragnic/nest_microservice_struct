@@ -25,25 +25,30 @@ export class ClientTcpService {
     const correlationId = store?.correlationId;
 
     const response = await lastValueFrom(
-      client.send(event, {
-        payload,
-        serviceToken: this.internalRpcToken,
-        ...(correlationId && { correlationId }),
-      }).pipe(
-        timeout(this.tcpTimeoutMs),
-        catchError((err) => {
-          if (err instanceof TimeoutError) {
-            this.logger.warn('TCP call timed out', { event, timeoutMs: this.tcpTimeoutMs });
-            return throwError(() => new RpcException({
-              statusCode: 503,
-              message: `Service timeout on ${event}`,
-              error: true,
-              event,
-            }));
-          }
-          return throwError(() => err);
-        }),
-      ),
+      client
+        .send(event, {
+          payload,
+          serviceToken: this.internalRpcToken,
+          ...(correlationId && { correlationId }),
+        })
+        .pipe(
+          timeout(this.tcpTimeoutMs),
+          catchError((err) => {
+            if (err instanceof TimeoutError) {
+              this.logger.warn('TCP call timed out', { event, timeoutMs: this.tcpTimeoutMs });
+              return throwError(
+                () =>
+                  new RpcException({
+                    statusCode: 503,
+                    message: `Service timeout on ${event}`,
+                    error: true,
+                    event,
+                  }),
+              );
+            }
+            return throwError(() => err);
+          }),
+        ),
     );
 
     if (response.error) {

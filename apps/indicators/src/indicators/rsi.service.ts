@@ -24,7 +24,7 @@ export class RsiService implements IIndicators {
   ): Promise<IndicatorsResponse> {
     const indicator = await this.getInstance(symbol, period, timestamp, interval);
 
-    const previous = indicator.isStable ? (Number(indicator.getResult()?.toFixed(2)) || 0) : 0;
+    const previous = indicator.isStable ? Number(indicator.getResult()?.toFixed(2)) || 0 : 0;
 
     indicator.add(price);
 

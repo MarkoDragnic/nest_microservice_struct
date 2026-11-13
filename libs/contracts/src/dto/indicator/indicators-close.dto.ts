@@ -1,10 +1,6 @@
 import { IsDefined, IsNotEmptyObject, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-  HlIndicatorDto,
-  ProfitIndicatorDto,
-  RsiIndicatorDto,
-} from '@app/contracts/dto';
+import { HlIndicatorDto, ProfitIndicatorDto, RsiIndicatorDto } from '@app/contracts/dto';
 import type { ICloseIndicators } from '@app/contracts/interfaces';
 
 export class CloseDto implements ICloseIndicators {

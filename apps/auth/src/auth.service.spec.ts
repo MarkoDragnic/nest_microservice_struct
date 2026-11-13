@@ -79,9 +79,7 @@ describe('AuthService', () => {
       expect(jwtService.sign).toHaveBeenCalledTimes(2);
 
       // Access token signed with default options
-      expect(jwtService.sign).toHaveBeenCalledWith(
-        expect.objectContaining({ userId: 'user-123' }),
-      );
+      expect(jwtService.sign).toHaveBeenCalledWith(expect.objectContaining({ userId: 'user-123' }));
 
       // Refresh token signed with refresh secret
       expect(jwtService.sign).toHaveBeenCalledWith(

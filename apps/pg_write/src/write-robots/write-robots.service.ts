@@ -61,8 +61,7 @@ export class WriteRobotsService {
     } catch (error: unknown) {
       const isDuplicate =
         error instanceof Error &&
-        ((error as Error & { code?: string }).code === '23505' ||
-          error.message.includes('duplicate key'));
+        ((error as Error & { code?: string }).code === '23505' || error.message.includes('duplicate key'));
       if (isDuplicate) {
         throw new ConflictException(ResponseMessage.ROBOT_ALREADY_EXISTS);
       }

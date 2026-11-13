@@ -27,26 +27,28 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    return this.authClient.send(TCP_EVENTS.AUTHENTICATE, {
-      payload: { Authentication: jwt },
-      serviceToken: this.internalRpcToken,
-    }).pipe(
-      tap((res) => {
-        if (res?.error) {
-          throw new UnauthorizedException(typeof res?.message === 'string' ? res.message : 'Authentication failed');
-        }
-        
-        if (typeof res?.id !== 'string' || res.id === '') {
-          throw new UnauthorizedException('Authentication answer has no user id');
-        }
-        const user: AuthenticatedUser = { id: res.id };
-        context.switchToHttp().getRequest().user = user;
-      }),
-      map(() => true),
-      catchError((err) => {
-        this.logger.warn('JWT auth failed', { error: err?.message, stack: err?.stack });
-        throw new UnauthorizedException();
-      }),
-    );
+    return this.authClient
+      .send(TCP_EVENTS.AUTHENTICATE, {
+        payload: { Authentication: jwt },
+        serviceToken: this.internalRpcToken,
+      })
+      .pipe(
+        tap((res) => {
+          if (res?.error) {
+            throw new UnauthorizedException(typeof res?.message === 'string' ? res.message : 'Authentication failed');
+          }
+
+          if (typeof res?.id !== 'string' || res.id === '') {
+            throw new UnauthorizedException('Authentication answer has no user id');
+          }
+          const user: AuthenticatedUser = { id: res.id };
+          context.switchToHttp().getRequest().user = user;
+        }),
+        map(() => true),
+        catchError((err) => {
+          this.logger.warn('JWT auth failed', { error: err?.message, stack: err?.stack });
+          throw new UnauthorizedException();
+        }),
+      );
   }
 }

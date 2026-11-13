@@ -18,6 +18,6 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
     }),
   ],
   controllers: [AccountGateController],
-  providers: [AccountGateService,  JwtAuthGuard],
+  providers: [AccountGateService, JwtAuthGuard],
 })
 export class AccountGateModule {}

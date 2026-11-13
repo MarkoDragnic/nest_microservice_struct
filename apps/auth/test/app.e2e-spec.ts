@@ -164,9 +164,7 @@ describe('Auth (e2e)', () => {
     });
 
     it('should return 401 with invalid credentials', async () => {
-      mockUsersService.verifyUser.mockRejectedValueOnce(
-        new UnauthorizedException('Credentials are not valid'),
-      );
+      mockUsersService.verifyUser.mockRejectedValueOnce(new UnauthorizedException('Credentials are not valid'));
 
       const res = await request(app.getHttpServer())
         .post('/auth/login')
@@ -203,9 +201,7 @@ describe('Auth (e2e)', () => {
       const refreshCookie = cookies.find((c: string) => c.startsWith('Refresh='));
       mockUsersService.getUser.mockResolvedValueOnce({ ...TEST_USER, isActive: true });
 
-      const res = await request(app.getHttpServer())
-        .post('/auth/refresh')
-        .set('Cookie', [refreshCookie!]);
+      const res = await request(app.getHttpServer()).post('/auth/refresh').set('Cookie', [refreshCookie!]);
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ ok: true });
@@ -253,9 +249,7 @@ describe('Auth (e2e)', () => {
       const cookies = await loginAndGetCookies();
       const refreshCookie = cookies.find((c: string) => c.startsWith('Refresh='));
 
-      const res = await request(app.getHttpServer())
-        .post('/auth/logout')
-        .set('Cookie', [refreshCookie!]);
+      const res = await request(app.getHttpServer()).post('/auth/logout').set('Cookie', [refreshCookie!]);
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ ok: true });
@@ -276,14 +270,10 @@ describe('Auth (e2e)', () => {
       const refreshCookie = cookies.find((c: string) => c.startsWith('Refresh='));
 
       // Logout → revokes the refresh token
-      await request(app.getHttpServer())
-        .post('/auth/logout')
-        .set('Cookie', [refreshCookie!]);
+      await request(app.getHttpServer()).post('/auth/logout').set('Cookie', [refreshCookie!]);
 
       // Attempt refresh with the now-revoked token
-      const res = await request(app.getHttpServer())
-        .post('/auth/refresh')
-        .set('Cookie', [refreshCookie!]);
+      const res = await request(app.getHttpServer()).post('/auth/refresh').set('Cookie', [refreshCookie!]);
 
       expect(res.status).toBe(401);
     });

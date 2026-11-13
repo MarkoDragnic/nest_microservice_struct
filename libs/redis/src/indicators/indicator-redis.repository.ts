@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  RedisAbstractRepository,
-  RedisIndicatorsProviderKeysService,
-  RedisService,
-} from '@app/redis';
+import { RedisAbstractRepository, RedisIndicatorsProviderKeysService, RedisService } from '@app/redis';
 import { LoggerService } from '@app/core/logger';
 
 @Injectable()
@@ -32,21 +28,14 @@ export class IndicatorsRedisRepository extends RedisAbstractRepository {
       out.set(indicator, set);
     }
     return Object.fromEntries(
-      [...out.entries()].map(([indicator, set]) => [
-        indicator,
-        [...set].sort((a, b) => a - b),
-      ]),
+      [...out.entries()].map(([indicator, set]) => [indicator, [...set].sort((a, b) => a - b)]),
     );
   }
 
   async updateIndicatorsUse(symbol: string, diff: DiffType) {
     const key = this.keys.symbolKey(symbol);
     for (const { indicator, period } of diff.remove ?? []) {
-      const scoreStr = await this.zincrby(
-        key,
-        -1,
-        this.member(indicator, period),
-      );
+      const scoreStr = await this.zincrby(key, -1, this.member(indicator, period));
       const score = Number(scoreStr);
 
       if (!Number.isFinite(score) || score <= 0) {

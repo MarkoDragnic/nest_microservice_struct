@@ -21,9 +21,7 @@ export class ThrottlerRedisModule {
           imports: [RedisClientModule.register()],
           inject: [REDIS_CLIENT],
           useFactory: (redisClient: Redis | undefined) => {
-            const storage = redisClient
-              ? new ThrottlerStorageRedisService(redisClient)
-              : undefined;
+            const storage = redisClient ? new ThrottlerStorageRedisService(redisClient) : undefined;
 
             return {
               throttlers: [{ ttl: options.ttl, limit: options.limit }],

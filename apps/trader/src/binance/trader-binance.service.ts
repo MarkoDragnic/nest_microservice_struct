@@ -57,10 +57,7 @@ export class TraderBinanceService {
       throw new Error('Invalid account credentials');
     }
 
-    const baseUrl =
-      account.environment == Environment.SANDBOX
-        ? this.binanceTestUrl
-        : this.binanceProdUrl;
+    const baseUrl = account.environment == Environment.SANDBOX ? this.binanceTestUrl : this.binanceProdUrl;
 
     return {
       apiKey: await this.decrypt(account.apiKeyEncrypted),

@@ -7,5 +7,4 @@ export class GeneralService {
 
   isEnumValue = <T extends object>(enumObject: T, value: PropertyKey): value is keyof T =>
     Object.values(enumObject).includes(value as T[keyof T]);
-
 }

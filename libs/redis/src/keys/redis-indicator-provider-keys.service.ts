@@ -11,6 +11,5 @@ export class RedisIndicatorsProviderKeysService {
     return this.REDIS_PREFIX.redis_prefix + ':' + args.join(':');
   }
 
-  symbolKey = (symbol: string) =>
-    this.getKeyName(this.REDIS_PREFIX.symbols, symbol);
+  symbolKey = (symbol: string) => this.getKeyName(this.REDIS_PREFIX.symbols, symbol);
 }

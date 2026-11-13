@@ -25,10 +25,7 @@ export class InternalRpcGuard implements CanActivate {
     const providedBuffer = Buffer.from(providedToken, 'utf8');
     const expectedBuffer = Buffer.from(this.expectedToken, 'utf8');
 
-    if (
-      providedBuffer.length !== expectedBuffer.length
-      || !timingSafeEqual(providedBuffer, expectedBuffer)
-    ) {
+    if (providedBuffer.length !== expectedBuffer.length || !timingSafeEqual(providedBuffer, expectedBuffer)) {
       throw new UnauthorizedException('Invalid internal RPC token');
     }
 

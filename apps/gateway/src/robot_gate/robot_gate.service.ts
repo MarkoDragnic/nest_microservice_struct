@@ -38,10 +38,18 @@ export class RobotGateService {
   }
 
   async listRobots(userId: string, page: number, limit: number) {
-    return await this.tcpClientService.send(this.pgReadClient, TCP_DB_EVENTS.ROBOT_FIND_PAGINATED, { userId, page, limit });
+    return await this.tcpClientService.send(this.pgReadClient, TCP_DB_EVENTS.ROBOT_FIND_PAGINATED, {
+      userId,
+      page,
+      limit,
+    });
   }
 
   async listPositions(userId: string, page: number, limit: number) {
-    return await this.tcpClientService.send(this.pgReadClient, TCP_DB_EVENTS.POSITION_FIND_PAGINATED, { userId, page, limit });
+    return await this.tcpClientService.send(this.pgReadClient, TCP_DB_EVENTS.POSITION_FIND_PAGINATED, {
+      userId,
+      page,
+      limit,
+    });
   }
 }

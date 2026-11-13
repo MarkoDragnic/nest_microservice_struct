@@ -36,9 +36,6 @@ import { PriceProviderController } from './price-provider.controller';
     HealthModule.register({ http: false, tcp: true }),
   ],
   controllers: [PriceProviderController],
-  providers: [
-    NormalizeService,
-    ProviderManagerService,
-  ],
+  providers: [NormalizeService, ProviderManagerService],
 })
 export class PriceProviderModule {}

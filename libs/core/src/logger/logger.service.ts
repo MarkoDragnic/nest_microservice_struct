@@ -4,7 +4,7 @@ import { LOG_SINK, type LogSink } from './interfaces/log-sink.interface';
 import { LogSeverity } from './types/logger.types';
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class LoggerService extends ConsoleLogger {  
+export class LoggerService extends ConsoleLogger {
   // Depth counts keys and array indexes below the metadata object: its own values are at depth 1.
   private static readonly MAX_SANITIZE_DEPTH = 10;
   private serviceName: string = 'Unknown';
@@ -48,10 +48,21 @@ export class LoggerService extends ConsoleLogger {
 
   private static readonly SENSITIVE_KEYS = new Set(
     [
-      'password', 'apiKey', 'apiSecret', 'token', 'secret',
-      'authorization', 'cookie', 'jwt', 'refreshToken',
-      'accessToken', 'xApiKey',
-      'setCookie', 'passphrase', 'privateKey', 'clientSecret',
+      'password',
+      'apiKey',
+      'apiSecret',
+      'token',
+      'secret',
+      'authorization',
+      'cookie',
+      'jwt',
+      'refreshToken',
+      'accessToken',
+      'xApiKey',
+      'setCookie',
+      'passphrase',
+      'privateKey',
+      'clientSecret',
       'passwordHash',
     ].map((key) => LoggerService.normalizeKey(key)),
   );
@@ -157,7 +168,6 @@ export class LoggerService extends ConsoleLogger {
       default:
         super.log(message, context);
     }
-
   }
 
   private formatDate(date: Date): string {
@@ -177,5 +187,4 @@ export class LoggerService extends ConsoleLogger {
     }
     return { metadata: metadataOrContext, context };
   }
-
 }

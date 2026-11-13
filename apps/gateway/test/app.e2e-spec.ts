@@ -141,9 +141,7 @@ describe('Gateway (e2e)', () => {
 
   describe('POST /user', () => {
     it('should create a user with valid data', async () => {
-      AUTH_CLIENT.send.mockReturnValueOnce(
-        of({ id: 'new-user-id', email: 'user@example.com' }),
-      );
+      AUTH_CLIENT.send.mockReturnValueOnce(of({ id: 'new-user-id', email: 'user@example.com' }));
 
       const res = await request(app.getHttpServer())
         .post('/user')

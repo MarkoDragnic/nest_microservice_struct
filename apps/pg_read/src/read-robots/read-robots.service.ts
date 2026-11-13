@@ -18,11 +18,9 @@ export class ReadRobotsService {
       throw new BadRequestException(ResponseMessage.USER_ID_REQUIRED);
     }
 
-    return await this.robotsRepository.findPaginated(
-      { owner: { id: userId } } as any,
-      page,
-      limit,
-      { instrument: true, funds: true },
-    );
+    return await this.robotsRepository.findPaginated({ owner: { id: userId } } as any, page, limit, {
+      instrument: true,
+      funds: true,
+    });
   }
 }

@@ -7,9 +7,7 @@ export const KAFKA_DLQ_CLIENT = 'KAFKA_DLQ_CLIENT';
 export class KafkaDlqService implements OnModuleInit {
   private readonly logger = new Logger(KafkaDlqService.name);
 
-  constructor(
-    @Inject(KAFKA_DLQ_CLIENT) private readonly kafkaClient: ClientKafka,
-  ) {}
+  constructor(@Inject(KAFKA_DLQ_CLIENT) private readonly kafkaClient: ClientKafka) {}
 
   async onModuleInit() {
     await this.kafkaClient.connect();
@@ -32,8 +30,7 @@ export class KafkaDlqService implements OnModuleInit {
         },
       })
       .subscribe({
-        error: (err) =>
-          this.logger.error(`Failed to publish to ${dlqTopic}: ${err?.message}`),
+        error: (err) => this.logger.error(`Failed to publish to ${dlqTopic}: ${err?.message}`),
       });
   }
 }

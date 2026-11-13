@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, Unique, Update
 import { AbstractEntity } from '../abstract.entity';
 import { RobotTypes } from '@app/contracts/types';
 import type { IIndicatorsConfig } from '@app/contracts/interfaces';
-import { User,Account,Funds,Instrument } from './index';
+import { User, Account, Funds, Instrument } from './index';
 
 @Entity('robot')
 @Unique('UQ_robot_hash', ['hash'])

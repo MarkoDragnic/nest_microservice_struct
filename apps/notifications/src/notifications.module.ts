@@ -71,6 +71,12 @@ import { NOTIFICATION_QUEUE } from './types/queue.types';
     }),
   ],
   controllers: [NotificationsController],
-  providers: [NotificationsService, NotificationsTemplateService, FailedNotificationRepository, NotificationsProcessor, GlobalRpcExceptionFilter],
+  providers: [
+    NotificationsService,
+    NotificationsTemplateService,
+    FailedNotificationRepository,
+    NotificationsProcessor,
+    GlobalRpcExceptionFilter,
+  ],
 })
 export class NotificationsModule {}

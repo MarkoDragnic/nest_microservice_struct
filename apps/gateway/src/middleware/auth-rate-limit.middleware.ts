@@ -20,8 +20,7 @@ export class AuthRateLimitMiddleware implements NestMiddleware {
 
     if (redisClient) {
       options.store = new RedisStore({
-        sendCommand: (...args: string[]) =>
-          redisClient.call(args[0] as string, ...args.slice(1)) as any,
+        sendCommand: (...args: string[]) => redisClient.call(args[0] as string, ...args.slice(1)) as any,
       });
     }
 

@@ -121,11 +121,12 @@ export class BinanceProvider implements AssetProvider {
       return;
     }
 
-    if (
-      this.ws &&
-      (this.ws.readyState === WebSocket.CLOSING || this.ws.readyState === WebSocket.CLOSED)
-    ) {
-      try { this.ws.terminate(); } catch { /* ignore */ }
+    if (this.ws && (this.ws.readyState === WebSocket.CLOSING || this.ws.readyState === WebSocket.CLOSED)) {
+      try {
+        this.ws.terminate();
+      } catch {
+        /* ignore */
+      }
     }
 
     this.ws = new WebSocket(this.url);
@@ -156,7 +157,9 @@ export class BinanceProvider implements AssetProvider {
       const delay = this.backoffDelay();
       this.reconnectAttempts += 1;
       this.logger.warn('BinanceProvider: WS closed, reconnecting', { delay, attempt: this.reconnectAttempts });
-      setTimeout(() => { void this.connect(); }, delay);
+      setTimeout(() => {
+        void this.connect();
+      }, delay);
     };
 
     const onError = (error: Error) => {
@@ -164,7 +167,9 @@ export class BinanceProvider implements AssetProvider {
       try {
         this.connected = false;
         this.ws?.close();
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     };
 
     this.ws.on('message', onMessage);
@@ -206,9 +211,21 @@ export class BinanceProvider implements AssetProvider {
     if (ws.readyState === WebSocket.OPEN) return Promise.resolve();
 
     return new Promise((resolve, reject) => {
-      const onOpen = () => { ws.off('error', onError); ws.off('close', onClose); resolve(); };
-      const onError = (err: Error) => { ws.off('open', onOpen); ws.off('close', onClose); reject(err); };
-      const onClose = () => { ws.off('open', onOpen); ws.off('error', onError); reject(new Error('WebSocket closed before opening')); };
+      const onOpen = () => {
+        ws.off('error', onError);
+        ws.off('close', onClose);
+        resolve();
+      };
+      const onError = (err: Error) => {
+        ws.off('open', onOpen);
+        ws.off('close', onClose);
+        reject(err);
+      };
+      const onClose = () => {
+        ws.off('open', onOpen);
+        ws.off('error', onError);
+        reject(new Error('WebSocket closed before opening'));
+      };
       ws.once('open', onOpen);
       ws.once('error', onError);
       ws.once('close', onClose);
@@ -223,11 +240,23 @@ export class BinanceProvider implements AssetProvider {
   }
 
   private normalizeSubscribe(symbols: string[]): string[] {
-    return [...new Set(symbols)].filter((s) => { if (!this.symbols.has(s)) { this.symbols.add(s); return true; } return false; });
+    return [...new Set(symbols)].filter((s) => {
+      if (!this.symbols.has(s)) {
+        this.symbols.add(s);
+        return true;
+      }
+      return false;
+    });
   }
 
   private normalizeUnsubscribe(symbols: string[]): string[] {
-    return [...new Set(symbols)].filter((s) => { if (this.symbols.has(s)) { this.symbols.delete(s); return true; } return false; });
+    return [...new Set(symbols)].filter((s) => {
+      if (this.symbols.has(s)) {
+        this.symbols.delete(s);
+        return true;
+      }
+      return false;
+    });
   }
 
   private async getSymbolFormat(symbols: string[]): Promise<string[]> {

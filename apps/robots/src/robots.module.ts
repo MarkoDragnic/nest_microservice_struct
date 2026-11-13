@@ -52,6 +52,12 @@ import { RobotIndicatorsService } from './robot-indicators.service';
     }),
   ],
   controllers: [RobotsController],
-  providers: [RobotsService, RobotIndicatorsService, IndicatorsRedisRepository, GeneralService, GlobalRpcExceptionFilter],
+  providers: [
+    RobotsService,
+    RobotIndicatorsService,
+    IndicatorsRedisRepository,
+    GeneralService,
+    GlobalRpcExceptionFilter,
+  ],
 })
 export class RobotsModule {}

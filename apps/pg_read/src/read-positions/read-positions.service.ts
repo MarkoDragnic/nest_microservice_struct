@@ -18,11 +18,8 @@ export class ReadPositionsService {
       throw new BadRequestException(ResponseMessage.USER_ID_REQUIRED);
     }
 
-    return await this.positionsRepository.findPaginated(
-      { robot: { owner: { id: userId } } } as any,
-      page,
-      limit,
-      { robot: true },
-    );
+    return await this.positionsRepository.findPaginated({ robot: { owner: { id: userId } } } as any, page, limit, {
+      robot: true,
+    });
   }
 }

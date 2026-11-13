@@ -39,21 +39,15 @@ export class RedisService implements OnModuleDestroy, OnApplicationShutdown {
     );
   }
 
-  async subscribe(
-    pattern: string,
-    callback: (channel: string, message: string) => void,
-  ) {
+  async subscribe(pattern: string, callback: (channel: string, message: string) => void) {
     try {
       await this.subscriberClient.psubscribe(pattern);
 
-      this.subscriberClient.on(
-        'pmessage',
-        (matchedPattern, channel, message) => {
-          if (matchedPattern === pattern) {
-            callback(channel, message);
-          }
-        },
-      );
+      this.subscriberClient.on('pmessage', (matchedPattern, channel, message) => {
+        if (matchedPattern === pattern) {
+          callback(channel, message);
+        }
+      });
     } catch (error) {
       this.logger.error('Failed to subscribe to channel', {
         pattern,
@@ -84,10 +78,7 @@ export class RedisService implements OnModuleDestroy, OnApplicationShutdown {
   }
 
   async onModuleDestroy() {
-    await Promise.all([
-      this.publisherClient.quit(),
-      this.subscriberClient.quit(),
-    ]);
+    await Promise.all([this.publisherClient.quit(), this.subscriberClient.quit()]);
   }
 
   async onApplicationShutdown(signal?: string) {

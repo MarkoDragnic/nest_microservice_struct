@@ -18,15 +18,15 @@ export class GatewayOnlyGuard implements CanActivate {
 
     if (this.isProduction && this.allowedIps.length === 0) {
       throw new Error(
-        'ALLOWED_GATEWAY_IPS must be configured in production. '
-        + 'Set it to a comma-separated list of gateway container IPs.',
+        'ALLOWED_GATEWAY_IPS must be configured in production. ' +
+          'Set it to a comma-separated list of gateway container IPs.',
       );
     }
 
     if (!this.isProduction && this.allowedIps.length === 0) {
       this.logger.warn(
-        'ALLOWED_GATEWAY_IPS is not set — auth service is directly reachable from any host. '
-        + 'Acceptable in development; must be restricted before production.',
+        'ALLOWED_GATEWAY_IPS is not set — auth service is directly reachable from any host. ' +
+          'Acceptable in development; must be restricted before production.',
       );
     }
   }
@@ -36,7 +36,6 @@ export class GatewayOnlyGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<Request>();
 
-   
     const rawIp = request.socket.remoteAddress ?? '';
 
     const ip = rawIp.startsWith('::ffff:') ? rawIp.slice(7) : rawIp;

@@ -75,11 +75,9 @@ export class ProviderManagerService implements OnModuleInit, OnModuleDestroy {
     const provider = this.providers.get(providerId);
     if (provider) await provider.subscribe(symbols);
 
-    await this.redisService.getClient().hset(
-      this.redisKeys.providersPriceKey(providerId),
-      'symbols',
-      [...state.symbols].join(','),
-    );
+    await this.redisService
+      .getClient()
+      .hset(this.redisKeys.providersPriceKey(providerId), 'symbols', [...state.symbols].join(','));
   }
 
   async removeSymbols(providerId: ProviderId, symbols: string[]): Promise<void> {
@@ -90,11 +88,9 @@ export class ProviderManagerService implements OnModuleInit, OnModuleDestroy {
     const provider = this.providers.get(providerId);
     if (provider) await provider.unsubscribe(symbols);
 
-    await this.redisService.getClient().hset(
-      this.redisKeys.providersPriceKey(providerId),
-      'symbols',
-      [...state.symbols].join(','),
-    );
+    await this.redisService
+      .getClient()
+      .hset(this.redisKeys.providersPriceKey(providerId), 'symbols', [...state.symbols].join(','));
   }
 
   private async startProvider(state: ProviderState): Promise<void> {

@@ -82,8 +82,7 @@ describe('UsersService', () => {
       mockTcpClientService.send.mockResolvedValue(user);
       spyOnCompare().mockResolvedValue(false);
 
-      await expect(service.verifyUser('test@test.com', 'wrong'))
-        .rejects.toThrow(UnauthorizedException);
+      await expect(service.verifyUser('test@test.com', 'wrong')).rejects.toThrow(UnauthorizedException);
     });
 
     it('should compare against the dummy hash and throw UnauthorizedException when the user is not found', async () => {
@@ -203,11 +202,9 @@ describe('UsersService', () => {
       const result = await service.getUser({ id: '1' });
 
       expect(result).toEqual(user);
-      expect(mockTcpClientService.send).toHaveBeenCalledWith(
-        mockPgReadClient,
-        TCP_DB_EVENTS.USER_FIND_ONE,
-        { id: '1' },
-      );
+      expect(mockTcpClientService.send).toHaveBeenCalledWith(mockPgReadClient, TCP_DB_EVENTS.USER_FIND_ONE, {
+        id: '1',
+      });
     });
   });
 });

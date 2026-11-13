@@ -27,7 +27,7 @@ export class ReadPositionsController {
   @MessagePattern(TCP_DB_EVENTS.POSITION_FIND_PAGINATED, Transport.TCP)
   async findPaginated(@Payload() params: { userId: string; page: number; limit: number }) {
     const result = await this.readPositionService.findPaginated(params.userId, params.page, params.limit);
-   
+
     const positions = new PaginatedResponseDto(
       result.data.map(toPositionResponse),
       result.total,

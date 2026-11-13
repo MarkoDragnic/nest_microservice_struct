@@ -13,11 +13,9 @@ export class RedisPriceProviderKeysService {
   getKeyName(...args: string[]) {
     return this.REDIS_PREFIX.redis_prefix + ':' + args.join(':');
   }
-  instanceKey = (id: string) =>
-    this.getKeyName(this.REDIS_PREFIX.instances, id);
+  instanceKey = (id: string) => this.getKeyName(this.REDIS_PREFIX.instances, id);
 
-  providersPriceKey = (id: string) =>
-    this.getKeyName(this.REDIS_PREFIX.providers, id);
+  providersPriceKey = (id: string) => this.getKeyName(this.REDIS_PREFIX.providers, id);
 
   activeProvidersKey = this.getKeyName(this.REDIS_PREFIX.active_providers);
 
