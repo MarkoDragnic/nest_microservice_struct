@@ -1,8 +1,8 @@
 # Algorithmic Trading Platform
 
-A backend system for running automated cryptocurrency trading strategies. Users register trading robots with configurable indicator-based entry and exit rules. The platform ingests live market data, computes technical indicators in real time, and executes orders on Binance when the conditions are met.
+A backend for automated cryptocurrency trading. Users register trading robots with indicator-based rules for opening and closing positions. The system reads live prices from Binance, builds candles, computes indicators and places orders when a robot's rules match.
 
-This is a portfolio project built to demonstrate a production-style microservices architecture using NestJS, Kafka, Redis, PostgreSQL, and MongoDB. The focus is on event-driven design, service separation, and the kind of problems that come up when you need multiple services to coordinate around a shared real-time data stream.
+This is a portfolio project: 13 NestJS services and six shared libraries in one repository, with Kafka, Redis, PostgreSQL and MongoDB.
 
 ## Architecture
 
@@ -10,134 +10,130 @@ This is a portfolio project built to demonstrate a production-style microservice
 
 ![System context](docs/images/systemContext.png)
 
-The platform sits between a Next.js frontend and a set of external systems: Binance for market data and order execution, Gmail for email notifications, PostgreSQL/MongoDB/Redis for persistence, and Kafka for the internal event pipeline.
-
 ### Service map
 
 ![Service map](docs/images/cluster.png)
 
-All services run inside a single Docker network. The API Gateway is the only public entry point. Internal communication uses NestJS TCP microservices (dashed lines) for request/response and Kafka (solid lines) for the event-driven trading pipeline.
+There are two flows.
 
-## How it works
+**Management (HTTP and TCP).** The gateway is the only public HTTP entry point. It proxies `/auth` requests to the auth service over HTTP, checks the JWT cookie on the protected routes, and forwards the request over NestJS TCP to `auth`, `robots`, `accounts` or `pg_read`. Those services reach PostgreSQL only through `pg_read` and `pg_write`.
 
-There are two largely separate flows running at the same time.
-
-The first is the management flow — users interact with the HTTP API (via the gateway) to create accounts, configure robots, and set indicator rules. This goes through a standard request/response chain: gateway authenticates the request and forwards it over TCP to the relevant service, which reads or writes to PostgreSQL through a dedicated read/write service pair.
-
-The second is the trading pipeline, which runs continuously in the background. A price provider holds a persistent WebSocket connection to Binance and pushes raw price updates into Redis. Price calculator instances pick those up, aggregate them into OHLC candles, and publish to Kafka. The indicators service consumes those candles, computes RSI and high/low values for every symbol that has an active robot, and publishes a trigger to Kafka when the indicators are ready. The trader picks up the trigger, evaluates the open and close rules for every robot on that symbol, and executes orders on Binance if any rules fire. After a trade, the positions service records it and emits an event that eventually results in an email to the user.
+**Trading pipeline (Redis and Kafka).** `price_provider` holds a WebSocket connection to Binance and publishes prices to Redis pub/sub. `price_calculator` builds OHLC candles and publishes them to the Kafka topic `candle.price`. `indicators` computes RSI and High/Low and publishes to `indicator.trigger`. `trader` evaluates each robot's open and close rules and places orders on Binance. For an account in the test environment it sends no order and only records the position. `positions` records the trade through `pg_write` and publishes to `notification.send`, and `notifications` sends the email.
 
 ## Services
 
-Each service has its own README with more detail on what it does and what it's demonstrating.
+- [gateway](apps/gateway/README.md): public HTTP API, JWT check, rate limiting, routing to the internal services
+- [auth](apps/auth/README.md): registration, login, refresh and logout, token verification over TCP for the gateway
+- [accounts](apps/accounts/README.md): exchange accounts, encrypts and decrypts the API keys
+- [robots](apps/robots/README.md): robot creation, indicator rules, the indicator registry in Redis
+- [trader](apps/trader/README.md): consumes `indicator.trigger`, evaluates the rules, places orders on Binance
+- [positions](apps/positions/README.md): opens and closes positions, publishes notification events
+- [price_provider](apps/price_provider/README.md): Binance WebSocket prices to Redis pub/sub
+- [price_calculator](apps/price_calculator/README.md): OHLC candles from Redis prices, several instances share the symbols and rebalance through Redis
+- [indicators](apps/indicators/README.md): RSI and High/Low from candles
+- [history_provider](apps/history_provider/README.md): historical candles from MongoDB, fetched from Binance when missing
+- [notifications](apps/notifications/README.md): emails through Gmail, with a Bull queue and retries
+- [pg_read](apps/pg_read/README.md) and [pg_write](apps/pg_write/README.md): the only services that talk to PostgreSQL (queries and commands)
 
-- [gateway](apps/gateway/README.md) — HTTP entry point, rate limiting, JWT validation, request routing
-- [auth](apps/auth/README.md) — Login, JWT issuance, internal token verification
-- [accounts](apps/accounts/README.md) — Exchange account management with AES-256-GCM credential encryption
-- [robots](apps/robots/README.md) — Robot configuration, indicator assignment, Redis indicator registry
-- [trader](apps/trader/README.md) — Order execution engine, Kafka consumer, Binance integration
-- [positions](apps/positions/README.md) — Trade record persistence, P&L tracking, event emission
-- [price_provider](apps/price_provider/README.md) — Binance WebSocket ingestion, Redis pub/sub fan-out
-- [price_calculator](apps/price_calculator/README.md) — OHLC aggregation, horizontally scalable with automatic rebalancing
-- [indicators](apps/indicators/README.md) — RSI and High/Low computation, lazy evaluation, Kafka emission
-- [history_provider](apps/history_provider/README.md) — Historical candle serving with MongoDB cache and Binance fallback
-- [notifications](apps/notifications/README.md) — Email delivery via Gmail OAuth2, Bull queue with retry
-- [pg_write](apps/pg_write/README.md) — Centralised PostgreSQL write service (CQRS write side)
-- [pg_read](apps/pg_read/README.md) — Centralised PostgreSQL read service (CQRS read side)
+## Libraries
 
-## Stack
+| Library | Alias | Contents |
+|---|---|---|
+| `libs/contracts` | `@app/contracts` | DTOs, types, interfaces, TCP patterns, Kafka topics and event types |
+| `libs/core` | `@app/core` | Logger, config schemas, filters, health, metrics, middleware, interceptors, decorators, the internal RPC guard |
+| `libs/messaging` | `@app/messaging` | TCP clients, Kafka client module, dead letter queue publisher |
+| `libs/redis` | `@app/redis` | Redis client and service, key services, indicators repository, throttler |
+| `libs/postgres` | `@app/postgres` | Entities, repositories, migrations, entity-to-contract mappers |
+| `libs/mongo` | `@app/mongo` | Mongoose module, abstract repositories, candle storage, log sink |
 
-NestJS 11 (TypeScript) for all services. PostgreSQL with TypeORM for relational data. MongoDB for candles, indicator history, and logs. Redis for pub/sub, rate limiting, Bull queues, and cluster coordination. Apache Kafka in KRaft mode (no Zookeeper) for the event pipeline. Prometheus for metrics collection. Grafana for dashboards and visualisation. Docker Compose for local orchestration.
+Dependencies only point down: `contracts` depends on no other lib, `core` may use `contracts`, and the other four may use both. Only `pg_read` and `pg_write` import `@app/postgres`. `@app/contracts/internal` holds the service-to-service contracts and is not part of the `@app/contracts` root export.
 
 ## Running locally
 
-Infrastructure and all services (including monitoring):
+Each service reads `apps/<service>/.env`. All services read `env/logger.env`, and `pg_read` and `pg_write` also read `env/postgres.env`. Copy every `.env.example` to a `.env` next to it before the first start (13 in `apps/`, two in `env/`). Config is validated at startup, so a missing variable stops the service.
+
+Everything, including PostgreSQL, Redis, MongoDB, Kafka, Prometheus and Grafana:
 
 ```bash
 docker compose -f docker-compose.full.yml up --build
 ```
 
-Core management services only (gateway, auth, accounts, robots, pg_write, pg_read):
+Only the 13 services, when PostgreSQL, MongoDB, Redis and Kafka already run somewhere else (their hosts come from the `.env` files):
 
 ```bash
 docker compose up --build
 ```
 
-For running individual services outside Docker during development:
+One service outside Docker, from the repository root:
 
 ```bash
 npm install
 npx nest start auth --watch
 ```
 
-## Service endpoints
+### Migrations
 
-| Service | URL |
-|---|---|
-| HTTP API + Swagger | http://localhost:4040/api/docs |
-| Prometheus | http://localhost:9090 |
-| Grafana | http://localhost:3001 |
-
-Grafana default credentials: `admin` / `admin`. The **NestJS Microservices** dashboard is provisioned automatically on first start.
-
-## Monitoring
-
-Every service exposes a `/metrics` endpoint in Prometheus text format, collected every 15 seconds. The shared `MetricsModule` in `libs/common` uses `prom-client` to expose:
-
-- **HTTP request rate** — total requests per service, broken down by method, path, and status code
-- **HTTP request duration** — histogram with p50/p95/p99 latency per endpoint
-- **Active requests** — in-flight request count
-- **Node.js runtime metrics** — heap usage, event loop lag, GC, CPU
-
-All metrics use the `trader_microservices_` prefix. The metric for a TCP microservice (e.g. `pg_write`) is served on a dedicated `METRICS_PORT` (9001–9011) separate from the TCP transport port, since TCP services have no HTTP server.
-
-Prometheus configuration is in `monitoring/prometheus/prometheus.yml`. The Grafana dashboard definition is in `monitoring/grafana/dashboards/` and is provisioned automatically via `monitoring/grafana/provisioning/`.
-
-## Project structure
-
-```
-apps/          one directory per microservice
-libs/common/   shared modules: TypeORM entities, repositories, Redis, TCP client factory, guards, constants
-scripts/       TCP healthcheck utility
-```
-
-The `libs/common` library is intentionally the single source of truth for anything shared — entities, event name constants, the JWT guard, and the TCP client registration pattern. If something is needed by more than one service, it lives there.
-
----
-
-## Notes on specific design decisions
-
-### Kafka partitioning for the trader
-
-The `indicator.trigger` topic is partitioned by symbol (the Kafka message key is the trading pair, e.g. `BTCUSDT`). This means all events for a given symbol always land on the same partition, and therefore always go to the same trader replica in a consumer group. This avoids the need for distributed locking around per-symbol state — the partition assignment is the lock.
-
-Scaling the trader is just a matter of adding replicas to the same consumer group. Kafka rebalances the partitions automatically.
-
-### Database migrations
-
-This project uses TypeORM migrations rather than `synchronize: true`, so schema changes are explicit and reversible.
+The schema is managed with TypeORM migrations, and `POSTGRES_SYNCHRONIZE` is `false` in `env/postgres.env.example` and in `docker-compose.full.yml`. In `docker-compose.full.yml`, `pg_write` runs the pending migrations when it starts. By hand:
 
 ```bash
-# Generate a migration from entity changes
 npm run migration:generate -- libs/postgres/src/migrations/DescribeYourChange
-
-# Preview pending migrations
 npm run migration:show
-
-# Apply
 npm run migration:run
-
-# Revert the last migration
 npm run migration:revert
 ```
 
-In production, keep `POSTGRES_SYNCHRONIZE=false` and run migrations as a separate deploy step before starting services.
+A generated migration must also be added to `POSTGRES_MIGRATIONS` in `libs/postgres/src/migrations/index.ts`, or it never runs.
 
-### E2E smoke tests
+## Endpoints and monitoring
 
-With the full stack running:
+| What | URL |
+|---|---|
+| HTTP API | http://localhost:4040 |
+| Swagger | http://localhost:4040/api/docs |
+| Prometheus | http://localhost:9090 |
+| Grafana | http://localhost:3001 (`admin` / `admin`) |
+
+Every service serves `/metrics` in Prometheus format, scraped every 15 seconds. `MetricsModule` is in `libs/core` and uses `prom-client`: Node.js runtime metrics with the `trader_microservices_` prefix, and a request duration histogram on `gateway` and `auth`, the two services that listen on HTTP. The other 11 services serve metrics on a separate `METRICS_PORT` (9001 to 9011). The Grafana dashboard in `monitoring/grafana/dashboards/` is provisioned at startup.
+
+## Testing
 
 ```bash
-bash scripts/test-e2e.sh
+npm test                   # unit tests
+npm run test:e2e           # jest e2e suites for gateway and auth, no Docker needed
+bash scripts/test-e2e.sh   # 41 HTTP and Redis checks against the running full stack
 ```
 
-This runs 38 automated checks covering user registration, JWT auth with refresh token rotation, account and robot CRUD, paginated list endpoints, and post-logout access denial.
+The smoke script needs `curl`, `node` and `docker`. It covers registration, login, refresh token rotation, account and robot creation, indicator updates, logout and the paginated lists. It also registers a second user and checks that this user gets 404 when using the first user's account or robot, the same answer as for a robot that does not exist.
+
+## Design decisions
+
+- [ADR 001](docs/adr/0001-split-common-lib.md): one shared library split into six.
+- [ADR 004](docs/adr/0004-lock-order.md): lock order for money transactions, and a known gap in order placement.
+- Internal contracts are shaped by the consumer: plain interfaces with only the fields that service reads.
+- Entities never cross a service boundary. `pg_read` and `pg_write` map them to contract types before answering.
+- Requests and responses are built field by field, not with a spread. Each mapper has a leak test that fails if a field outside the contract gets through. Three controller tests in `pg_read` and `pg_write` find the handlers by their `@MessagePattern` metadata, so a new handler is covered without being listed.
+- A change on the wire adds the new field first, then switches the consumers, then removes the old field.
+- `indicator.trigger` is keyed by symbol, so all triggers for one symbol go to the same partition and the same trader replica. The trader also holds a claim per symbol in Redis and skips a trigger for a symbol another instance has claimed.
+
+## Security
+
+- The password column is not selected by default, and responses are built from a whitelist of fields.
+- Login gives the same answer at the same bcrypt cost for an unknown email, an inactive user and a wrong password.
+- Another user's robot and a missing robot get the same 404.
+- Exchange API keys are stored encrypted with AES-256-GCM.
+- Internal TCP calls carry a shared token, compared in constant time.
+- Use only Binance testnet keys and a test Gmail account. See [SECURITY.md](SECURITY.md).
+
+## Known gaps
+
+- On a live account the order is placed on Binance before `pg_write` checks the funds (ADR 004).
+- Per-service Docker builds, lint boundary rules and CI path filters are not done (ADR 001).
+- Old bcrypt hashes are not rehashed on login.
+- TCP payloads are not validated. The global `ValidationPipe` does not reach the TCP handlers in any of the 12 services that receive TCP calls, because no service passes `inheritAppConfig` to `connectMicroservice`. The pipe only applies to HTTP requests, at `gateway` and `auth`.
+- The correlation id is sent over TCP but the receiver does not pick it up.
+
+## Next
+
+- Outbox, relay and MongoDB read models for the dashboard queries.
+- Logs to stdout and Loki.
+- Terraform and Kubernetes.
