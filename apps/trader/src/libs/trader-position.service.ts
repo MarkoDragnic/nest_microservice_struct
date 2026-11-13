@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ICandleWithIndicators, PositionCloseReason, PositionStatus, TCP_EVENTS } from '@app/contracts';
 import { POSITION_SERVICE, ClientTcpService } from '@app/messaging';
 import type { TradingPosition, TradingRobot } from '@app/contracts/internal';
-import { catchError, firstValueFrom, of } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()

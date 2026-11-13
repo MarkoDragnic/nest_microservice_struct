@@ -143,7 +143,6 @@ export class LoggerService extends ConsoleLogger {
   }
 
   private consoleLog(severity: LogSeverity, message: string, service: string, metadata?: Record<string, any>) {
-    const timestamp = new Date().toISOString();
     const context = service;
 
     switch (severity) {

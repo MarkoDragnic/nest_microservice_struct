@@ -79,7 +79,7 @@ export class RsiService implements IIndicators {
 
       this.rsiInstances.set(instanceKey, rsi);
       return rsi;
-    } catch (error) {
+    } catch {
       return new RSI(period);
     }
   }

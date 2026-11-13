@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import {
   ResponseMessage,
   RobotCreateData,

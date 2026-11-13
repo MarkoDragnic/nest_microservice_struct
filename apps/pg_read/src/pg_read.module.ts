@@ -5,8 +5,6 @@ import Joi from 'joi';
 import { CommonLibsModule, HealthModule, LoggerModule, internalRpcSchema } from '@app/core';
 import { MongoLogSinkModule } from '@app/mongo';
 import { DatabasePostgresqlModule, postgresSchema } from '@app/postgres';
-import { ReadRobotsController } from './read-robots/read-robots.controller';
-import { ReadRobotsService } from './read-robots/read-robots.service';
 import { ReadRobotsModule } from './read-robots/read-robots.module';
 import { ReadPositionsModule } from './read-positions/read-positions.module';
 import { ReadUserModule } from './read-user/read-user.module';

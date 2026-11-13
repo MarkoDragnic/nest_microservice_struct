@@ -21,7 +21,6 @@ const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 
 describe('UsersService', () => {
   let service: UsersService;
-  let tcpClientService: ClientTcpService;
 
   const mockPgWriteClient = {};
   const mockPgReadClient = {};
@@ -49,7 +48,6 @@ describe('UsersService', () => {
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    tcpClientService = module.get<ClientTcpService>(ClientTcpService);
   });
 
   beforeEach(() => {

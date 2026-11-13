@@ -9,7 +9,7 @@ import { LoggerService } from '../logger';
 export class GlobalRpcExceptionFilter implements ExceptionFilter {
   constructor(@Optional() private readonly logger?: LoggerService) {}
 
-  catch(exception: unknown, host: ArgumentsHost): Observable<any> {
+  catch(exception: unknown, _host: ArgumentsHost): Observable<any> {
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | string[] = ResponseMessage.SOMETHING_WENT_WRONG;
 

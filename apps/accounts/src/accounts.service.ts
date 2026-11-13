@@ -3,7 +3,6 @@ import { AccountCreateDto, AccountResponseDto, ResponseMessage, TCP_DB_EVENTS } 
 import { PG_WRITE_SERVICE, ClientTcpService } from '@app/messaging';
 import { CryptoService } from './crypto.service';
 import { ClientProxy } from '@nestjs/microservices';
-import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class AccountsService {

@@ -15,7 +15,6 @@ import { ClientProxy } from '@nestjs/microservices';
 import { RsiService } from './indicators/rsi.service';
 import { HLService } from './indicators/hl.service';
 import { IndicatorsResponse, IndicatorState } from './types/indicators.types';
-import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class IndicatorsService {
