@@ -8,6 +8,7 @@ export enum ResponseMessage {
   HISTORY_DATA_READY = 'History data ready',
 
   USER_CREATED = 'User created',
+  USER_FOUND = 'User found',
   USER_EMAIL_IN_USE = 'Invalid credentials',
   USER_NOT_FOUND = 'User not found',
   USER_ID_REQUIRED = 'User id is required',

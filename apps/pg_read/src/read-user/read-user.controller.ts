@@ -21,12 +21,12 @@ export class ReadUserController {
   async findOne(@Payload() params: { email?: string; id?: string }) {
     const user = await this.readUserService.findOne(params);
     if (!user) throw new NotFoundException(ResponseMessage.USER_NOT_FOUND);
-    return tcpOk(this.serializerService.serialize(UserResponseDto, user), ResponseMessage.USER_CREATED);
+    return tcpOk(this.serializerService.serialize(UserResponseDto, user), ResponseMessage.USER_FOUND);
   }
 
   @MessagePattern(TCP_DB_EVENTS.USER_FIND_ONE_WITH_PASSWORD, Transport.TCP)
   async findOneWithPassword(@Payload() params: { email: string }) {
     const user = await this.readUserService.findOneWithPassword(params.email);
-    return tcpOk(toUserCredentials(user), ResponseMessage.USER_CREATED);
+    return tcpOk(toUserCredentials(user), ResponseMessage.USER_FOUND);
   }
 }

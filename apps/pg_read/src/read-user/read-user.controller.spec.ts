@@ -81,4 +81,16 @@ describe('ReadUserController', () => {
     expect(response.data).toEqual({ id: 'user-1', password: PASSWORD_HASH });
     expect(Object.keys(response.data).sort()).toEqual(['id', 'password']);
   });
+
+  it('answers a user read with the message User found', async () => {
+    const response = await controller.findOne({ id: 'user-1' });
+
+    expect(response.message).toBe('User found');
+  });
+
+  it('answers the login credentials pattern with the message User found', async () => {
+    const response = await controller.findOneWithPassword({ email: 'user@example.com' });
+
+    expect(response.message).toBe('User found');
+  });
 });
