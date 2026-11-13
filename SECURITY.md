@@ -41,10 +41,9 @@ You can expect an acknowledgement within **7 days** and a best-effort resolution
 
 The following security controls are intentionally implemented and can serve as reference points:
 
-- **Credential encryption** — Exchange API keys are stored encrypted with AES-256-GCM (`accounts` service). The encryption key never leaves the service environment.
-- **JWT rotation** — Short-lived access tokens (15 min) paired with long-lived refresh tokens stored in Redis. Refresh tokens are invalidated on use and on logout.
-- **Internal RPC token** — All inter-service TCP communication is gated by a shared `INTERNAL_RPC_TOKEN` header validated in a NestJS guard.
-- **No ports exposed internally** — Only the API Gateway exposes a public port. All other services are reachable only within the Docker network.
-- **Rate limiting** — HTTP endpoints are rate-limited via `@nestjs/throttler` with Redis-backed storage to work correctly across gateway replicas.
-- **Input validation** — All incoming payloads are validated with `class-validator` DTOs. `ValidationPipe` is applied globally with `whitelist: true` (unknown properties are stripped).
-git
+- **Credential encryption**: Exchange API keys are stored encrypted with AES-256-GCM (`accounts` service). The encryption key never leaves the service environment.
+- **JWT rotation**: Short-lived access tokens (15 min) paired with long-lived refresh tokens. The id of each refresh token is stored in Redis. Refresh tokens are invalidated on use and on logout.
+- **Internal RPC token**: Inter-service TCP calls carry a shared `INTERNAL_RPC_TOKEN` as a field of the message. A NestJS guard (`InternalRpcGuard`) compares it in constant time. The two TCP handlers of `price_provider` do not use the guard.
+- **One public application port**: In the compose files only the API Gateway publishes an application port (4040). `docker-compose.full.yml` also publishes Prometheus (9090) and Grafana (3001). All other services are reachable only within the Docker network.
+- **Rate limiting**: Gateway routes are rate-limited via `@nestjs/throttler`, and requests to `/auth` via `express-rate-limit` before they are proxied. Both use Redis-backed storage when `REDIS_HOST` is set, to work correctly across gateway replicas.
+- **Input validation**: HTTP request bodies and query parameters at the gateway are validated with `class-validator` DTOs. `ValidationPipe` is applied globally with `whitelist: true` (unknown properties are stripped). It does not reach the TCP handlers, so payloads between services are not validated (see Known gaps in `README.md`).

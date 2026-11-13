@@ -29,7 +29,7 @@ There are two flows.
 - [trader](apps/trader/README.md): consumes `indicator.trigger`, evaluates the rules, places orders on Binance
 - [positions](apps/positions/README.md): opens and closes positions, publishes notification events
 - [price_provider](apps/price_provider/README.md): Binance WebSocket prices to Redis pub/sub
-- [price_calculator](apps/price_calculator/README.md): OHLC candles from Redis prices, several instances share the symbols and rebalance through Redis
+- [price_calculator](apps/price_calculator/README.md): OHLC candles from Redis prices; one instance takes all symbols, or several instances take one provider each, assigned through Redis
 - [indicators](apps/indicators/README.md): RSI and High/Low from candles
 - [history_provider](apps/history_provider/README.md): historical candles from MongoDB, fetched from Binance when missing
 - [notifications](apps/notifications/README.md): emails through Gmail, with a Bull queue and retries
@@ -131,6 +131,7 @@ The smoke script needs `curl`, `node` and `docker`. It covers registration, logi
 - Old bcrypt hashes are not rehashed on login.
 - TCP payloads are not validated. The global `ValidationPipe` does not reach the TCP handlers in any of the 12 services that receive TCP calls, because no service passes `inheritAppConfig` to `connectMicroservice`. The pipe only applies to HTTP requests, at `gateway` and `auth`.
 - The correlation id is sent over TCP but the receiver does not pick it up.
+- `price_calculator` handles only one instance or one instance per provider. Symbols are not split within a provider, and a stopped instance's provider is not reassigned.
 
 ## Next
 
