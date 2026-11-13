@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   ResponseMessage,
   RobotCreateData,
@@ -67,7 +67,7 @@ export class RobotsService {
     });
 
     if (!robot) {
-      throw new Error(ResponseMessage.ROBOT_NOT_FOUND);
+      throw new NotFoundException(ResponseMessage.ROBOT_NOT_FOUND);
     }
 
     const updatePayload = {
@@ -106,7 +106,7 @@ export class RobotsService {
     });
 
     if (!robot?.owner.id) {
-      throw new Error(ResponseMessage.ROBOT_NOT_FOUND);
+      throw new NotFoundException(ResponseMessage.ROBOT_NOT_FOUND);
     }
     return robot.owner.id;
   }

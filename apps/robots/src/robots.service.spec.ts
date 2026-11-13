@@ -1,5 +1,6 @@
-import { BadRequestException } from '@nestjs/common';
+import { type ArgumentsHost, BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { firstValueFrom } from 'rxjs';
 import {
   HlRule,
   type IIndicatorsConfig,
@@ -9,7 +10,7 @@ import {
   RsiRule,
   TCP_DB_EVENTS,
 } from '@app/contracts';
-import { GeneralService } from '@app/core';
+import { GeneralService, GlobalRpcExceptionFilter } from '@app/core';
 import { ClientTcpService, PG_READ_SERVICE, PG_WRITE_SERVICE } from '@app/messaging';
 import { IndicatorsRedisRepository } from '@app/redis';
 import { RobotIndicatorsService } from './robot-indicators.service';
@@ -25,6 +26,16 @@ describe('RobotsService', () => {
   // Answers each pattern the way pg_read and pg_write do.
   const answerWith = (answers: Record<string, unknown>) =>
     tcpClientService.send.mockImplementation((_client: unknown, pattern: string) => Promise.resolve(answers[pattern]));
+
+  const answerThroughFilter = async (call: Promise<unknown>) => {
+    const error: unknown = await call.then(
+      () => {
+        throw new Error('expected the call to fail');
+      },
+      (reason: unknown) => reason,
+    );
+    return firstValueFrom(new GlobalRpcExceptionFilter().catch(error, {} as ArgumentsHost));
+  };
 
   beforeEach(async () => {
     jest.resetAllMocks();
@@ -209,6 +220,25 @@ describe('RobotsService', () => {
       await expect(update).rejects.toBe(refusal);
       expect(indicatorsRedisRepository.updateIndicatorsUse).not.toHaveBeenCalled();
     });
+
+    it('answers 404 for a robot that does not exist, without asking pg_write', async () => {
+      answerWith({});
+
+      const answer = await answerThroughFilter(
+        service.upsertIndicators({
+          robotId: 'missing-robot',
+          userId: 'user-1',
+          ...indicators(21),
+        } as RobotIndicatorsUpdateData),
+      );
+
+      expect(answer).toMatchObject({ error: true, statusCode: 404, message: 'Robot not found', data: null });
+      expect(tcpClientService.send).not.toHaveBeenCalledWith(
+        pgWriteClient,
+        TCP_DB_EVENTS.ROBOT_INDICATORS_UPSERT,
+        expect.anything(),
+      );
+    });
   });
 
   describe('getOwner', () => {
@@ -217,6 +247,14 @@ describe('RobotsService', () => {
 
       await expect(service.getOwner('robot-1')).resolves.toBe('user-1');
       expect(tcpClientService.send).toHaveBeenCalledWith(pgReadClient, TCP_DB_EVENTS.ROBOT_FIND_ONE, { id: 'robot-1' });
+    });
+
+    it('answers 404 for a robot that does not exist', async () => {
+      answerWith({});
+
+      const answer = await answerThroughFilter(service.getOwner('missing-robot'));
+
+      expect(answer).toMatchObject({ error: true, statusCode: 404, message: 'Robot not found', data: null });
     });
   });
 });
