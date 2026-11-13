@@ -17,7 +17,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run lint
+      - run: npm run lint:check
+      - run: npm run format:check
 
   build:
     name: Build
@@ -45,7 +46,7 @@ jobs:
       - run: npx nest build history_provider
 
   test:
-    name: Unit Tests
+    name: Tests
     runs-on: ubuntu-latest
     needs: lint
     steps:
@@ -55,7 +56,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npx tsc --noEmit -p tsconfig.spec.json
       - run: npm test -- --coverage --passWithNoTests
+      - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: always()
         with:
