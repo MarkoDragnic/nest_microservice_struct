@@ -43,7 +43,7 @@ import { TCP_EVENTS } from '@app/contracts';
 import { REDIS_CLIENT } from '@app/redis';
 
 /* ------------------------------------------------------------------ */
-/*  Global mock LoggerService — needed by ClientTcpService in          */
+/*  Global mock LoggerService: needed by ClientTcpService in           */
 /*  sub-modules that don't import LoggerModule                         */
 /* ------------------------------------------------------------------ */
 

@@ -4,7 +4,7 @@ RUN apk add --no-cache tini
 
 WORKDIR /usr/src/app
 
-# Copy package files first — layer cached until deps change
+# Copy package files first, layer cached until deps change
 COPY --chown=node:node package.json ./
 COPY --chown=node:node package-lock.json ./
 COPY --chown=node:node tsconfig.json ./
@@ -40,7 +40,7 @@ COPY --chown=node:node package.json ./
 COPY --chown=node:node package-lock.json ./
 COPY --chown=node:node apps/accounts/package.json apps/accounts/package.json
 
-# Install prod deps only — dev tools (nest cli, ts, jest) are excluded
+# Install prod deps only: dev tools (nest cli, ts, jest) are excluded
 RUN npm ci --omit=dev
 
 # Pull the compiled bundle from the builder stage

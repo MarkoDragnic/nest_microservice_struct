@@ -25,7 +25,7 @@ export class GatewayOnlyGuard implements CanActivate {
 
     if (!this.isProduction && this.allowedIps.length === 0) {
       this.logger.warn(
-        'ALLOWED_GATEWAY_IPS is not set — auth service is directly reachable from any host. ' +
+        'ALLOWED_GATEWAY_IPS is not set: auth service is directly reachable from any host. ' +
           'Acceptable in development; must be restricted before production.',
       );
     }

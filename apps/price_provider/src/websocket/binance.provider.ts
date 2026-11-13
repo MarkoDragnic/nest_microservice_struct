@@ -80,7 +80,7 @@ export class BinanceProvider implements AssetProvider {
         }
       });
     } catch (err) {
-      this.logger.error('Failed to subscribe — WebSocket not open', { err, symbols });
+      this.logger.error('Failed to subscribe: WebSocket not open', { err, symbols });
       callback?.({ error: true, message: { symbols } });
       throw err;
     }
@@ -104,7 +104,7 @@ export class BinanceProvider implements AssetProvider {
         }
       });
     } catch (err) {
-      this.logger.error('Failed to unsubscribe — WebSocket not open', { err, symbols });
+      this.logger.error('Failed to unsubscribe: WebSocket not open', { err, symbols });
       callback?.({ error: true, message: { symbols } });
       throw err;
     }

@@ -4,7 +4,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiCookieAuth, ApiBody } from '@nes
 /**
  * Swagger-only controller that documents the /auth/* routes.
  *
- * Requests never reach these handlers — the AuthProxyMiddleware
+ * Requests never reach these handlers: the AuthProxyMiddleware
  * intercepts them first and forwards to the auth microservice.
  * This controller exists solely so the OpenAPI spec includes
  * the auth endpoints.
@@ -23,7 +23,7 @@ export class AuthGateController {
       },
     },
   })
-  @ApiResponse({ status: 201, description: 'Login successful — Authentication and Refresh cookies set' })
+  @ApiResponse({ status: 201, description: 'Login successful, Authentication and Refresh cookies set' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @Post('login')
   login() {
@@ -32,7 +32,7 @@ export class AuthGateController {
 
   @ApiOperation({ summary: 'Refresh access token using refresh cookie' })
   @ApiCookieAuth()
-  @ApiResponse({ status: 200, description: 'Tokens refreshed — new cookies set' })
+  @ApiResponse({ status: 200, description: 'Tokens refreshed, new cookies set' })
   @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
@@ -42,7 +42,7 @@ export class AuthGateController {
 
   @ApiOperation({ summary: 'Logout and revoke refresh token' })
   @ApiCookieAuth()
-  @ApiResponse({ status: 200, description: 'Logged out — cookies cleared' })
+  @ApiResponse({ status: 200, description: 'Logged out, cookies cleared' })
   @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
   @HttpCode(HttpStatus.OK)
   @Post('logout')

@@ -72,7 +72,7 @@ services:
     networks:
       - microservices
 
-  # Kafka 4.x in KRaft mode — Zookeeper fully removed since 4.0.
+  # Kafka 4.x in KRaft mode. Zookeeper fully removed since 4.0.
   # Official Apache image, single-node broker+controller combined.
   kafka:
     image: apache/kafka:4.0.0
@@ -99,9 +99,9 @@ services:
       - microservices
 
   # One-shot job: creates all required topics after Kafka is healthy.
-  # candle.price      – price_calculator → indicators
-  # indicator.trigger – indicators       → trader
-  # notification.send – positions        → notifications
+  # candle.price:       price_calculator → indicators
+  # indicator.trigger:  indicators       → trader
+  # notification.send:  positions        → notifications
   kafka-init:
     image: apache/kafka:4.0.0
     depends_on:
