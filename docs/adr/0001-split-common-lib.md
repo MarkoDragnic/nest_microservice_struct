@@ -1,6 +1,6 @@
 # 001. Split common lib
 
-Status: Proposed
+Status: Accepted
 Date: 2026-09-30
 
 ## Context
@@ -52,3 +52,19 @@ The downside is more libs to manage, and the map of which service uses which lib
 Mapping entities to contract types adds some boilerplate in the data services.
 
 This doesn't fix everything. `pg_read` and `pg_write` still share the same tables, that's the next ADR. `history_provider` and `price_calculator` also share the candle collection, which I'll deal with separately.
+
+## Status on 2026-11-13
+
+Done:
+
+- `libs/common` is gone. The six libs from the decision exist: `contracts`, `core`, `messaging`, `redis`, `postgres` and `mongo`.
+- Entities live only in `libs/postgres`, and only `pg_read` and `pg_write` import it.
+- The JWT and robot ownership guards are in `apps/gateway/src/guards`.
+- Internal service-to-service contracts are in `@app/contracts/internal`. They are plain interfaces shaped by the consumer, with only the fields it reads. The mappers in `libs/postgres` build them from entities field by field, and each mapper has a leak test that fails if a field outside the contract gets through.
+
+Still open:
+
+- Imports between libs. Apps import libs only through the root barrels and `@app/contracts/internal`. Inside the libs I still have deep imports of another lib (like `@app/core/logger`), and `contracts` and `redis` import through their own alias in some files. I need to rewrite these.
+- ESLint boundary rules. Nothing in `eslint.config.mjs` stops a service from importing `@app/postgres` or a deep path yet. Today it holds only because I checked.
+- Per-service Dockerfiles. All 13 Dockerfiles still copy the whole `libs` folder.
+- CI path filters. CI still builds all 13 apps and all images on every run.
