@@ -6,19 +6,88 @@ This is a portfolio project: 13 NestJS services and six shared libraries in one 
 
 ## Architecture
 
-### System context
-
-![System context](docs/images/systemContext.png)
-
-### Service map
-
-![Service map](docs/images/cluster.png)
-
 There are two flows.
 
 **Management (HTTP and TCP).** The gateway is the only public HTTP entry point. It proxies `/auth` requests to the auth service over HTTP, checks the JWT cookie on the protected routes, and forwards the request over NestJS TCP to `auth`, `robots`, `accounts` or `pg_read`. Those services reach PostgreSQL only through `pg_read` and `pg_write`.
 
+```mermaid
+flowchart LR
+  client[HTTP client]
+  gateway
+  auth
+  robots
+  accounts
+  pg_read
+  pg_write
+  postgres[(PostgreSQL)]
+  redis[(Redis)]
+
+  client -->|HTTP| gateway
+  gateway -->|HTTP proxy| auth
+  gateway -->|TCP| auth
+  gateway -->|TCP| robots
+  gateway -->|TCP| accounts
+  gateway -->|TCP| pg_read
+  auth -->|TCP| pg_read
+  auth -->|TCP| pg_write
+  robots -->|TCP| pg_read
+  robots -->|TCP| pg_write
+  accounts -->|TCP| pg_write
+  gateway -->|rate limit counters| redis
+  auth -->|refresh token ids| redis
+  robots -->|indicator registry| redis
+  pg_read -->|SQL| postgres
+  pg_write -->|SQL| postgres
+```
+
 **Trading pipeline (Redis and Kafka).** `price_provider` holds a WebSocket connection to Binance and publishes prices to Redis pub/sub. `price_calculator` builds OHLC candles and publishes them to the Kafka topic `candle.price`. `indicators` computes RSI and High/Low and publishes to `indicator.trigger`. `trader` evaluates each robot's open and close rules and places orders on Binance. For an account in the test environment it sends no order and only records the position. `positions` records the trade through `pg_write` and publishes to `notification.send`, and `notifications` sends the email.
+
+```mermaid
+flowchart LR
+  binance[Binance]
+  price_provider
+  redis[(Redis)]
+  price_calculator
+  kafka[[Kafka]]
+  indicators
+  history_provider
+  mongo[(MongoDB)]
+  trader
+  accounts
+  positions
+  pg_read
+  pg_write
+  notifications
+  gmail[Gmail]
+
+  price_provider -->|WebSocket| binance
+  price_provider -->|pub/sub| redis
+  redis -->|pub/sub| price_calculator
+  price_calculator -->|candles| mongo
+  price_calculator -->|candle.price| kafka
+  kafka -->|candle.price| indicators
+  indicators -->|indicator registry| redis
+  indicators -->|TCP| history_provider
+  history_provider -->|candles| mongo
+  history_provider -->|HTTP| binance
+  indicators -->|candles| mongo
+  indicators -->|indicator.trigger| kafka
+  kafka -->|indicator.trigger| trader
+  trader -->|symbol claim| redis
+  trader -->|TCP| pg_read
+  trader -->|TCP| accounts
+  trader -->|HTTP| binance
+  trader -->|TCP| positions
+  positions -->|TCP| pg_write
+  positions -->|TCP| pg_read
+  positions -->|notification.send| kafka
+  kafka -->|notification.send| notifications
+  notifications -->|Bull queue| redis
+  notifications -->|SMTP| gmail
+  notifications -->|failed notifications| mongo
+```
+
+Each topic has a `.dlq` topic for messages a consumer could not process.
 
 ## Services
 
