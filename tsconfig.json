@@ -23,11 +23,41 @@
     "noFallthroughCasesInSwitch": false,
     "types": ["jest", "node"],
     "paths": {
-      "@app/common": [
-        "./libs/common/src"
+      "@app/contracts": [
+        "./libs/contracts/src"
       ],
-      "@app/common/*": [
-        "./libs/common/src/*"
+      "@app/contracts/*": [
+        "./libs/contracts/src/*"
+      ],
+      "@app/core": [
+        "./libs/core/src"
+      ],
+      "@app/core/*": [
+        "./libs/core/src/*"
+      ],
+      "@app/messaging": [
+        "./libs/messaging/src"
+      ],
+      "@app/messaging/*": [
+        "./libs/messaging/src/*"
+      ],
+      "@app/redis": [
+        "./libs/redis/src"
+      ],
+      "@app/redis/*": [
+        "./libs/redis/src/*"
+      ],
+      "@app/postgres": [
+        "./libs/postgres/src"
+      ],
+      "@app/postgres/*": [
+        "./libs/postgres/src/*"
+      ],
+      "@app/mongo": [
+        "./libs/mongo/src"
+      ],
+      "@app/mongo/*": [
+        "./libs/mongo/src/*"
       ]
     }
   }

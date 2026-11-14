@@ -2,8 +2,8 @@ import { Controller, UseFilters, UseGuards } from '@nestjs/common';
 import { HistoryProviderService } from './history_provider.service';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 import { type HistoryMinuteDataRequest } from './types/historic-data.types';
-import { GlobalRpcExceptionFilter, InternalRpcGuard, ResponseMessage, TCP_EVENTS, tcpOk } from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { ResponseMessage, TCP_EVENTS, tcpOk } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard, LoggerService } from '@app/core';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @UseGuards(InternalRpcGuard)

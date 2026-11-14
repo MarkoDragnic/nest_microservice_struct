@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { TCP_EVENTS, AssignmentDto } from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { TCP_EVENTS, AssignmentDto } from '@app/contracts';
+import { LoggerService } from '@app/core';
 import { ProviderManagerService } from './services/provider-manager.service';
 
 @Controller()

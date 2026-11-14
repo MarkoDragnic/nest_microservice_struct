@@ -1,7 +1,10 @@
 import { Body, Controller, Get, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiCookieAuth, ApiBody } from '@nestjs/swagger';
 import { RobotGateService } from './robot_gate.service';
-import { CurrentUser, IndicatorsUpdateDto, JwtAuthGuard, OwnRobotGuard, PaginationDto, RobotCreateDto, User } from '@app/common';
+import { type AuthenticatedUser, IndicatorsUpdateDto, PaginationDto, RobotCreateDto } from '@app/contracts';
+import { CurrentUser } from '@app/core';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { OwnRobotGuard } from '../guards/own-robot.guard';
 
 @ApiTags('robot')
 @Controller('robot')
@@ -14,8 +17,8 @@ export class RobotGateController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @Get()
-  async list(@CurrentUser() user: User, @Query() pagination: PaginationDto) {
-    return await this.robotService.listRobots(user.id!, pagination.page, pagination.limit);
+  async list(@CurrentUser() user: AuthenticatedUser, @Query() pagination: PaginationDto) {
+    return await this.robotService.listRobots(user.id, pagination.page, pagination.limit);
   }
 
   @ApiOperation({ summary: 'List positions across all your robots (paginated)' })
@@ -24,8 +27,8 @@ export class RobotGateController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @Get('positions')
-  async listPositions(@CurrentUser() user: User, @Query() pagination: PaginationDto) {
-    return await this.robotService.listPositions(user.id!, pagination.page, pagination.limit);
+  async listPositions(@CurrentUser() user: AuthenticatedUser, @Query() pagination: PaginationDto) {
+    return await this.robotService.listPositions(user.id, pagination.page, pagination.limit);
   }
 
   @ApiOperation({ summary: 'Create a new trading robot' })
@@ -35,19 +38,20 @@ export class RobotGateController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@CurrentUser() user: User, @Body() robot: RobotCreateDto) {
-    return await this.robotService.createRobot({ robot, user });
+  async create(@CurrentUser() user: AuthenticatedUser, @Body() robot: RobotCreateDto) {
+    return await this.robotService.createRobot({ robot, userId: user.id });
   }
 
   @ApiOperation({ summary: 'Update robot trading indicators' })
   @ApiCookieAuth()
   @ApiBody({ type: IndicatorsUpdateDto })
   @ApiResponse({ status: 200, description: 'Indicators updated' })
+  @ApiResponse({ status: 400, description: 'Invalid robot id or indicators' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Not the robot owner' })
+  @ApiResponse({ status: 404, description: 'Robot not found' })
   @UseGuards(JwtAuthGuard, OwnRobotGuard)
   @Patch()
-  async upsertIndicators(@Body() data: IndicatorsUpdateDto) {
-    return await this.robotService.upsertIndicators(data);
+  async upsertIndicators(@CurrentUser() user: AuthenticatedUser, @Body() data: IndicatorsUpdateDto) {
+    return await this.robotService.upsertIndicators(user.id, data);
   }
 }

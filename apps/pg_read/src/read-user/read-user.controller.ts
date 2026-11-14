@@ -1,17 +1,9 @@
 import { Controller, NotFoundException, UseFilters, UseGuards } from '@nestjs/common';
 import { ReadUserService } from './read-user.service';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import {
-  GlobalRpcExceptionFilter,
-  InternalRpcGuard,
-  ResponseMessage,
-  SerializerService,
-  TCP_DB_EVENTS,
-  tcpOk,
-  UserCredentialsResponseDto,
-  UserResponseDto,
-} from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { ResponseMessage, TCP_DB_EVENTS, tcpOk, UserResponseDto } from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard, SerializerService, LoggerService } from '@app/core';
+import { toUserCredentials } from '@app/postgres';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @UseGuards(InternalRpcGuard)
@@ -29,12 +21,12 @@ export class ReadUserController {
   async findOne(@Payload() params: { email?: string; id?: string }) {
     const user = await this.readUserService.findOne(params);
     if (!user) throw new NotFoundException(ResponseMessage.USER_NOT_FOUND);
-    return tcpOk(this.serializerService.serialize(UserResponseDto, user), ResponseMessage.USER_CREATED);
+    return tcpOk(this.serializerService.serialize(UserResponseDto, user), ResponseMessage.USER_FOUND);
   }
 
   @MessagePattern(TCP_DB_EVENTS.USER_FIND_ONE_WITH_PASSWORD, Transport.TCP)
   async findOneWithPassword(@Payload() params: { email: string }) {
     const user = await this.readUserService.findOneWithPassword(params.email);
-    return tcpOk(this.serializerService.serialize(UserCredentialsResponseDto, user), ResponseMessage.USER_CREATED);
+    return tcpOk(toUserCredentials(user), ResponseMessage.USER_FOUND);
   }
 }

@@ -2,7 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import path from 'path';
 import Joi from 'joi';
-import { HealthModule, LoggerModule, RedisModule, redisSchema, internalRpcSchema } from '@app/common';
+import { HealthModule, LoggerModule, redisSchema, internalRpcSchema } from '@app/core';
+import { RedisModule } from '@app/redis';
+import { MongoLogSinkModule } from '@app/mongo';
 import { NormalizeService } from './services/normalize.service';
 import { ProviderManagerService } from './services/provider-manager.service';
 import { PriceProviderController } from './price-provider.controller';
@@ -11,7 +13,10 @@ import { PriceProviderController } from './price-provider.controller';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/price_provider/.env')],
+      envFilePath: [
+        path.resolve(process.cwd(), 'apps/price_provider/.env'),
+        path.resolve(process.cwd(), 'env/logger.env'),
+      ],
       validationSchema: Joi.object({
         ...redisSchema,
         REDIS_PASSWORD: Joi.string().required(),
@@ -25,14 +30,12 @@ import { PriceProviderController } from './price-provider.controller';
         JITTER: Joi.number().min(0).max(1).default(0.2),
       }),
     }),
+    MongoLogSinkModule.forRoot(),
     LoggerModule.forRoot(),
     RedisModule,
     HealthModule.register({ http: false, tcp: true }),
   ],
   controllers: [PriceProviderController],
-  providers: [
-    NormalizeService,
-    ProviderManagerService,
-  ],
+  providers: [NormalizeService, ProviderManagerService],
 })
 export class PriceProviderModule {}

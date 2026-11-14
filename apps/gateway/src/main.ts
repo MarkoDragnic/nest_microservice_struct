@@ -4,8 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
-import { LoggerService } from '@app/common/logger';
-import { GlobalHttpExceptionFilter, CorrelationIdMiddleware, HttpMetricsInterceptor } from '@app/common';
+import { LoggerService, GlobalHttpExceptionFilter, CorrelationIdMiddleware, HttpMetricsInterceptor } from '@app/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {

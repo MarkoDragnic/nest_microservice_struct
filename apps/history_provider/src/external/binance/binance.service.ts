@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { ICandle, Interval } from '@app/common';
+import { ICandle, Interval } from '@app/contracts';
 import { BinanceKline } from './binance.types';
 import { IBinanceKlinesParams } from './binance.interface';
 

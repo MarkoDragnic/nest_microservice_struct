@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Funds } from '@app/common';
+import type { TradingFunds } from '@app/contracts/internal';
 
 @Injectable()
 export class TraderQuantityService {
-  getQuantity(close: number, funds: Funds): number {
+  getQuantity(close: number, funds: TradingFunds | null): number {
     if (!Number.isFinite(close) || close <= 0) throw new Error('Invalid quantity');
 
-    const walletValue = Number.isFinite(funds?.value) ? Number(funds.value) : NaN;
+    const walletValue = Number.isFinite(funds?.value) ? Number(funds?.value) : NaN;
     if (!Number.isFinite(walletValue) || walletValue <= 0) throw new Error('Invalid quantity');
 
-    const sizePct = Number.isFinite(funds?.size) ? Number(funds.size) : 100;
+    const sizePct = Number.isFinite(funds?.size) ? Number(funds?.size) : 100;
     const sizeFraction = sizePct > 0 && sizePct <= 1 ? sizePct : sizePct > 1 && sizePct <= 100 ? sizePct / 100 : 1;
 
     const allocation = walletValue * sizeFraction;

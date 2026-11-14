@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { RobotGateController } from './robot_gate.controller';
 import { RobotGateService } from './robot_gate.service';
-import { AUTH_SERVICE, ClientTcpProviderService, JwtAuthGuard, OwnRobotGuard, PG_READ_SERVICE, ROBOTS_SERVICE } from '@app/common';
+import { AUTH_SERVICE, ClientTcpProviderService, PG_READ_SERVICE, ROBOTS_SERVICE } from '@app/messaging';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { OwnRobotGuard } from '../guards/own-robot.guard';
 
 @Module({
   imports: [

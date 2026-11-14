@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import path from 'path';
 import { PriceCalculatorController } from './price_calculator.controller';
 import { PriceCalculatorService } from './price_calculator.service';
-import { DatabaseMongooseModule, HealthModule, RedisModule, LoggerModule, redisSchema, kafkaSchema, mongoDbSchema, internalRpcSchema } from '@app/common';
+import { HealthModule, LoggerModule, redisSchema, kafkaSchema, mongoDbSchema, internalRpcSchema } from '@app/core';
+import { CALCULATOR_SERVICE, KafkaClientModule } from '@app/messaging';
+import { RedisModule } from '@app/redis';
+import { DatabaseMongooseModule, MongoLogSinkModule, CandleStorageService } from '@app/mongo';
 import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
 import { PriceCalculatorRepository } from './price_calculator.repository';
@@ -15,17 +18,14 @@ import { CalculatorIdentityService } from './services/calculator/calculator-iden
 import { SubscriptionService } from './services/subscription.service';
 import { CandleProcessedService, CandleAggregatorService } from './services/candle';
 
-import { CALCULATOR_SERVICE, CandleStorageService, KafkaClientModule } from '@app/common';
-
 @Module({
   imports: [
-    HealthModule.register(),
-    LoggerModule.forRoot(),
-    DatabaseMongooseModule,
-    RedisModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/price_calculator/.env')],
+      envFilePath: [
+        path.resolve(process.cwd(), 'apps/price_calculator/.env'),
+        path.resolve(process.cwd(), 'env/logger.env'),
+      ],
       validationSchema: Joi.object({
         ...redisSchema,
         REDIS_PASSWORD: Joi.string().required(),
@@ -38,6 +38,11 @@ import { CALCULATOR_SERVICE, CandleStorageService, KafkaClientModule } from '@ap
         CALCULATOR_TCP_PORT: Joi.number().optional().default(30012),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    DatabaseMongooseModule,
+    RedisModule,
     KafkaClientModule.register({ name: CALCULATOR_SERVICE }),
   ],
 

@@ -1,10 +1,11 @@
 import { Controller, UseFilters } from '@nestjs/common';
 import { TraderService } from './trader.service';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { GlobalRpcExceptionFilter, type IIndicatorTriggerEventV1, KAFKA_TOPICS, KafkaDlqService } from '@app/common';
+import { type IIndicatorTriggerEventV1, KAFKA_TOPICS } from '@app/contracts';
+import { GlobalRpcExceptionFilter, LoggerService } from '@app/core';
+import { KafkaDlqService } from '@app/messaging';
 import { TraderSymbolClaimService } from './libs/trader-symbol-claim.service';
 import { TraderTickerFreshnessService } from './libs/trader-ticker-freshness.service';
-import { LoggerService } from '@app/common/logger';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @Controller()

@@ -66,7 +66,7 @@ export class RebalanceService {
       return;
     }
 
-    // Scenario 3: calculators > providers — not yet needed.
+    // Scenario 3: calculators > providers, not yet needed.
     // When the cluster scales beyond the number of providers, symbol-level
     // sharding within each provider is required.  Current deployment uses
     // a 1:1 provider-to-calculator mapping, so this branch is intentionally

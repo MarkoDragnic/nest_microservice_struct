@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RedisCalculatorProviderKeysService } from '@app/common';
+import { RedisCalculatorProviderKeysService } from '@app/redis';
 
 @Injectable()
 export class CalculatorIdentityService {

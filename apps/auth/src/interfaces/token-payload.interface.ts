@@ -11,4 +11,3 @@ export class RefreshTokenPayload implements IRefreshTokenPayload {
   userId!: string;
   tokenId!: string;
 }
-

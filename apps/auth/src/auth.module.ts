@@ -10,7 +10,17 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { AuthTcpController } from './auth.tcp.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RefreshStrategy } from './strategies/refresh.strategy';
-import { GlobalRpcExceptionFilter, HealthModule, LoggerModule, MetricsModule, RedisClientModule, REDIS_CLIENT, internalRpcSchema, redisSchema } from '@app/common';
+import {
+  GlobalRpcExceptionFilter,
+  InternalRpcGuardModule,
+  HealthModule,
+  LoggerModule,
+  MetricsModule,
+  internalRpcSchema,
+  redisSchema,
+} from '@app/core';
+import { RedisClientModule, REDIS_CLIENT } from '@app/redis';
+import { MongoLogSinkModule } from '@app/mongo';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import Redis from 'ioredis';
@@ -20,20 +30,9 @@ import { RefreshTokenRepository } from './refresh-token.repository';
 
 @Module({
   imports: [
-    HealthModule.register({ http: true, tcp: true }),
-    MetricsModule,
-    RedisClientModule.register(),
-    ThrottlerModule.forRootAsync({
-      imports: [RedisClientModule.register()],
-      inject: [REDIS_CLIENT],
-      useFactory: (redisClient: Redis | undefined) => ({
-        throttlers: [{ ttl: 60000, limit: 20 }],
-        ...(redisClient ? { storage: new ThrottlerStorageRedisService(redisClient) } : {}),
-      }),
-    }),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/auth/.env')],
+      envFilePath: [path.resolve(process.cwd(), 'apps/auth/.env'), path.resolve(process.cwd(), 'env/logger.env')],
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('development', 'production', 'test').required(),
         JWT_SECRET: Joi.string().min(32).required(),
@@ -57,6 +56,17 @@ import { RefreshTokenRepository } from './refresh-token.repository';
         PG_READ_TCP_PORT: Joi.number().required(),
       }),
     }),
+    HealthModule.register({ http: true, tcp: true }),
+    MetricsModule,
+    RedisClientModule.register(),
+    ThrottlerModule.forRootAsync({
+      imports: [RedisClientModule.register()],
+      inject: [REDIS_CLIENT],
+      useFactory: (redisClient: Redis | undefined) => ({
+        throttlers: [{ ttl: 60000, limit: 20 }],
+        ...(redisClient ? { storage: new ThrottlerStorageRedisService(redisClient) } : {}),
+      }),
+    }),
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService): JwtModuleOptions => ({
         secret: configService.getOrThrow<string>('JWT_SECRET'),
@@ -67,7 +77,9 @@ import { RefreshTokenRepository } from './refresh-token.repository';
       inject: [ConfigService],
     }),
     UsersModule,
+    MongoLogSinkModule.forRoot(),
     LoggerModule.forRoot(),
+    InternalRpcGuardModule,
   ],
   controllers: [AuthHttpController, AuthTcpController],
   providers: [
@@ -82,4 +94,3 @@ import { RefreshTokenRepository } from './refresh-token.repository';
   ],
 })
 export class AuthModule {}
-

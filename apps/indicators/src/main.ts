@@ -2,9 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { IndicatorsModule } from './indicators.module';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
-import { LoggerService } from '@app/common/logger';
+import { startMetricsServer } from '@app/core';
 import { ValidationPipe } from '@nestjs/common';
-import { startMetricsServer } from '@app/common';
 async function bootstrap() {
   const app = await NestFactory.create(IndicatorsModule);
   app.enableShutdownHooks();
@@ -14,7 +13,7 @@ async function bootstrap() {
   const instanceId = configService.get<string>('INSTANCE_ID') ?? 'indicators';
   const groupId = configService.get<string>('KAFKA_CONSUMER_GROUP') ?? 'indicators-consumer';
 
-  const kafkaMicroservice = app.connectMicroservice({
+  app.connectMicroservice({
     transport: Transport.KAFKA,
     options: {
       client: {

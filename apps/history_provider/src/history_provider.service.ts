@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { HistoryMinuteDataRequest } from './types/historic-data.types';
-import { ICandleDoc, CandleStorageService, Interval, MongoDbFactory } from '@app/common';
+import { ICandleDoc, Interval } from '@app/contracts';
+import { CandleStorageService, MongoDbFactory } from '@app/mongo';
 import { BinanceService } from './external/binance';
 
 @Injectable()

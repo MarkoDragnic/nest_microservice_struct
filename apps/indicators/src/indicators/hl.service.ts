@@ -2,9 +2,9 @@ import { HL } from '../libs/HL';
 import { IIndicators } from '../interfaces/indicators.interface';
 import { IndicatorsResponse, IndicatorState } from '../types/indicators.types';
 import { Inject, Injectable } from '@nestjs/common';
-import { HISTORY_SERVICE, TCP_EVENTS } from '@app/common';
+import { TCP_EVENTS } from '@app/contracts';
+import { HISTORY_SERVICE, ClientTcpService } from '@app/messaging';
 import { ClientProxy } from '@nestjs/microservices';
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
 
 @Injectable()
 export class HLService implements IIndicators {

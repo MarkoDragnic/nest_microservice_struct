@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ICandle, INormalizedTick } from '@app/common';
+import { ICandle, INormalizedTick } from '@app/contracts';
 
 type CandleState = {
   provider: string;

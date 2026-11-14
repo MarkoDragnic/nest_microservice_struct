@@ -3,7 +3,7 @@ import { PriceProviderModule } from './price-provider.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
-import { startMetricsServer } from '@app/common';
+import { startMetricsServer } from '@app/core';
 async function bootstrap() {
   const app = await NestFactory.create(PriceProviderModule);
   app.enableShutdownHooks();

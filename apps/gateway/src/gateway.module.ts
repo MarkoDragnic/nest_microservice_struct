@@ -9,18 +9,15 @@ import { AuthProxyMiddleware } from './middleware/auth_proxy.middleware';
 import { AuthRateLimitMiddleware } from './middleware/auth-rate-limit.middleware';
 import { AccountGateModule } from './account_gate/account_gate.module';
 import { AuthGateController } from './auth_gate/auth_gate.controller';
-import { HealthModule, LoggerModule, MetricsModule, RedisClientModule, ThrottlerRedisModule, internalRpcSchema } from '@app/common';
+import { HealthModule, LoggerModule, MetricsModule, internalRpcSchema } from '@app/core';
+import { RedisClientModule, ThrottlerRedisModule } from '@app/redis';
+import { MongoLogSinkModule } from '@app/mongo';
 
 @Module({
   imports: [
-    HealthModule.register({ http: true, tcp: false }),
-    MetricsModule,
-    RedisClientModule.register(),
-    ThrottlerRedisModule.forRoot({ ttl: 60000, limit: 100 }),
-    LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/gateway/.env')],
+      envFilePath: [path.resolve(process.cwd(), 'apps/gateway/.env'), path.resolve(process.cwd(), 'env/logger.env')],
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('development', 'production', 'test').required(),
         HTTP_PORT: Joi.number().required(),
@@ -43,6 +40,12 @@ import { HealthModule, LoggerModule, MetricsModule, RedisClientModule, Throttler
         ACCOUNTS_CLIENT_PORT: Joi.number().required(),
       }),
     }),
+    HealthModule.register({ http: true, tcp: false }),
+    MetricsModule,
+    RedisClientModule.register(),
+    ThrottlerRedisModule.forRoot({ ttl: 60000, limit: 100 }),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
 
     RobotGateModule,
     UserGateModule,

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UserGateService } from './user_gate.service';
-import { AUTH_SERVICE, ClientTcpProviderService } from '@app/common';
+import { AUTH_SERVICE, ClientTcpProviderService } from '@app/messaging';
 import { UserGateController } from './user_gate.controller';
 
 @Module({

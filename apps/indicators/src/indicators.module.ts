@@ -5,35 +5,32 @@ import { ConfigModule } from '@nestjs/config';
 import { IndicatorsController } from './indicators.controller';
 import { IndicatorsService } from './indicators.service';
 import {
-  CALCULATOR_SERVICE,
   GlobalRpcExceptionFilter,
   HealthModule,
-  HISTORY_SERVICE,
-  TRADER_SERVICE,
-  ClientTcpProviderService,
-  DatabaseMongooseModule,
   LoggerModule,
-  IndicatorsRedisRepository,
-  RedisModule,
-  KafkaClientModule,
-  KafkaDlqModule,
   redisSchema,
   kafkaSchema,
   mongoDbSchema,
   internalRpcSchema,
-} from '@app/common';
+} from '@app/core';
+import {
+  CALCULATOR_SERVICE,
+  HISTORY_SERVICE,
+  TRADER_SERVICE,
+  ClientTcpProviderService,
+  KafkaClientModule,
+  KafkaDlqModule,
+} from '@app/messaging';
+import { IndicatorsRedisRepository, RedisModule } from '@app/redis';
+import { DatabaseMongooseModule, MongoLogSinkModule } from '@app/mongo';
 import { RsiService } from './indicators/rsi.service';
 import { HLService } from './indicators/hl.service';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    LoggerModule.forRoot(),
-    DatabaseMongooseModule,
-    RedisModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/indicators/.env')],
+      envFilePath: [path.resolve(process.cwd(), 'apps/indicators/.env'), path.resolve(process.cwd(), 'env/logger.env')],
       validationSchema: Joi.object({
         ...redisSchema,
         REDIS_PASSWORD: Joi.string().required(),
@@ -48,6 +45,11 @@ import { HLService } from './indicators/hl.service';
         INDICATORS_TCP_PORT: Joi.number().required(),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    DatabaseMongooseModule,
+    RedisModule,
     KafkaClientModule.register({ name: CALCULATOR_SERVICE }),
     KafkaClientModule.register({ name: TRADER_SERVICE }),
     KafkaDlqModule.register(),

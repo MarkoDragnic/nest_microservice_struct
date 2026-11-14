@@ -6,7 +6,17 @@ import { BullModule } from '@nestjs/bull';
 import Joi from 'joi';
 import path from 'path';
 import { NotificationsTemplateService } from './notifications-template.service';
-import { DatabaseMongooseModule, GlobalRpcExceptionFilter, HealthModule, LoggerModule, KafkaDlqModule, redisSchema, kafkaSchema, mongoDbSchema, internalRpcSchema } from '@app/common';
+import {
+  GlobalRpcExceptionFilter,
+  HealthModule,
+  LoggerModule,
+  redisSchema,
+  kafkaSchema,
+  mongoDbSchema,
+  internalRpcSchema,
+} from '@app/core';
+import { KafkaDlqModule } from '@app/messaging';
+import { DatabaseMongooseModule, MongoLogSinkModule } from '@app/mongo';
 import { FailedNotificationDocument, FailedNotificationSchema } from './schemas/failed-notification.schema';
 import { FailedNotificationRepository } from './notification-faild.repository';
 import { NotificationsProcessor } from './notifications.processor';
@@ -14,12 +24,12 @@ import { NOTIFICATION_QUEUE } from './types/queue.types';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    LoggerModule.forRoot(),
-    KafkaDlqModule.register(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/notifications/.env')],
+      envFilePath: [
+        path.resolve(process.cwd(), 'apps/notifications/.env'),
+        path.resolve(process.cwd(), 'env/logger.env'),
+      ],
       validationSchema: Joi.object({
         ...redisSchema,
         ...kafkaSchema,
@@ -37,6 +47,10 @@ import { NOTIFICATION_QUEUE } from './types/queue.types';
         NOTIFICATION_EMAIL_BACKOFF_DELAY_MS: Joi.number().integer().min(0).optional().default(30000),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    KafkaDlqModule.register(),
     DatabaseMongooseModule,
     DatabaseMongooseModule.forMongooseFeature([
       { name: FailedNotificationDocument.name, schema: FailedNotificationSchema },
@@ -57,6 +71,12 @@ import { NOTIFICATION_QUEUE } from './types/queue.types';
     }),
   ],
   controllers: [NotificationsController],
-  providers: [NotificationsService, NotificationsTemplateService, FailedNotificationRepository, NotificationsProcessor, GlobalRpcExceptionFilter],
+  providers: [
+    NotificationsService,
+    NotificationsTemplateService,
+    FailedNotificationRepository,
+    NotificationsProcessor,
+    GlobalRpcExceptionFilter,
+  ],
 })
 export class NotificationsModule {}

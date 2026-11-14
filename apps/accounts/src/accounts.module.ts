@@ -4,16 +4,22 @@ import { AccountsService } from './accounts.service';
 import { ConfigModule } from '@nestjs/config';
 import path from 'path';
 import Joi from 'joi';
-import { ClientTcpProviderService, GlobalRpcExceptionFilter, HealthModule, PG_WRITE_SERVICE, LoggerModule, internalRpcSchema } from '@app/common';
+import {
+  GlobalRpcExceptionFilter,
+  InternalRpcGuardModule,
+  HealthModule,
+  LoggerModule,
+  internalRpcSchema,
+} from '@app/core';
+import { ClientTcpProviderService, PG_WRITE_SERVICE } from '@app/messaging';
+import { MongoLogSinkModule } from '@app/mongo';
 import { CryptoService } from './crypto.service';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/accounts/.env')],
+      envFilePath: [path.resolve(process.cwd(), 'apps/accounts/.env'), path.resolve(process.cwd(), 'env/logger.env')],
       validationSchema: Joi.object({
         ...internalRpcSchema,
         ACCOUNT_TCP_HOST: Joi.string().required(),
@@ -23,6 +29,10 @@ import { CryptoService } from './crypto.service';
         ENCRYPTION_CREDENTIAL_KEY: Joi.string().length(64).hex().required(),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    InternalRpcGuardModule,
     ClientTcpProviderService.register({
       name: PG_WRITE_SERVICE,
       port: 'PG_WRITE_TCP_PORT',

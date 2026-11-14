@@ -3,8 +3,8 @@ import { TraderController } from './trader.controller';
 import { TraderService } from './trader.service';
 import { TraderSymbolClaimService } from './libs/trader-symbol-claim.service';
 import { TraderTickerFreshnessService } from './libs/trader-ticker-freshness.service';
-import { LoggerService } from '@app/common/logger';
-import { KafkaDlqService } from '@app/common';
+import { LoggerService } from '@app/core';
+import { KafkaDlqService } from '@app/messaging';
 
 describe('TraderController', () => {
   let traderController: TraderController;

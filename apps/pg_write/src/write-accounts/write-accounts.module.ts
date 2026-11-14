@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { WriteAccountsController } from './write-accounts.controller';
 import { WriteAccountsService } from './write-accounts.service';
 
-import { AccountsRepository, DatabasePostgresqlModule, GlobalRpcExceptionFilter } from '@app/common';
-import { Account } from '@app/common/models';
+import { GlobalRpcExceptionFilter, InternalRpcGuardModule } from '@app/core';
+import { AccountsRepository, DatabasePostgresqlModule, Account } from '@app/postgres';
 
 @Module({
-  imports: [DatabasePostgresqlModule.forFeature([Account])],
+  imports: [DatabasePostgresqlModule.forFeature([Account]), InternalRpcGuardModule],
   controllers: [WriteAccountsController],
   providers: [WriteAccountsService, AccountsRepository, GlobalRpcExceptionFilter],
   exports: [WriteAccountsService],

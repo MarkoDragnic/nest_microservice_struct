@@ -1,7 +1,7 @@
 import { createCipheriv, randomBytes } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IEncryptedPayload } from '@app/common';
+import { IEncryptedPayload } from '@app/contracts';
 import * as crypto from 'node:crypto';
 
 @Injectable()

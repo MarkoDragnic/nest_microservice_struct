@@ -1,15 +1,15 @@
 # Price Calculator
 
-Consumes raw price ticks from Redis and aggregates them into OHLC candles at multiple timeframes (1m, 5m, 15m, 1h). Completed candles are published to Kafka for the indicators service to consume and stored in MongoDB for historical access.
+Consumes raw price ticks from Redis and aggregates them into one-minute OHLC candles. Completed candles are published to Kafka for the indicators service to consume and stored in MongoDB for historical access.
 
 ## OHLC aggregation
 
-Each tick updates the in-progress candle for every configured timeframe. When a candle period closes, the service finalises the OHLC values, publishes the completed candle to the `candle.price` Kafka topic, and persists it to MongoDB. The Kafka publish and the MongoDB write happen independently — a MongoDB failure does not block the downstream indicator pipeline.
+Each tick updates the in-progress one-minute candle of its symbol. A candle closes when the first tick of a later minute arrives. The service then finalises the OHLC values, publishes the completed candle to the `candle.price` Kafka topic, and persists it to MongoDB. The Kafka publish and the MongoDB write happen independently: a MongoDB failure does not block the downstream indicator pipeline.
 
 ## Horizontal scaling
 
-Multiple instances of this service can run simultaneously without any external coordinator. On startup, each instance registers itself in a Redis registry and begins sending a heartbeat every 30 seconds. If an instance stops heartbeating, the others detect the absence and trigger a rebalance.
+Multiple instances of this service can run simultaneously, coordinated only through Redis. On startup, each instance registers itself in a Redis registry. Every 30 seconds it reads the registry and renews its own entry, which expires after 60 seconds. An instance that stops is removed from the registry once its entry has expired.
 
 ## Rebalance
 
-When the set of live instances changes — an instance joins, crashes, or is scaled down — every active instance runs the same deterministic partitioning algorithm against the shared Redis state. The active symbols are divided evenly, and each instance subscribes to its assigned slice. Because the algorithm is deterministic and all instances read the same state, the outcome is identical regardless of which instance triggers the rebalance first. No locks, no leader election.
+An instance computes the assignment when it starts. It sorts the calculator ids and the provider ids it reads from Redis, so the outcome does not depend on which instance does the computing. A single calculator takes every provider and symbol. When there are as many calculators as providers, each calculator takes one provider with all its symbols; the starting instance writes the assignment of the others to Redis, and they resubscribe on their next heartbeat. Other combinations are not handled yet: no assignment is made, and symbols are never divided inside a provider. No locks, no leader election.

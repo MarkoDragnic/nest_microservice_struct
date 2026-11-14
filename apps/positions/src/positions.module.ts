@@ -5,26 +5,28 @@ import { ConfigModule } from '@nestjs/config';
 import path from 'path';
 import Joi from 'joi';
 import {
-  ClientKafkaProviderModule,
-  ClientTcpProviderService,
   GlobalRpcExceptionFilter,
+  InternalRpcGuardModule,
   HealthModule,
-  NOTIFICATION_SERVICE,
-  PG_WRITE_SERVICE,
-  PG_READ_SERVICE,
   LoggerModule,
   kafkaSchema,
   internalRpcSchema,
-} from '@app/common';
+} from '@app/core';
+import {
+  ClientKafkaProviderModule,
+  ClientTcpProviderService,
+  NOTIFICATION_SERVICE,
+  PG_WRITE_SERVICE,
+  PG_READ_SERVICE,
+} from '@app/messaging';
+import { MongoLogSinkModule } from '@app/mongo';
 import { PositionNotificationService } from './position-notification.service';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [path.resolve(process.cwd(), 'apps/positions/.env')],
+      envFilePath: [path.resolve(process.cwd(), 'apps/positions/.env'), path.resolve(process.cwd(), 'env/logger.env')],
       validationSchema: Joi.object({
         ...kafkaSchema,
         ...internalRpcSchema,
@@ -37,6 +39,10 @@ import { PositionNotificationService } from './position-notification.service';
         PG_READ_TCP_PORT: Joi.number().required(),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    InternalRpcGuardModule,
     ClientKafkaProviderModule.register({
       name: NOTIFICATION_SERVICE,
       clientId: 'INSTANCE_ID',

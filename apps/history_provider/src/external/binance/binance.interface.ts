@@ -1,4 +1,4 @@
-import { Interval } from '@app/common';
+import { Interval } from '@app/contracts';
 
 export interface IBinanceKlinesParams {
   symbol: string;

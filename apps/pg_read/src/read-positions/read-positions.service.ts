@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PaginatedResponseDto, Position, PositionsRepository } from '@app/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { PaginatedResponseDto, ResponseMessage } from '@app/contracts';
+import { Position, PositionsRepository } from '@app/postgres';
 
 @Injectable()
 export class ReadPositionsService {
@@ -13,11 +14,12 @@ export class ReadPositionsService {
   }
 
   async findPaginated(userId: string, page: number, limit: number): Promise<PaginatedResponseDto<Position>> {
-    return await this.positionsRepository.findPaginated(
-      { robot: { owner: { id: userId } } } as any,
-      page,
-      limit,
-      { robot: true },
-    );
+    if (typeof userId !== 'string' || userId === '') {
+      throw new BadRequestException(ResponseMessage.USER_ID_REQUIRED);
+    }
+
+    return await this.positionsRepository.findPaginated({ robot: { owner: { id: userId } } } as any, page, limit, {
+      robot: true,
+    });
   }
 }

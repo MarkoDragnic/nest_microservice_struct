@@ -2,8 +2,9 @@ import { Controller, UseFilters } from '@nestjs/common';
 
 import { EventPattern, Payload, Transport } from '@nestjs/microservices';
 import { IndicatorsService } from './indicators.service';
-import { GlobalRpcExceptionFilter, type ICandle, KAFKA_TOPICS, KafkaDlqService } from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { type ICandle, KAFKA_TOPICS } from '@app/contracts';
+import { GlobalRpcExceptionFilter, LoggerService } from '@app/core';
+import { KafkaDlqService } from '@app/messaging';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @Controller()

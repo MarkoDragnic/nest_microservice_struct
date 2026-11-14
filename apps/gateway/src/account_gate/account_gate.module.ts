@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AccountGateService } from './account_gate.service';
 import { AccountGateController } from './account_gate.controller';
-import { ACCOUNTS_SERVICE, AUTH_SERVICE, ClientTcpProviderService, JwtAuthGuard } from '@app/common';
+import { ACCOUNTS_SERVICE, AUTH_SERVICE, ClientTcpProviderService } from '@app/messaging';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { ACCOUNTS_SERVICE, AUTH_SERVICE, ClientTcpProviderService, JwtAuthGuard 
     }),
   ],
   controllers: [AccountGateController],
-  providers: [AccountGateService,  JwtAuthGuard],
+  providers: [AccountGateService, JwtAuthGuard],
 })
 export class AccountGateModule {}

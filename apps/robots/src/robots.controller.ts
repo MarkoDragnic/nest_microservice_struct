@@ -1,8 +1,14 @@
 import { Controller, UseFilters, UseGuards } from '@nestjs/common';
 import { RobotsService } from './robots.service';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { GlobalRpcExceptionFilter, IndicatorsUpdateDto, InternalRpcGuard, ResponseMessage, type RobotCreateData, TCP_EVENTS, tcpOk } from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import {
+  ResponseMessage,
+  type RobotCreateData,
+  type RobotIndicatorsUpdateData,
+  TCP_EVENTS,
+  tcpOk,
+} from '@app/contracts';
+import { GlobalRpcExceptionFilter, InternalRpcGuard, LoggerService } from '@app/core';
 
 @UseFilters(GlobalRpcExceptionFilter)
 @UseGuards(InternalRpcGuard)
@@ -22,7 +28,7 @@ export class RobotsController {
   }
 
   @MessagePattern(TCP_EVENTS.ROBOT_INDICATORS_UPSERT, Transport.TCP)
-  async upsertIndicators(@Payload() indicators: IndicatorsUpdateDto) {
+  async upsertIndicators(@Payload() indicators: RobotIndicatorsUpdateData) {
     const updatedRobot = await this.robotsService.upsertIndicators(indicators);
     return tcpOk(updatedRobot, ResponseMessage.ROBOT_INDICATORS_UPDATED);
   }

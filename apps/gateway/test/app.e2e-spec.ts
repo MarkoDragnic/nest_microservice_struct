@@ -35,19 +35,15 @@ const PG_READ_CLIENT = mockClientProxy();
 import { UserGateModule } from '../src/user_gate/user_gate.module';
 import { RobotGateModule } from '../src/robot_gate/robot_gate.module';
 import { AccountGateModule } from '../src/account_gate/account_gate.module';
-import {
-  AUTH_SERVICE,
-  ROBOTS_SERVICE,
-  ACCOUNTS_SERVICE,
-  PG_READ_SERVICE,
-  REDIS_CLIENT,
-  JwtAuthGuard,
-  OwnRobotGuard,
-  LoggerService,
-} from '@app/common';
+import { JwtAuthGuard } from '../src/guards/jwt-auth.guard';
+import { OwnRobotGuard } from '../src/guards/own-robot.guard';
+import { LoggerService } from '@app/core';
+import { AUTH_SERVICE, ROBOTS_SERVICE, ACCOUNTS_SERVICE, PG_READ_SERVICE } from '@app/messaging';
+import { TCP_EVENTS } from '@app/contracts';
+import { REDIS_CLIENT } from '@app/redis';
 
 /* ------------------------------------------------------------------ */
-/*  Global mock LoggerService — needed by ClientTcpService in          */
+/*  Global mock LoggerService: needed by ClientTcpService in           */
 /*  sub-modules that don't import LoggerModule                         */
 /* ------------------------------------------------------------------ */
 
@@ -145,9 +141,7 @@ describe('Gateway (e2e)', () => {
 
   describe('POST /user', () => {
     it('should create a user with valid data', async () => {
-      AUTH_CLIENT.send.mockReturnValueOnce(
-        of({ id: 'new-user-id', email: 'user@example.com' }),
-      );
+      AUTH_CLIENT.send.mockReturnValueOnce(of({ id: 'new-user-id', email: 'user@example.com' }));
 
       const res = await request(app.getHttpServer())
         .post('/user')
@@ -235,6 +229,63 @@ describe('Gateway (e2e)', () => {
 
       expect(res.status).toBe(400);
     });
+
+    it('should send the id of the authenticated user as userId and no user, not one from the body', async () => {
+      ROBOTS_CLIENT.send.mockClear();
+      const robot = {
+        name: 'Robot one',
+        fsymbol: 'BTCUSDT',
+        type: 'test',
+        assets: 'BTC',
+        active: true,
+        accountId: '550e8400-e29b-41d4-a716-446655440000',
+        funds: { initial: 1000, value: 1000, base: 'USDT', dynamic: false, partial: '0', size: 100 },
+        instrument: { name: 'Bitcoin', symbol: 'BTC' },
+      };
+
+      const res = await request(app.getHttpServer())
+        .post('/robot')
+        .send({ ...robot, userId: 'another-user-id', user: { id: 'another-user-id' } });
+
+      expect(res.status).toBe(201);
+      expect(ROBOTS_CLIENT.send).toHaveBeenCalledTimes(1);
+      expect(ROBOTS_CLIENT.send).toHaveBeenCalledWith(TCP_EVENTS.ROBOT_CREATE, {
+        payload: { robot, userId: 'test-user-id' },
+        serviceToken: 'test-token',
+      });
+    });
+  });
+
+  describe('PATCH /robot', () => {
+    const indicators = {
+      open: {
+        rsi: { enabled: true, period: 14, rule: 'less', value: 30 },
+        hl: { enabled: false, period: 20, rule: 'greater', value: 0 },
+      },
+      close: {
+        take_profit: { enabled: true, factor: 'percent', value: 5 },
+        stop_lose: { enabled: true, factor: 'percent', value: 2 },
+        min_profit: { enabled: false, factor: 'value', value: 0 },
+        rsi: { enabled: false, period: 14, rule: 'greater', value: 70 },
+        hl: { enabled: false, period: 20, rule: 'less', value: 0 },
+      },
+    };
+    const robotId = '7b0e5a52-6c1d-4f0e-9d53-0c1b8f6a2e11';
+
+    it('should send the indicators with the id of the authenticated user, not one from the body', async () => {
+      ROBOTS_CLIENT.send.mockClear();
+
+      const res = await request(app.getHttpServer())
+        .patch('/robot')
+        .send({ robotId, ...indicators, userId: 'another-user-id', ownerId: 'another-user-id' });
+
+      expect(res.status).toBe(200);
+      expect(ROBOTS_CLIENT.send).toHaveBeenCalledTimes(1);
+      expect(ROBOTS_CLIENT.send).toHaveBeenCalledWith(TCP_EVENTS.ROBOT_INDICATORS_UPSERT, {
+        payload: { robotId, open: indicators.open, close: indicators.close, userId: 'test-user-id' },
+        serviceToken: 'test-token',
+      });
+    });
   });
 
   /* ------ Account gate ------- */
@@ -244,6 +295,22 @@ describe('Gateway (e2e)', () => {
       const res = await request(app.getHttpServer()).post('/account').send({});
 
       expect(res.status).toBe(400);
+    });
+
+    it('should send the id of the authenticated user as userId and no user, not one from the body', async () => {
+      ACCOUNTS_CLIENT.send.mockClear();
+      const account = { exchange: 'binance', environment: 'test', apiKey: 'test-key', apiSecret: 'test-secret' };
+
+      const res = await request(app.getHttpServer())
+        .post('/account')
+        .send({ ...account, userId: 'another-user-id', user: { id: 'another-user-id' } });
+
+      expect(res.status).toBe(201);
+      expect(ACCOUNTS_CLIENT.send).toHaveBeenCalledTimes(1);
+      expect(ACCOUNTS_CLIENT.send).toHaveBeenCalledWith(TCP_EVENTS.ACCOUNT_CREATE, {
+        payload: { userId: 'test-user-id', account },
+        serviceToken: 'test-token',
+      });
     });
   });
 });

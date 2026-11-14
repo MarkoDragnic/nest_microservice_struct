@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ICandleWithIndicators, RsiRule } from '@app/common';
+import { ICandleWithIndicators, RsiRule } from '@app/contracts';
 
 type RsiIndicatorConfig = {
   enabled: boolean;

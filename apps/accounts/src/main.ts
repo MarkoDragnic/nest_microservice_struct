@@ -3,7 +3,7 @@ import { AccountsModule } from './accounts.module';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
-import { startMetricsServer } from '@app/common';
+import { startMetricsServer } from '@app/core';
 async function bootstrap() {
   const app = await NestFactory.create(AccountsModule);
   app.enableShutdownHooks();

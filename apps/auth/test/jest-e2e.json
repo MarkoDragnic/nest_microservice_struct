@@ -7,6 +7,11 @@
     "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "apps/auth/tsconfig.e2e.json" }]
   },
   "moduleNameMapper": {
-    "^@app/common(|/.*)$": "<rootDir>/../../libs/common/src/$1"
+    "^@app/contracts(|/.*)$": "<rootDir>/../../libs/contracts/src/$1",
+    "^@app/core(|/.*)$": "<rootDir>/../../libs/core/src/$1",
+    "^@app/messaging(|/.*)$": "<rootDir>/../../libs/messaging/src/$1",
+    "^@app/redis(|/.*)$": "<rootDir>/../../libs/redis/src/$1",
+    "^@app/postgres(|/.*)$": "<rootDir>/../../libs/postgres/src/$1",
+    "^@app/mongo(|/.*)$": "<rootDir>/../../libs/mongo/src/$1"
   }
 }

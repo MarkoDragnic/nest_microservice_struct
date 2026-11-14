@@ -5,19 +5,22 @@ import { ConfigModule } from '@nestjs/config';
 import path from 'path';
 import Joi from 'joi';
 import {
-  ClientTcpProviderService,
   GlobalRpcExceptionFilter,
   HealthModule,
-  POSITION_SERVICE,
-  RedisModule,
   LoggerModule,
-  ACCOUNTS_SERVICE,
-  PG_READ_SERVICE,
-  KafkaDlqModule,
   redisSchema,
   kafkaSchema,
   internalRpcSchema,
-} from '@app/common';
+} from '@app/core';
+import {
+  ClientTcpProviderService,
+  POSITION_SERVICE,
+  ACCOUNTS_SERVICE,
+  PG_READ_SERVICE,
+  KafkaDlqModule,
+} from '@app/messaging';
+import { RedisModule } from '@app/redis';
+import { MongoLogSinkModule } from '@app/mongo';
 import { TraderCloseRulesService } from './rules/trader-close-rules.service';
 import { TraderOpenRulesService } from './rules/trader-open-rules.service';
 import { IndicatorsModule } from './indicators';
@@ -31,11 +34,8 @@ import { TraderBinanceService } from './binance/trader-binance.service';
 
 @Module({
   imports: [
-    HealthModule.register(),
-    LoggerModule.forRoot(),
-    KafkaDlqModule.register(),
     ConfigModule.forRoot({
-      envFilePath: [path.resolve(process.cwd(), 'apps/trader/.env')],
+      envFilePath: [path.resolve(process.cwd(), 'apps/trader/.env'), path.resolve(process.cwd(), 'env/logger.env')],
       isGlobal: true,
       validationSchema: Joi.object({
         ...redisSchema,
@@ -54,6 +54,10 @@ import { TraderBinanceService } from './binance/trader-binance.service';
         BINANCE_TRADE_ENDPOINT: Joi.string().required(),
       }),
     }),
+    HealthModule.register(),
+    MongoLogSinkModule.forRoot(),
+    LoggerModule.forRoot(),
+    KafkaDlqModule.register(),
     RedisModule,
     ClientTcpProviderService.register({
       name: POSITION_SERVICE,

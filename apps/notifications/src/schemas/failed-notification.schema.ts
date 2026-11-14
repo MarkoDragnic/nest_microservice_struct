@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { AbstractDocument } from '@app/common';
+import { AbstractDocument } from '@app/mongo';
 import { NotificationChannel } from '../types/notification.types';
 
 @Schema({ timestamps: true, collection: 'failed_notifications' })

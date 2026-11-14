@@ -1,12 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IBinanceCredentials, IBinanceTradeSignal } from '../interfaces/binance.interface';
 import { type BinanceOrderSide, type BinanceOrderType } from '../types/binance.types';
-import { Account, ACCOUNTS_SERVICE, type IEncryptedPayload, Environment, TCP_EVENTS } from '@app/common';
+import { type IEncryptedPayload, Environment, TCP_EVENTS } from '@app/contracts';
+import { ACCOUNTS_SERVICE, ClientTcpService } from '@app/messaging';
+import type { AccountCredentials } from '@app/contracts/internal';
 import { ConfigService } from '@nestjs/config';
 import { createHmac } from 'node:crypto';
 import axios, { AxiosError } from 'axios';
 import { ClientProxy } from '@nestjs/microservices';
-import { ClientTcpService } from '@app/common/clients/client-tcp.service';
 
 @Injectable()
 export class TraderBinanceService {
@@ -51,15 +52,12 @@ export class TraderBinanceService {
     }
   }
 
-  async getCredentials(account: Account): Promise<IBinanceCredentials> {
+  async getCredentials(account: AccountCredentials): Promise<IBinanceCredentials> {
     if (!account || !account.apiKeyEncrypted || !account.apiSecretEncrypted) {
       throw new Error('Invalid account credentials');
     }
 
-    const baseUrl =
-      account.environment == Environment.SANDBOX
-        ? this.binanceTestUrl
-        : this.binanceProdUrl;
+    const baseUrl = account.environment == Environment.SANDBOX ? this.binanceTestUrl : this.binanceProdUrl;
 
     return {
       apiKey: await this.decrypt(account.apiKeyEncrypted),

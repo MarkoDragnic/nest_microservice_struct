@@ -6,7 +6,7 @@ services:
       dockerfile: apps/gateway/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/gateway/.env
     environment:
       AUTH_HTTP_HOST: auth
@@ -31,7 +31,7 @@ services:
       dockerfile: apps/auth/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/auth/.env
     environment:
       AUTH_TCP_HOST: 0.0.0.0
@@ -49,7 +49,7 @@ services:
       dockerfile: apps/accounts/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/accounts/.env
     environment:
       ACCOUNT_TCP_HOST: 0.0.0.0
@@ -65,7 +65,7 @@ services:
       dockerfile: apps/robots/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/robots/.env
     environment:
       ROBOTS_TCP_HOST: 0.0.0.0
@@ -83,7 +83,7 @@ services:
       dockerfile: apps/positions/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/positions/.env
     environment:
       POSITION_TCP_HOST: 0.0.0.0
@@ -101,7 +101,7 @@ services:
       dockerfile: apps/trader/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/trader/.env
     environment:
       POSITION_CLIENT_HOST: positions
@@ -120,7 +120,8 @@ services:
       dockerfile: apps/pg_write/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
+      - ./env/postgres.env
       - ./apps/pg_write/.env
     environment:
       PG_WRITE_TCP_HOST: 0.0.0.0
@@ -133,7 +134,8 @@ services:
       dockerfile: apps/pg_read/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
+      - ./env/postgres.env
       - ./apps/pg_read/.env
     environment:
       PG_READ_TCP_HOST: 0.0.0.0
@@ -146,7 +148,7 @@ services:
       dockerfile: apps/history_provider/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/history_provider/.env
     environment:
       HISTORY_TCP_HOST: 0.0.0.0
@@ -159,7 +161,7 @@ services:
       dockerfile: apps/indicators/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/indicators/.env
     environment:
       INDICATORS_TCP_HOST: 0.0.0.0
@@ -175,7 +177,7 @@ services:
       dockerfile: apps/price_calculator/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/price_calculator/.env
     networks:
       - microservices
@@ -186,7 +188,7 @@ services:
       dockerfile: apps/notifications/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/notifications/.env
     networks:
       - microservices
@@ -197,7 +199,7 @@ services:
       dockerfile: apps/price_provider/Dockerfile
       target: development
     env_file:
-      - ./libs/common/.env
+      - ./env/logger.env
       - ./apps/price_provider/.env
     environment:
       PRICE_PROVIDER_TCP_HOST: 0.0.0.0

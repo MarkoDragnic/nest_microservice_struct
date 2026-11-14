@@ -6,7 +6,8 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { GatewayOnlyGuard } from './guards/gateway-only.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth.guard';
-import { CurrentUser, User } from '@app/common';
+import { type AuthenticatedUser } from '@app/contracts';
+import { CurrentUser } from '@app/core';
 import { RefreshTokenPayload } from './interfaces/token-payload.interface';
 
 @ApiTags('auth')
@@ -16,14 +17,21 @@ export class AuthHttpController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: 'Login with email and password' })
-  @ApiBody({ schema: { properties: { email: { type: 'string', example: 'user@example.com' }, password: { type: 'string', example: 'P@ssw0rd1' } } } })
+  @ApiBody({
+    schema: {
+      properties: {
+        email: { type: 'string', example: 'user@example.com' },
+        password: { type: 'string', example: 'P@ssw0rd1' },
+      },
+    },
+  })
   @ApiResponse({ status: 201, description: 'Login successful, cookies set' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @ApiResponse({ status: 429, description: 'Rate limit exceeded' })
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@CurrentUser() user: User, @Res({ passthrough: true }) response: Response) {
+  async login(@CurrentUser() user: AuthenticatedUser, @Res({ passthrough: true }) response: Response) {
     if (!user.id) throw new InternalServerErrorException('Authenticated user has no id');
     await this.authService.login({ id: user.id }, response);
     return { ok: true };
@@ -36,10 +44,7 @@ export class AuthHttpController {
   @UseGuards(RefreshAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  async refresh(
-    @CurrentUser() payload: RefreshTokenPayload,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async refresh(@CurrentUser() payload: RefreshTokenPayload, @Res({ passthrough: true }) response: Response) {
     await this.authService.refresh(payload.userId, payload.tokenId, response);
     return { ok: true };
   }
@@ -51,12 +56,8 @@ export class AuthHttpController {
   @UseGuards(RefreshAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('logout')
-  async logout(
-    @CurrentUser() payload: RefreshTokenPayload,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async logout(@CurrentUser() payload: RefreshTokenPayload, @Res({ passthrough: true }) response: Response) {
     await this.authService.logout(payload.userId, payload.tokenId, response);
     return { ok: true };
   }
 }
-

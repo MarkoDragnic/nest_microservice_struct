@@ -1,5 +1,5 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { LoggerService } from '@app/common/logger';
+import { LoggerService } from '@app/core';
 
 import { CalculatorRegistryService } from './services/calculator/calculator-registry.service';
 import { ProviderRegistryService } from './services/provider-registry.service';

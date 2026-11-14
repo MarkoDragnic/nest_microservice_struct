@@ -5,8 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
-import { GlobalHttpExceptionFilter, CorrelationIdMiddleware, HttpMetricsInterceptor } from '@app/common';
-import { LoggerService } from '@app/common/logger';
+import { GlobalHttpExceptionFilter, CorrelationIdMiddleware, HttpMetricsInterceptor, LoggerService } from '@app/core';
 
 async function bootstrap() {
   const app = await NestFactory.create(AuthModule);
@@ -37,7 +36,7 @@ async function bootstrap() {
       port: configService.get('AUTH_TCP_PORT'),
     },
   });
-  
+
   await app.startAllMicroservices();
 
   await app.listen(configService.get('AUTH_HTTP_PORT') as string);

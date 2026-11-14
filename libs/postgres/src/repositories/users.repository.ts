@@ -1,0 +1,32 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { PostgresqlAbstractRepository } from '../postgresql-abstract.repository';
+import { User } from '../models';
+import { LoggerService } from '@app/core/logger';
+
+@Injectable()
+export class UsersRepository extends PostgresqlAbstractRepository<User> {
+  constructor(
+    @InjectRepository(User) userRepository: Repository<User>,
+    protected readonly logger: LoggerService,
+  ) {
+    super(userRepository);
+    this.logger.setContext(UsersRepository.name);
+  }
+
+  async findOneWithPassword(email: string): Promise<User> {
+    const user = await this.repository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.email = :email', { email })
+      .andWhere('user.isActive = :isActive', { isActive: true })
+      .getOne();
+
+    if (!user) {
+      this.logger.warn('User not found', { email });
+      throw new NotFoundException('Entity not found.');
+    }
+    return user;
+  }
+}

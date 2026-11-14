@@ -3,7 +3,7 @@ import rateLimit, { type Options as RateLimitOptions } from 'express-rate-limit'
 import { RedisStore } from 'rate-limit-redis';
 import Redis from 'ioredis';
 import type { Request, Response, NextFunction } from 'express';
-import { REDIS_CLIENT } from '@app/common';
+import { REDIS_CLIENT } from '@app/redis';
 
 @Injectable()
 export class AuthRateLimitMiddleware implements NestMiddleware {
@@ -20,8 +20,7 @@ export class AuthRateLimitMiddleware implements NestMiddleware {
 
     if (redisClient) {
       options.store = new RedisStore({
-        sendCommand: (...args: string[]) =>
-          redisClient.call(args[0] as string, ...args.slice(1)) as any,
+        sendCommand: (...args: string[]) => redisClient.call(args[0] as string, ...args.slice(1)) as any,
       });
     }
 

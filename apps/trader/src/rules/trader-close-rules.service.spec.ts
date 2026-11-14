@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TraderCloseRulesService } from './trader-close-rules.service';
 import { TakeProfitService, StopLossService, MinProfitService, RsiService, HlService } from '../indicators';
 import { ProfitTargetService } from '../indicators/profit-target.service';
-import { ICandleWithIndicators, ICloseIndicators, ProfitFactor, RsiRule, HlRule } from '@app/common';
+import { ICandleWithIndicators, ICloseIndicators, ProfitFactor, RsiRule, HlRule } from '@app/contracts';
 
 describe('TraderCloseRulesService', () => {
   let service: TraderCloseRulesService;
